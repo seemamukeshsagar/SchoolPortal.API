@@ -26,6 +26,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JWT");
 var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret not configured"));
