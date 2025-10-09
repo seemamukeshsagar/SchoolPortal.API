@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using SchoolPortal.API.DTOs;
 using SchoolPortal.API.DTOs.Company;
 using SchoolPortal.API.Interfaces.Repositories;
 using SchoolPortal.API.Interfaces.Services;
 using SchoolPortal.API.Models;
+using CompanyDto = SchoolPortal.API.DTOs.Company.CompanyDto;
 
 namespace SchoolPortal.API.Services
 {
@@ -73,5 +75,6 @@ namespace SchoolPortal.API.Services
             var cities = await _companyRepository.GetCitiesByStateIdAsync(stateId);
             return _mapper.Map<IEnumerable<CityDto>>(cities);
         }
+
     }
 }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SchoolPortal.API.DTOs;
 using SchoolPortal.API.DTOs.Company;
+using CompanyDto = SchoolPortal.API.DTOs.Company.CompanyDto;
 
 namespace SchoolPortal.API.Interfaces.Services
 {

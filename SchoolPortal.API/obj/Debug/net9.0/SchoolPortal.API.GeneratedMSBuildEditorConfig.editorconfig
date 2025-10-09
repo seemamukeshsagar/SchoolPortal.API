@@ -19,17 +19,13 @@ build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v9.0
 build_property.RootNamespace = SchoolPortal.API
 build_property.RootNamespace = SchoolPortal.API
-build_property.ProjectDir = C:\Workspace\SeemaMukeshSagar\SchoolPortal.API\SchoolPortal.API\
+build_property.ProjectDir = E:\SchoolPortal.API\SchoolPortal.API\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Workspace\SeemaMukeshSagar\SchoolPortal.API\SchoolPortal.API
+build_property.MSBuildProjectDirectory = E:\SchoolPortal.API\SchoolPortal.API
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
-
-[C:/Users/mukes/AppData/Roaming/SonarLint for Visual Studio/.global/csharp/SonarLint.xml]
-build_metadata.AdditionalFiles.TargetPath = 
-build_metadata.AdditionalFiles.CssScope = 
