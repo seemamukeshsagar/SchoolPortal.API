@@ -85,5 +85,69 @@
             <response code="200">Returns the list of cities</response>
             <response code="500">If an error occurs while retrieving cities</response>
         </member>
+        <member name="T:SchoolPortal.API.Controllers.SchoolController">
+            <summary>
+            Controller for managing school operations
+            </summary>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.GetAllSchools">
+            <summary>
+            Retrieves all schools
+            </summary>
+            <returns>A list of all schools</returns>
+            <response code="200">Returns the list of schools</response>
+            <response code="500">If an error occurs while retrieving schools</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.GetSchool(System.Guid)">
+            <summary>
+            Retrieves a specific school by ID
+            </summary>
+            <param name="id">The school ID</param>
+            <returns>The school if found</returns>
+            <response code="200">Returns the school</response>
+            <response code="404">If the school is not found</response>
+            <response code="500">If an error occurs while retrieving the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.CreateSchool(SchoolPortal.API.DTOs.School.CreateSchoolRequest)">
+            <summary>
+            Creates a new school
+            </summary>
+            <param name="request">The school creation request</param>
+            <returns>The created school</returns>
+            <response code="201">Returns the newly created school</response>
+            <response code="400">If the request is invalid</response>
+            <response code="500">If an error occurs while creating the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.UpdateSchool(System.Guid,SchoolPortal.API.DTOs.School.UpdateSchoolRequest)">
+            <summary>
+            Updates an existing school
+            </summary>
+            <param name="id">The school ID</param>
+            <param name="request">The school update request</param>
+            <returns>The updated school</returns>
+            <response code="200">Returns the updated school</response>
+            <response code="400">If the request is invalid or IDs don't match</response>
+            <response code="404">If the school is not found</response>
+            <response code="500">If an error occurs while updating the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.DeleteSchool(System.Guid)">
+            <summary>
+            Deletes a school by ID
+            </summary>
+            <param name="id">The school ID</param>
+            <returns>No content if successful</returns>
+            <response code="204">If the school is deleted successfully</response>
+            <response code="404">If the school is not found</response>
+            <response code="500">If an error occurs while deleting the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.GetSchoolsByCompany(System.Guid)">
+            <summary>
+            Retrieves all schools by company ID
+            </summary>
+            <param name="companyId">The company ID</param>
+            <returns>A list of schools for the specified company</returns>
+            <response code="200">Returns the list of schools</response>
+            <response code="500">If an error occurs while retrieving schools</response>
+        </member>
     </members>
 </doc>

@@ -1,0 +1,109 @@
+@model SchoolPortal.API.DTOs.School.SchoolDto
+
+@{
+    ViewData["Title"] = "School Details";
+}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">School Details</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">School Name</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Company</dt>
+            <dd class="col-sm-9">@Model.CompanyName</dd>
+
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Phone</dt>
+            <dd class="col-sm-9">@Model.Phone</dd>
+
+            <dt class="col-sm-3">Mobile</dt>
+            <dd class="col-sm-9">@Model.Mobile</dd>
+
+            <dt class="col-sm-3">Establishment Year</dt>
+            <dd class="col-sm-9">@Model.EstablishmentYear</dd>
+
+            <dt class="col-sm-3">Address</dt>
+            <dd class="col-sm-9">
+                @Model.Address1<br />
+                @if (!string.IsNullOrEmpty(Model.Address2))
+                {
+                    @Model.Address2<br />
+                }
+                @Model.CityName, @Model.StateName<br />
+                @Model.CountryName, @Model.ZipCode
+            </dd>
+
+            @if (!string.IsNullOrEmpty(Model.JudistrictionCityName))
+            {
+                <dt class="col-sm-3">Jurisdiction</dt>
+                <dd class="col-sm-9">
+                    @Model.JudistrictionCityName, @Model.JudistrictionStateName<br />
+                    @Model.JudistrictionCountryName
+                </dd>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.BankName))
+            {
+                <dt class="col-sm-3">Bank Information</dt>
+                <dd class="col-sm-9">
+                    <strong>Bank:</strong> @Model.BankName<br />
+                    <strong>Account Number:</strong> @Model.AccountNumber<br />
+                    <strong>Address:</strong><br />
+                    @Model.BankAddress1<br />
+                    @if (!string.IsNullOrEmpty(Model.BankAddress2))
+                    {
+                        @Model.BankAddress2<br />
+                    }
+                    @Model.BankCityName, @Model.BankStateName<br />
+                    @Model.BankCountryName, @Model.BankZipCode
+                </dd>
+            }
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Inactive</span>
+                }
+            </dd>
+
+            @if (!string.IsNullOrEmpty(Model.Status))
+            {
+                <dt class="col-sm-3">Status Details</dt>
+                <dd class="col-sm-9">
+                    <strong>Status:</strong> @Model.Status<br />
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <strong>Message:</strong> @Model.StatusMessage
+                    }
+                </dd>
+            }
+
+            <dt class="col-sm-3">Created Date</dt>
+            <dd class="col-sm-9">@Model.CreatedDate.ToString("MMM dd, yyyy")</dd>
+
+            @if (Model.ModifiedDate.HasValue)
+            {
+                <dt class="col-sm-3">Modified Date</dt>
+                <dd class="col-sm-9">@Model.ModifiedDate.Value.ToString("MMM dd, yyyy")</dd>
+            }
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

@@ -9,3 +9,4 @@ E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
