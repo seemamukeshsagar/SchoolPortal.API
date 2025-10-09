@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SchoolPortal.Web.styles.css" asp-append-version="true" />
+    <style>
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 150px);
+        }
+        .nav-sidebar {
+            width: 15%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -31,8 +47,12 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container main-container">
+        <nav class="nav-sidebar">
+            <partial name="_NavigationBar" />
+        </nav>
+        <main role="main" class="content-area">
             @RenderBody()
         </main>
     </div>

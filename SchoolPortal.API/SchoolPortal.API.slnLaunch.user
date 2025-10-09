@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "..\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
+        "Action": "StartWithoutDebugging"
+      },
+      {
+        "Path": "SchoolPortal.API.csproj",
+        "Action": "StartWithoutDebugging"
+      }
+    ]
+  }
+]
