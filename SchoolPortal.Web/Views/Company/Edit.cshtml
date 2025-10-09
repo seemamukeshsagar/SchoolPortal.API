@@ -1,15 +1,16 @@
-﻿@model SchoolPortal.Web.Models.Company.CreateCompanyViewModel
+@model SchoolPortal.Web.Models.Company.UpdateCompanyViewModel
 
 @{
-    ViewData["Title"] = "Create Company";
+    ViewData["Title"] = "Edit Company";
 }
 
 <div class="card">
     <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Create New Company</h4>
+        <h4 class="mb-0">Edit Company</h4>
     </div>
     <div class="card-body">
-        <form asp-action="Create" method="post" id="companyForm">
+        <form asp-action="Edit" method="post" id="companyForm">
+            <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             <div class="row mb-3">
@@ -45,8 +46,11 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.CountryName })" 
-                                class="form-select" id="countryDropdown">
+                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { 
+                            Value = c.Id.ToString(), 
+                            Text = c.CountryName,
+                            Selected = c.Id == Model.CountryId
+                        })" class="form-select" id="countryDropdown">
                             <option value="">-- Select Country --</option>
                         </select>
                         <span asp-validation-for="CountryId" class="text-danger"></span>
@@ -55,7 +59,12 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="StateId" class="form-label">State</label>
-                        <select asp-for="StateId" class="form-select" id="stateDropdown" disabled>
+                        <select asp-for="StateId" class="form-select" id="stateDropdown" 
+                                asp-items="Model.States.Select(s => new SelectListItem { 
+                                    Value = s.Id.ToString(), 
+                                    Text = s.StateName,
+                                    Selected = s.Id == Model.StateId
+                                })">
                             <option value="">-- Select State --</option>
                         </select>
                         <span asp-validation-for="StateId" class="text-danger"></span>
@@ -64,7 +73,12 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="CityId" class="form-label">City</label>
-                        <select asp-for="CityId" class="form-select" id="cityDropdown" disabled>
+                        <select asp-for="CityId" class="form-select" id="cityDropdown"
+                                asp-items="Model.Cities.Select(c => new SelectListItem { 
+                                    Value = c.Id.ToString(), 
+                                    Text = c.CityName,
+                                    Selected = c.Id == Model.CityId
+                                })">
                             <option value="">-- Select City --</option>
                         </select>
                         <span asp-validation-for="CityId" class="text-danger"></span>
@@ -83,7 +97,12 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label asp-for="JudistrictionArea" class="form-label">Jurisdiction Area</label>
-                        <select asp-for="JudistrictionArea" class="form-select" id="judistrictionAreaDropdown" disabled>
+                        <select asp-for="JudistrictionArea" class="form-select" id="judistrictionAreaDropdown"
+                                asp-items="Model.JudistrictionAreas.Select(j => new SelectListItem { 
+                                    Value = j.Id.ToString(), 
+                                    Text = j.CityName,
+                                    Selected = j.Id == Model.JudistrictionArea
+                                })">
                             <option value="">-- Select Jurisdiction Area --</option>
                         </select>
                         <span asp-validation-for="JudistrictionArea" class="text-danger"></span>
@@ -100,15 +119,32 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-check form-switch mt-4 pt-3">
-                        <input class="form-check-input" type="checkbox" asp-for="IsActive" checked>
-                        <label class="form-check-label" asp-for="IsActive"></label>
+                    <div class="form-group">
+                        <label asp-for="Status" class="form-label">Status</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="">-- Select Status --</option>
+                            <option value="Active" selected="@(Model.Status == "Active")">Active</option>
+                            <option value="Inactive" selected="@(Model.Status == "Inactive")">Inactive</option>
+                            <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
                     </div>
                 </div>
             </div>
 
+            <div class="form-group mb-3">
+                <label asp-for="StatusMessage" class="form-label">Status Message</label>
+                <textarea asp-for="StatusMessage" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="StatusMessage" class="text-danger"></span>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                <label class="form-check-label" asp-for="IsActive"></label>
+            </div>
+
             <div class="form-group mt-4">
-                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
                 <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
@@ -120,11 +156,27 @@
     
     <script>
         $(document).ready(function() {
+            // Initialize dropdowns
+            var countryId = '@Model.CountryId';
+            var stateId = '@Model.StateId';
+            var cityId = '@Model.CityId';
+            var judistrictionAreaId = '@Model.JudistrictionArea';
+
+            // Enable state dropdown if country is selected
+            if (countryId) {
+                $('#stateDropdown').prop('disabled', false);
+            }
+
+            // Enable city dropdown if state is selected
+            if (stateId) {
+                $('#cityDropdown, #judistrictionAreaDropdown').prop('disabled', false);
+            }
+
             // Country dropdown change event
             $('#countryDropdown').change(function() {
-                var countryId = $(this).val();
-                if (countryId) {
-                    loadStates(countryId);
+                var newCountryId = $(this).val();
+                if (newCountryId) {
+                    loadStates(newCountryId);
                 } else {
                     $('#stateDropdown').empty().prop('disabled', true).append('<option value="">-- Select State --</option>');
                     $('#cityDropdown, #judistrictionAreaDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
@@ -133,9 +185,9 @@
 
             // State dropdown change event
             $('#stateDropdown').change(function() {
-                var stateId = $(this).val();
-                if (stateId) {
-                    loadCities(stateId);
+                var newStateId = $(this).val();
+                if (newStateId) {
+                    loadCities(newStateId);
                 } else {
                     $('#cityDropdown, #judistrictionAreaDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
                 }
@@ -151,6 +203,12 @@
                         $.each(data, function() {
                             stateDropdown.append($('<option></option>').val(this.id).text(this.stateName));
                         });
+                        // Set the previously selected state if available
+                        if (stateId) {
+                            stateDropdown.val(stateId);
+                            // Trigger change to load cities
+                            stateDropdown.trigger('change');
+                        }
                     } else {
                         stateDropdown.append('<option value="">No states found</option>');
                     }
@@ -165,7 +223,7 @@
                     var cityDropdown = $('#cityDropdown');
                     var judistrictionDropdown = $('#judistrictionAreaDropdown');
                     
-                    cityDropdown.empty().append('<option value="">-- Select City --</option>').prop('disabled', false);
+                    cityDropdown.empty().append('<option value="">-- Select City --</option').prop('disabled', false);
                     judistrictionDropdown.empty().append('<option value="">-- Select Jurisdiction Area --</option>').prop('disabled', false);
                     
                     if (data && data.length > 0) {
@@ -173,6 +231,14 @@
                             cityDropdown.append($('<option></option>').val(this.id).text(this.cityName));
                             judistrictionDropdown.append($('<option></option>').val(this.id).text(this.cityName));
                         });
+                        
+                        // Set the previously selected city and jurisdiction area if available
+                        if (cityId) {
+                            cityDropdown.val(cityId);
+                        }
+                        if (judistrictionAreaId) {
+                            judistrictionDropdown.val(judistrictionAreaId);
+                        }
                     } else {
                         cityDropdown.append('<option value="">No cities found</option>');
                         judistrictionDropdown.append('<option value="">No jurisdiction areas found</option>');
@@ -181,63 +247,6 @@
                     alert('Error loading cities');
                 });
             }
-
-            // Initialize form validation
-            $('#companyForm').validate({
-                rules: {
-                    CompanyName: {
-                        required: true,
-                        maxlength: 100
-                    },
-                    Email: {
-                        email: true
-                    },
-                    CountryId: {
-                        required: true
-                    },
-                    StateId: {
-                        required: true
-                    },
-                    CityId: {
-                        required: true
-                    },
-                    JudistrictionArea: {
-                        required: true
-                    }
-                },
-                messages: {
-                    CompanyName: {
-                        required: "Please enter company name",
-                        maxlength: "Company name cannot exceed 100 characters"
-                    },
-                    Email: {
-                        email: "Please enter a valid email address"
-                    },
-                    CountryId: {
-                        required: "Please select a country"
-                    },
-                    StateId: {
-                        required: "Please select a state"
-                    },
-                    CityId: {
-                        required: "Please select a city"
-                    },
-                    JudistrictionArea: {
-                        required: "Please select a jurisdiction area"
-                    }
-                },
-                errorElement: 'span',
-                errorPlacement: function (error, element) {
-                    error.addClass('invalid-feedback');
-                    element.closest('.form-group').append(error);
-                },
-                highlight: function (element, errorClass, validClass) {
-                    $(element).addClass('is-invalid');
-                },
-                unhighlight: function (element, errorClass, validClass) {
-                    $(element).removeClass('is-invalid');
-                }
-            });
         });
     </script>
 }

@@ -3,6 +3,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Add HttpClient
+builder.Services.AddHttpClient();
+
+// Configure API settings
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
