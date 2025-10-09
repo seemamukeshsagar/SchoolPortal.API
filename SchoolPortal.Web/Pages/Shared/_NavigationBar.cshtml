@@ -82,12 +82,12 @@
 
                     <!-- Privileges -->
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingRoles">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
+                        <h2 class="accordion-header" id="headingPrivileges">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrivileges" aria-expanded="false" aria-controls="collapsePrivileges">
                                 Privileges
                             </button>
                         </h2>
-                        <div id="collapseRoles" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                        <div id="collapsePrivileges" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
                             <div class="accordion-body">
                                 <ul class="list-unstyled ps-3">
                                     <li><a href="@Url.Action("Index", "Privileges")">View List</a></li>
@@ -397,7 +397,7 @@
                 Payroll
             </button>
         </h2>
-        <div id="collapsePayroll" class="accordion-collapse collapse" aria-labelledby="headingPayroll" data-bs-parent="#accordionMenu">
+        <div id="collapsePayroll" class="accordion-collapse collapse" aria-labelledby="headingPayroll" data-bs-parent="#mainAccordion">
             <div class="accordion-body">
 
                 <!-- Masters -->
@@ -452,7 +452,7 @@
                 Reception
             </button>
         </h2>
-        <div id="collapseReception" class="accordion-collapse collapse" aria-labelledby="headingReception" data-bs-parent="#accordionMenu">
+        <div id="collapseReception" class="accordion-collapse collapse" aria-labelledby="headingReception" data-bs-parent="#mainAccordion">
             <div class="accordion-body">
                 <ul class="list-unstyled ms-3">
                     <li><a href="@Url.Action("Index", "Reception")">View Visitors</a></li>
@@ -470,10 +470,10 @@
                 Reports
             </button>
         </h2>
-        <div id="collapseReports" class="accordion-collapse collapse" aria-labelledby="headingReports" data-bs-parent="#accordionMenu">
+        <div id="collapseReports" class="accordion-collapse collapse" aria-labelledby="headingReports" data-bs-parent="#mainAccordion">
             <div class="accordion-body">
                 <ul class="list-unstyled ms-3">
-                    <li><a href="@Url.Action("Index", "Reports")">View All Reports</a></li
+                    <li><a href="@Url.Action("Index", "Reports")">View All Reports</a></li>
                     <li><a href="@Url.Action("FeesDefaulters", "Reports")">View Fees Defaulters</a></li>
                     <li><a href="@Url.Action("StudentICards", "Reports")">View Student ICards</a></li>
                     <li><a href="@Url.Action("ICards", "Reports")">I Card generation - Different Classes</a></li>

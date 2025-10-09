@@ -4,11 +4,13 @@
     "Projects": [
       {
         "Path": "..\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
-        "Action": "StartWithoutDebugging"
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
       },
       {
         "Path": "SchoolPortal.API.csproj",
-        "Action": "StartWithoutDebugging"
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
       }
     ]
   }

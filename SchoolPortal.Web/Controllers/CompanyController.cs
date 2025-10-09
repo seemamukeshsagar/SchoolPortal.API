@@ -14,7 +14,7 @@ using SchoolPortal.Web.Models.Company;
 
 namespace SchoolPortal.Web.Controllers
 {
-	[Authorize]
+	// [Authorize]
 	public class CompanyController : Controller
 	{
 		private readonly HttpClient _httpClient;

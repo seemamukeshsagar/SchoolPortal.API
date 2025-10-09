@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch SchoolPortal.API",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-api",
+            "program": "${workspaceFolder}/SchoolPortal.API/bin/Debug/net9.0/SchoolPortal.API.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/SchoolPortal.API",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/swagger"
+            }
+        },
+        {
+            "name": "Launch SchoolPortal.Web",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-web",
+            "program": "${workspaceFolder}/SchoolPortal.Web/bin/Debug/net9.0/SchoolPortal.Web.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/SchoolPortal.Web",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Launch Both Projects",
+            "configurations": [
+                "Launch SchoolPortal.API",
+                "Launch SchoolPortal.Web"
+            ],
+            "stopAll": true
+        }
+    ]
+}

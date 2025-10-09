@@ -16,7 +16,7 @@ namespace SchoolPortal.API.Controllers
 	/// </summary>
 	[ApiController]
 	[Route("api/[controller]")]
-	[Authorize]
+	// [Authorize]
 	[Produces("application/json")]
 	public class CompanyController : ControllerBase
 	{

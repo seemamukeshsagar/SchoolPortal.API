@@ -331,4 +331,3 @@ E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\SchoolPortal.API.xml
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\SchoolPortal.API.pdb
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\SchoolPortal.API.genruntimeconfig.cache
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\ref\SchoolPortal.API.dll
-E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

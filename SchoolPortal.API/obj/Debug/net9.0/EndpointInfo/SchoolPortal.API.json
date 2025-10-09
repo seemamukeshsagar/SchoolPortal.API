@@ -154,6 +154,667 @@
         }
       }
     },
+    "/api/Auth/check-username/{username}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Company": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves all companies",
+        "responses": {
+          "200": {
+            "description": "Returns the list of companies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving companies"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Creates a new company",
+        "requestBody": {
+          "description": "The company creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while creating the company"
+          }
+        }
+      }
+    },
+    "/api/Company/{id}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves a specific company by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the company is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving the company"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Updates an existing company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The company update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid or IDs don't match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the company is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while updating the company"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Deletes a company by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "If the company is deleted successfully"
+          },
+          "404": {
+            "description": "If the company is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while deleting the company"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/countries": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves all countries with their states and cities",
+        "responses": {
+          "200": {
+            "description": "Returns the list of countries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving locations"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/states/{countryId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves states by country ID",
+        "parameters": [
+          {
+            "name": "countryId",
+            "in": "path",
+            "description": "The country ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of states",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StateDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving states"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/cities/{stateId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves cities by state ID",
+        "parameters": [
+          {
+            "name": "stateId",
+            "in": "path",
+            "description": "The state ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of cities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving cities"
+          }
+        }
+      }
+    },
+    "/api/School": {
+      "get": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Retrieves all schools",
+        "responses": {
+          "200": {
+            "description": "Returns the list of schools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving schools"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Creates a new school",
+        "requestBody": {
+          "description": "The school creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSchoolRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSchoolRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSchoolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created school",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while creating the school"
+          }
+        }
+      }
+    },
+    "/api/School/{id}": {
+      "get": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Retrieves a specific school by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the school",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the school is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving the school"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Updates an existing school",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The school update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated school",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid or IDs don't match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the school is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while updating the school"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Deletes a school by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "If the school is deleted successfully"
+          },
+          "404": {
+            "description": "If the school is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while deleting the school"
+          }
+        }
+      }
+    },
+    "/api/School/company/{companyId}": {
+      "get": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Retrieves all schools by company ID",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of schools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving schools"
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [
@@ -196,6 +857,394 @@
   },
   "components": {
     "schemas": {
+      "CityDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyDto": {
+        "required": [
+          "address",
+          "cityName",
+          "companyName",
+          "countryName",
+          "description",
+          "email",
+          "establishmentYear",
+          "jurisdictionAreaName",
+          "stateName",
+          "status",
+          "statusMessage",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "zipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "establishmentYear": {
+            "type": "string",
+            "nullable": true
+          },
+          "jurisdictionArea": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "jurisdictionAreaName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CountryDto": {
+        "required": [
+          "countryCode",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryCode": {
+            "maxLength": 10,
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCompanyRequest": {
+        "required": [
+          "address",
+          "cityId",
+          "companyName",
+          "countryId",
+          "description",
+          "email",
+          "establishmentYear",
+          "jurisdictionArea",
+          "stateId",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^\\d{4}$",
+            "type": "string"
+          },
+          "jurisdictionArea": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSchoolRequest": {
+        "required": [
+          "address1",
+          "companyId",
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "address1": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "address2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "pattern": "^\\d{4}$",
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankName": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress1": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankZipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginRequest": {
         "type": "object",
         "properties": {
@@ -247,6 +1296,13 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "privileges": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -278,6 +1334,480 @@
         },
         "additionalProperties": { }
       },
+      "SchoolDto": {
+        "required": [
+          "address1",
+          "description",
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "address1": {
+            "type": "string",
+            "nullable": true
+          },
+          "address2": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "cityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "zipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "establishmentYear": {
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionStateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCountryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress1": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress2": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankStateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCountryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankZipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StateDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateCompanyRequest": {
+        "required": [
+          "address",
+          "cityId",
+          "companyName",
+          "countryId",
+          "description",
+          "email",
+          "establishmentYear",
+          "id",
+          "jurisdictionArea",
+          "stateId",
+          "status",
+          "statusMessage",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^\\d{4}$",
+            "type": "string"
+          },
+          "jurisdictionArea": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "statusMessage": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSchoolRequest": {
+        "required": [
+          "address1",
+          "companyId",
+          "email",
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "address1": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "address2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "pattern": "^\\d{4}$",
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankName": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress1": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankZipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "WeatherForecast": {
         "type": "object",
         "properties": {
@@ -305,7 +1835,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",
-        "description": "JWT Authorization header using the Bearer scheme. \r\n\t\t\t\t\t  Enter 'Bearer' [space] and then your token in the text input below.\r\n\t\t\t\t\t  Example: \"Bearer 12345abcdef\"",
+        "description": "JWT Authorization header using the Bearer scheme. \n                      Enter 'Bearer' [space] and then your token in the text input below.",
         "name": "Authorization",
         "in": "header"
       }

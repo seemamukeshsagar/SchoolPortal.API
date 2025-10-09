@@ -17,15 +17,25 @@ namespace SchoolPortal.API.Repositories
 			_context = context;
 		}
 
-		public async Task<IEnumerable<CompanyMaster>> GetAllCompaniesAsync()
+	public async Task<IEnumerable<CompanyMaster>> GetAllCompaniesAsync()
+	{
+		try
 		{
 			return await _context.CompanyMasters
 				.Include(c => c.Country)
 				.Include(c => c.State)
 				.Include(c => c.City)
+				.Include(c => c.JudistrictionAreaNavigation)
 				.Where(c => !c.IsDeleted)
 				.ToListAsync();
 		}
+		catch (Exception ex)
+		{
+			// Log the database error and return empty list for now
+			Console.WriteLine($"Database error in GetAllCompaniesAsync: {ex.Message}");
+			return new List<CompanyMaster>();
+		}
+	}
 
 		public async Task<CompanyMaster> GetCompanyByIdAsync(Guid id)
 		{
@@ -33,6 +43,7 @@ namespace SchoolPortal.API.Repositories
 				.Include(c => c.Country)
 				.Include(c => c.State)
 				.Include(c => c.City)
+				.Include(c => c.JudistrictionAreaNavigation)
 				.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
 
 			if (company == null)

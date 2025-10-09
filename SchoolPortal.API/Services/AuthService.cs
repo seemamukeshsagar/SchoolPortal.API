@@ -23,25 +23,29 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
-        var isValidUser = await _userRepository.ValidateUserCredentials(request.Username, request.Password);
-        if (!isValidUser)
+        var user = await _userRepository.GetUserByUsernameAsync(request.Username);
+        if (user == null || user.UserPassword != request.Password)
         {
             throw new UnauthorizedAccessException("Invalid username or password");
         }
 
-        var user = await _userRepository.GetUserByUsernameAsync(request.Username);
-        if (user == null)
-        {
-            throw new UnauthorizedAccessException("User not found");
-        }
-
-        var roles = await _userRepository.GetUserRolesAsync(user.Id);
         if (user.UserRoleId == null)
         {
             throw new InvalidOperationException("User does not have an assigned role");
         }
 
-        var privileges = await _userRepository.GetUserPrivilegesAsync((Guid)user.UserRoleId);
+        var roles = new List<string>();
+        if (user.UserRole != null)
+        {
+            roles.Add(user.UserRole.Name ?? "User");
+        }
+
+        var privileges = user.UserRole?.RolePrivileges
+            .Where(rp => rp.Privilege != null && rp.Privilege.IsActive && !rp.Privilege.IsDeleted)
+            .Select(rp => rp.Privilege.PrivilegeName!)
+            .Where(name => !string.IsNullOrEmpty(name))
+            .ToList() ?? new List<string>();
+
         var token = GenerateJwtToken(user, roles);
 
         return new LoginResponse
@@ -53,8 +57,8 @@ public class AuthService : IAuthService
             LastName = user.LastName,
             Token = new JwtSecurityTokenHandler().WriteToken(token),
             Expiration = token.ValidTo,
-            Roles = roles.ToList(),
-            Privileges = privileges.ToList()
+            Roles = roles,
+            Privileges = privileges
         };
     }
 

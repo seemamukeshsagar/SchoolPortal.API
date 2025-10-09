@@ -20,7 +20,15 @@ builder.Services.AddControllers();
 
 // Add DbContext with connection string from configuration
 builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions =>
+        {
+            sqlServerOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }));
 
 // Register repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -33,7 +41,7 @@ builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
 {
-    cfg.AddProfile<AutoMapperProfile>();
+    cfg.AddProfile<CompanyProfile>();
 }, typeof(Program).Assembly);
 
 // Configure JWT Authentication
@@ -120,8 +128,17 @@ builder.Services.AddSwaggerGen(c =>
     c.EnableAnnotations();
 });
 
-// Add CORS services
-builder.Services.AddCors();
+// Add CORS services with a development policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllForDevelopment", builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -135,11 +152,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Configure CORS
-app.UseCors(builder => builder
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
+// Enable CORS with the development policy
+app.UseCors("AllowAllForDevelopment");
 
 app.UseAuthentication();
 app.UseAuthorization();
