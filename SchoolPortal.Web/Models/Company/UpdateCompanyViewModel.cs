@@ -17,5 +17,11 @@ namespace SchoolPortal.Web.Models.Company
 
         public string? Status { get; set; }
         public string? StatusMessage { get; set; }
+
+        // Display name properties for showing current selections
+        public string? CountryName { get; set; }
+        public string? StateName { get; set; }
+        public string? CityName { get; set; }
+        public string? JurisdictionAreaName { get; set; }
     }
 }

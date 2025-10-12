@@ -1,70 +1,109 @@
-﻿@model IEnumerable<SchoolPortal.API.DTOs.Company.CompanyDto>
+@model IEnumerable<SchoolPortal.API.DTOs.Company.CompanyDto>
 
 @{
-    ViewData["Title"] = "Companies";
+	ViewData["Title"] = "Companies";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Companies</h2>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+	<h2>Companies</h2>
+	<a asp-action="Create" class="btn btn-primary">Create New</a>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+	<div class="alert alert-success alert-dismissible fade show" role="alert">
+		@TempData["SuccessMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		@TempData["ErrorMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
 }
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Company Name</th>
-                <th>Email</th>
-                <th>City</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.CompanyName</td>
-                    <td>@item.Email</td>
-                    <td>@item.CityName</td>
-                    <td>
-                        @if (item.IsActive)
-                        {
-                            <span class="badge bg-success">Active</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Inactive</span>
-                        }
-                    </td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm" 
-                                    onclick="return confirm('Are you sure you want to delete this company?')">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="container-fluid p-0">
+    <style>
+        .table-responsive {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            margin: 0;
+            table-layout: auto;
+        }
+        .btn-group {
+            white-space: nowrap;
+        }
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+    </style>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover m-0">
+		<thead class="table-dark">
+			<tr>
+				@* <th>ID</th> *@
+				<th>Company Name</th>
+				<th>Email</th>
+				<th>Address</th>
+				<th>City</th>
+				<th>State</th>
+				<th>Country</th>
+				<th>Jurisdiction</th>
+				<th>Zip Code</th>
+				<th>Established</th>
+				<th>Status</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					@* <td>@item.Id</td> *@
+					<td>@item.CompanyName</td>
+					<td>@item.Email</td>
+					<td>@item.Address</td>
+					<td>@item.CityName</td>
+					<td>@item.StateName</td>
+					<td>@item.CountryName</td>
+					<td>@item.JurisdictionAreaName</td>
+					<td>@item.ZipCode</td>
+					<td>@(string.IsNullOrEmpty(item.EstablishmentYear) ? "N/A" : item.EstablishmentYear)</td>
+					<td>
+						@if (item.IsActive)
+						{
+							<span class="badge bg-success">Active</span>
+						}
+						else
+						{
+							<span class="badge bg-secondary">Inactive</span>
+						}
+					</td>
+					<td>
+						<div class="btn-group" role="group">
+							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="View Details">
+								<i class="bi bi-eye"></i>
+							</a>
+							<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Edit">
+								<i class="bi bi-pencil"></i>
+							</a>
+							<form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+								<button type="submit" class="btn btn-danger btn-sm" 
+									onclick="return confirm('Are you sure you want to delete this company?')" title="Delete">
+									<i class="bi bi-trash"></i>
+								</button>
+							</form>
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 </div>

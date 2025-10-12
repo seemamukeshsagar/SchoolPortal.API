@@ -103,7 +103,6 @@ C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.AssemblyInfoInputs.cache
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.AssemblyInfo.cs
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.csproj.CoreCompileInputs.cache
-C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.MvcApplicationPartsAssemblyInfo.cs
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.MvcApplicationPartsAssemblyInfo.cache
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.RazorAssemblyInfo.cache
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.RazorAssemblyInfo.cs

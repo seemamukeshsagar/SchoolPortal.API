@@ -44,7 +44,8 @@ namespace SchoolPortal.API.Repositories
 				.Include(c => c.State)
 				.Include(c => c.City)
 				.Include(c => c.JudistrictionAreaNavigation)
-				.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+				.Where(c => c.Id == id && !c.IsDeleted)
+				.FirstOrDefaultAsync();
 
 			if (company == null)
 				throw new InvalidOperationException($"Company with Id '{id}' not found.");

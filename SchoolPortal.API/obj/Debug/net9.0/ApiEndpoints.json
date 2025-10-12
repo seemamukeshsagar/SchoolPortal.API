@@ -288,6 +288,35 @@
   },
   {
     "ContainingType": "SchoolPortal.API.Controllers.CompanyController",
+    "Method": "GetJurisdictionAreasByCity",
+    "RelativePath": "api/Company/locations/areas/{cityId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "cityId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[SchoolPortal.API.DTOs.CityDto, SchoolPortal.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 500
+      }
+    ]
+  },
+  {
+    "ContainingType": "SchoolPortal.API.Controllers.CompanyController",
     "Method": "GetCitiesByState",
     "RelativePath": "api/Company/locations/cities/{stateId}",
     "HttpMethod": "GET",

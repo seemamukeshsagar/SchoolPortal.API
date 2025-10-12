@@ -1,0 +1,497 @@
+﻿@* _Navigation.cshtml *@
+<div class="accordion" id="mainAccordion">
+
+    <!-- General -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingGeneral">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral" aria-expanded="false" aria-controls="collapseGeneral">
+                General
+            </button>
+        </h2>
+        <div id="collapseGeneral" class="accordion-collapse collapse" aria-labelledby="headingGeneral" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <div class="accordion" id="accordionGeneral">
+
+                    <!-- Companies -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingCompanies">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCompanies" aria-expanded="false" aria-controls="collapseCompanies">
+                                Companies
+                            </button>
+                        </h2>
+                        <div id="collapseCompanies" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "Company")">View List</a></li>
+                                    <li><a href="@Url.Action("Create", "Company")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schools -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSchools">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSchools" aria-expanded="false" aria-controls="collapseSchools">
+                                Schools
+                            </button>
+                        </h2>
+                        <div id="collapseSchools" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "School")">View List</a></li>
+                                    <li><a href="@Url.Action("Create", "School")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingUsers">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+                                Users
+                            </button>
+                        </h2>
+                        <div id="collapseUsers" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "Users")">View List</a></li>
+                                    <li><a href="@Url.Action("Create", "Users")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingRoles">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
+                                Roles
+                            </button>
+                        </h2>
+                        <div id="collapseRoles" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "Roles")">View List</a></li>
+                                    <li><a href="@Url.Action("Create", "Roles")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Privileges -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingPrivileges">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrivileges" aria-expanded="false" aria-controls="collapsePrivileges">
+                                Privileges
+                            </button>
+                        </h2>
+                        <div id="collapsePrivileges" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "Privileges")">View List</a></li>
+                                    <li><a href="@Url.Action("Create", "Privileges")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Parameters -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSystemParams">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSystemParams" aria-expanded="false" aria-controls="collapseSystemParams">
+                                System Parameters
+                            </button>
+                        </h2>
+                        <div id="collapseSystemParams" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "SystemParamter")">View List</a></li>
+                                    <li><a href="@Url.Action("Create", "SystemParamter")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Task Schedules -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTaskSchedules">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTaskSchedules" aria-expanded="false" aria-controls="collapseTaskSchedules">
+                                Task Schedules
+                            </button>
+                        </h2>
+                        <div id="collapseTaskSchedules" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("Index", "TaskSchedule")">View Task</a></li>
+                                    <li><a href="@Url.Action("Create", "TaskSchedule")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Holidays -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingHolidays">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHolidays" aria-expanded="false" aria-controls="collapseHolidays">
+                                Manage Holidays
+                            </button>
+                        </h2>
+                        <div id="collapseHolidays" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled ps-3">
+                                    <li><a href="@Url.Action("HolidayTypes", "Holiday")">View Holiday Type</a></li>
+                                    <li><a href="@Url.Action("Index", "Holiday")">View Holidays</a></li>
+                                    <li><a href="@Url.Action("Create", "Holiday")">Create New</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Masters -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingMasters">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMasters" aria-expanded="false" aria-controls="collapseMasters">
+                Masters
+            </button>
+        </h2>
+        <div id="collapseMasters" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "Categories")">View Categories</a></li>
+                    <li><a href="@Url.Action("Index", "StudentCategories")">Student Categories</a></li>
+                    <li><a href="@Url.Action("Index", "Class")">View Classes</a></li>
+                    <li><a href="@Url.Action("Index", "Section")">View Sections</a></li>
+                    <li><a href="@Url.Action("Index", "Subject")">View Subjects</a></li>
+                    <li><a href="@Url.Action("SubCategory", "Subject")">Subjects - Sub Categories</a></li>
+                    <li><a href="@Url.Action("Index", "Professions")">View Professions</a></li>
+                    <li><a href="@Url.Action("Index", "Qualification")">View Qualifications</a></li>
+                    <li><a href="@Url.Action("Index", "FeesCategory")">View Fees Categories</a></li>
+                    <li><a href="@Url.Action("Index", "DiscountCategory")">View Discount Categories</a></li>
+                    <li><a href="@Url.Action("Index", "Assessments")">View Assesments</a></li>
+                    <li><a href="@Url.Action("Index", "AttendenceReason")">View Attendance Reasons</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingClasses">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseClasses" aria-expanded="false" aria-controls="collapseClasses">
+                Classes
+            </button>
+        </h2>
+        <div id="collapseClasses" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "Class")">View Classes</a></li>
+                    <li><a href="@Url.Action("Create", "Class")">Create New</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingStudents">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStudents" aria-expanded="false" aria-controls="collapseStudents">
+                Students
+            </button>
+        </h2>
+        <div id="collapseStudents" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "Students")">View Students</a></li>
+                    <li><a href="@Url.Action("Create", "Students")">Create Students</a></li>
+                    <li><a href="@Url.Action("ViewParents", "Students")">View Parents</a></li>
+                    <li><a href="@Url.Action("ViewAttendence", "Students")">View Attendance</a></li>
+                    <li><a href="@Url.Action("DeleteAttendence", "Students")">Delete Attendance</a></li>
+                    <li><a href="@Url.Action("CommitAttendence", "Students")">Commit Student Attendance</a></li>
+                    <li><a href="@Url.Action("ViewAttendenceHistory", "Students")">View Attendance History</a></li>
+                    <li><a href="@Url.Action("ViewAbsenteeList", "Students")">View Absent Notification</a></li>
+                    <li><a href="@Url.Action("ViewStudentHistory", "Students")">View Student History</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teachers -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTeachers">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeachers" aria-expanded="false" aria-controls="collapseTeachers">
+                Teachers
+            </button>
+        </h2>
+        <div id="collapseTeachers" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "Teacher")">View Teachers</a></li>
+                    <li><a href="@Url.Action("Create", "Teacher")">Create Teachers</a></li>
+                    <li><a href="@Url.Action("ClassTeacher", "Teacher")">View Teacher Classes</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exams -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingExams">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExams" aria-expanded="false" aria-controls="collapseExams">
+                Exams
+            </button>
+        </h2>
+        <div id="collapseExams" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Edit", "Examination")">Edit Marks</a></li>
+                    <li><a href="@Url.Action("GenerateReportCard", "Examination")">Generate Report Cards</a></li>
+                    <li><a href="@Url.Action("Index", "Examination")">View Report Cards</a></li>
+                    <li><a href="@Url.Action("CommitToHistory", "Examination")">Commit To History</a></li>
+                    <li><a href="@Url.Action("ViewHistory", "Examination")">View History</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Table -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTimeTable">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTimeTable" aria-expanded="false" aria-controls="collapseTimeTable">
+                Time Table
+            </button>
+        </h2>
+        <div id="collapseTimeTable" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "TimeTable")">View TimeTable Setup</a></li>
+                    <li><a href="@Url.Action("TimeTablePeriods", "TimeTable")">View TimeTable Periods</a></li>
+                    <li><a href="@Url.Action("TimeTableClassPeriods", "TimeTable")">Setup TimeTable Class Periods</a></li>
+                    <li><a href="@Url.Action("Generate", "TimeTable")">Generate TimeTable Data</a></li>
+                    <li><a href="@Url.Action("TimeTableByClass", "TimeTable")">View TimeTable By Class</a></li>
+                    <li><a href="@Url.Action("TimeTableByTeacher", "TimeTable")">View TimeTable By Teacher</a></li>
+                    <li><a href="@Url.Action("TimeTableSubstitution", "TimeTable")">View TimeTable Substitution</a></li>
+                    <li><a href="@Url.Action("TimeTableReport", "TimeTable")">TimeTable Substitution Report</a></li>
+                    <li><a href="@Url.Action("TimeTableByClassHistory", "TimeTable")">View History TimeTable By Class</a></li>
+                    <li><a href="@Url.Action("TimeTableByTeacherHistory", "TimeTable")">View History TimeTable By Teacher</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bills -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingBills">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBills" aria-expanded="false" aria-controls="collapseBills">
+                Bills
+            </button>
+        </h2>
+        <div id="collapseBills" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "ExpenseCategory")">View Expense Categories</a></li>
+                    <li><a href="@Url.Action("Index", "Vendor")">View Vendors</a></li>
+                    <li><a href="@Url.Action("Index", "Bill")">View Bills</a></li>
+                    <li><a href="@Url.Action("Create", "Bill")">Create Bill</a></li>
+                    <li><a href="@Url.Action("Index", "Voucher")">View Vouchers</a></li>
+                    <li><a href="@Url.Action("Create", "Voucher")">Create Voucher</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fees -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFees">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFees" aria-expanded="false" aria-controls="collapseFees">
+                Fees
+            </button>
+        </h2>
+        <div id="collapseFees" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "Fees")">View Fees Categories Classes</a></li>
+                    <li><a href="@Url.Action("GenerateData", "Fees")">Generate Fees Data</a></li>
+                    <li><a href="@Url.Action("ViewPayments", "Fees")">View Fees Payment</a></li>
+                    <li><a href="@Url.Action("Edit", "Fees")">Edit Fees Amount</a></li>
+                    <li><a href="@Url.Action("CommitFees", "Fees")">Commit Fees Data</a></li>
+                    <li><a href="@Url.Action("FeesHistory", "Fees")">View Fees History Data</a></li>
+                    <li><a href="@Url.Action("FeesCollection", "Fees")">View Fees Collection Data</a></li>
+                    <li><a href="@Url.Action("Receipts", "Fees")">View Fees Receipt</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transport -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTransport">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransport" aria-expanded="false" aria-controls="collapseTransport">
+                Transport
+            </button>
+        </h2>
+        <div id="collapseTransport" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Locations", "Transport")">View Locations</a></li>
+                    <li><a href="@Url.Action("Index", "Transport")">View Vehicles</a></li>
+                    <li><a href="@Url.Action("Drivers", "Transport")">View Drivers</a></li>
+                    <li><a href="@Url.Action("Cleaners", "Transport")">View Cleaners</a></li>
+                    <li><a href="@Url.Action("Routes", "Transport")">View Routes</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingInventory">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInventory" aria-expanded="false" aria-controls="collapseInventory">
+                Inventory
+            </button>
+        </h2>
+        <div id="collapseInventory" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("ItemTypes", "Inventory")">View Item Types</a></li>
+                    <li><a href="@Url.Action("ItemLocation", "Inventory")">View Item Locations</a></li>
+                    <li><a href="@Url.Action("Index", "Inventory")">View Items</a></li>
+                    <li><a href="@Url.Action("ViewInventory", "Inventory")">View Inventory</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Library -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingLibrary">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLibrary" aria-expanded="false" aria-controls="collapseLibrary">
+                Library
+            </button>
+        </h2>
+        <div id="collapseLibrary" class="accordion-collapse collapse" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ps-3">
+                    <li><a href="@Url.Action("Index", "Library")">View Book Types</a></li>
+                    <li><a href="@Url.Action("BookCategory", "Library")">View Book Categories</a></li>
+                    <li><a href="@Url.Action("Authors", "Library")">View Authors</a></li>
+                    <li><a href="@Url.Action("Publishers", "Library")">View Publishers</a></li>
+                    <li><a href="@Url.Action("Suppliers", "Library")">View Suppliers</a></li>
+                    <li><a href="@Url.Action("ViewBooks", "Library")">View Books</a></li>
+                    <li><a href="@Url.Action("ViewTransactions", "Library")">View Book Transactions</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+	<!-- Payroll -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingPayroll">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayroll" aria-expanded="false" aria-controls="collapsePayroll">
+                Payroll
+            </button>
+        </h2>
+        <div id="collapsePayroll" class="accordion-collapse collapse" aria-labelledby="headingPayroll" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+
+                <!-- Masters -->
+                <strong>Masters</strong>
+                <ul class="list-unstyled ms-3 mb-2">
+                    <li><a href="@Url.Action("ViewDepartment", "Payroll")">View Departments</a></li>
+                    <li><a href="@Url.Action("ViewDesignation", "Payroll")">View Designations</a></li>
+                    <li><a href="@Url.Action("ViewPaymentModes", "Payroll")">View Payment Modes</a></li>
+                    <li><a href="@Url.Action("ViewGrades", "Payroll")">View Grades</a></li>
+                    <li><a href="@Url.Action("ViewEmployeeTypes", "Payroll")">View Employee Types</a></li>
+                    <li><a href="@Url.Action("ViewEmployeeCategory", "Payroll")">View Employee Categories</a></li>
+                    <li><a href="@Url.Action("ViewEmployeeList", "Payroll")">View Employee List</a></li>
+                </ul>
+
+                <!-- Attendance -->
+                <strong>Attendance</strong>
+                <ul class="list-unstyled ms-3 mb-2">
+                    <li><a href="@Url.Action("Index", "Attendance")">View Employee Attendance</a></li>
+                    <li><a href="@Url.Action("Delete", "Attendance")">Delete Employee Attendance</a></li>
+                    <li><a href="@Url.Action("Commit", "Attendance")">Commit Employee Attendance</a></li>
+                    <li><a href="@Url.Action("History", "Attendance")">View Emp Attendance History</a></li>
+                    <li><a href="@Url.Action("Report", "Attendance")">View Emp Attendance Report</a></li>
+                </ul>
+
+                <!-- Leaves -->
+                <strong>Leaves</strong>
+                <ul class="list-unstyled ms-3 mb-2">
+                    <li><a href="@Url.Action("Index", "Leaves")">View Leave Types</a></li>
+                    <li><a href="@Url.Action("ViewCategory", "Leaves")">View Category Leave Types</a></li>
+                    <li><a href="@Url.Action("GenerateLeaveData", "Leaves")">Generate Employee Leaves</a></li>
+                </ul>
+
+                <!-- Salary -->
+                <strong>Salary</strong>
+                <ul class="list-unstyled ms-3">
+                    <li><a href="@Url.Action("Index", "Salary")">View Salary Heads</a></li>
+                    <li><a href="@Url.Action("DesigGrades", "Salary")">View Salary Desig Grades</a></li>
+                    <li><a href="@Url.Action("Structure", "Salary")">Generate Emp Salary Structure</a></li>
+                    <li><a href="@Url.Action("EmpSalaryData", "Salary")">Generate Emp Salary Data</a></li>
+                    <li><a href="@Url.Action("Views", "Salary")">View Emp Salary Data</a></li>
+                    <li><a href="@Url.Action("Commit", "Salary")">Commit Emp Salary Data</a></li>
+                    <li><a href="@Url.Action("ViewHistory", "Salary")">View Emp Salary History Data</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reception -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingReception">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReception" aria-expanded="false" aria-controls="collapseReception">
+                Reception
+            </button>
+        </h2>
+        <div id="collapseReception" class="accordion-collapse collapse" aria-labelledby="headingReception" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ms-3">
+                    <li><a href="@Url.Action("Index", "Reception")">View Visitors</a></li>
+                    <li><a href="@Url.Action("Registrations", "Reception")">View Registrations</a></li>
+                    <li><a href="@Url.Action("Report", "Reception")">View Registration Report</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports -->
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingReports">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReports" aria-expanded="false" aria-controls="collapseReports">
+                Reports
+            </button>
+        </h2>
+        <div id="collapseReports" class="accordion-collapse collapse" aria-labelledby="headingReports" data-bs-parent="#mainAccordion">
+            <div class="accordion-body">
+                <ul class="list-unstyled ms-3">
+                    <li><a href="@Url.Action("Index", "Reports")">View All Reports</a></li>
+                    <li><a href="@Url.Action("FeesDefaulters", "Reports")">View Fees Defaulters</a></li>
+                    <li><a href="@Url.Action("StudentICards", "Reports")">View Student ICards</a></li>
+                    <li><a href="@Url.Action("ICards", "Reports")">I Card generation - Different Classes</a></li>
+                    <li><a href="@Url.Action("GendorReport", "Reports")">View Gendor Report</a></li>
+                    <li><a href="@Url.Action("Attendence", "Reports")">View Attendance Report</a></li>
+                    <li><a href="@Url.Action("AttendenceSummary", "Reports")">View Attendance Summary Report</a></li>
+                    <li><a href="@Url.Action("AgeGradeReport", "Reports")">View Age Grade Report</a></li>
+                    <li><a href="@Url.Action("StudentSummary", "Reports")">View Student Summary Report</a></li>
+                    <li><a href="@Url.Action("TimeTableByClass", "Reports")">View TimeTable By Class</a></li>
+                    <li><a href="@Url.Action("TimeTableByTeacher", "Reports")">View TimeTable By Teacher</a></li>
+                    <li><a href="@Url.Action("TimeTableByAllTeachers", "Reports")">View TimeTable All Teacher</a></li>
+                    <li><a href="@Url.Action("TimeTableBySchool", "Reports")">View TimeTable School</a></li>
+                    <li><a href="@Url.Action("TimeTableBySchoolSummary", "Reports")">Time Table - By School</a></li>
+                    <li><a href="@Url.Action("ViewTeachersReport", "Reports")">View Teachers Report</a></li>
+                    <li><a href="@Url.Action("ViewTeacherDetails", "Reports")">View Teachers Detail</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>

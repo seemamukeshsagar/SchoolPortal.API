@@ -11,7 +11,7 @@ namespace SchoolPortal.Web.Controllers
 	public class AccountController : Controller
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		private const string ApiBaseUrl = "https://localhost:5001/api/"; // Update with your API URL
+		private const string ApiBaseUrl = "https://localhost:7185/api/"; // Update with your API URL
 
 		public AccountController(IHttpClientFactory httpClientFactory)
 		{
@@ -40,11 +40,11 @@ namespace SchoolPortal.Web.Controllers
 			{
 				var client = _httpClientFactory.CreateClient();
 				var content = new StringContent(
-					JsonSerializer.Serialize(new { model.Email, model.Password }),
+					JsonSerializer.Serialize(new { model.UserName, model.Password }),
 					Encoding.UTF8,
 					"application/json");
 
-				var response = await client.PostAsync($"{ApiBaseUrl}account/login", content);
+				var response = await client.PostAsync($"{ApiBaseUrl}Auth/login", content);
 				
 				if (response.IsSuccessStatusCode)
 				{
@@ -85,5 +85,12 @@ namespace SchoolPortal.Web.Controllers
 			}
 			return RedirectToAction(nameof(HomeController.Index), "Home");
 		}
+
+		[HttpGet]
+		public IActionResult AccessDenied()
+		{
+			return View();
+		}
+
 	}
 }

@@ -546,6 +546,44 @@
         }
       }
     },
+    "/api/Company/locations/areas/{cityId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves jurisdiction areas by city ID",
+        "parameters": [
+          {
+            "name": "cityId",
+            "in": "path",
+            "description": "The city ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of jurisdiction areas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving jurisdiction areas"
+          }
+        }
+      }
+    },
     "/api/School": {
       "get": {
         "tags": [
@@ -1835,7 +1873,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",
-        "description": "JWT Authorization header using the Bearer scheme. \r\n                      Enter 'Bearer' [space] and then your token in the text input below.",
+        "description": "JWT Authorization header using the Bearer scheme. \r\n\t\t\t\t\t\tEnter 'Bearer' [space] and then your token in the text input below.",
         "name": "Authorization",
         "in": "header"
       }

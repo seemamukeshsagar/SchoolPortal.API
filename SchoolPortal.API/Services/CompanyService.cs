@@ -75,6 +75,5 @@ namespace SchoolPortal.API.Services
             var cities = await _companyRepository.GetCitiesByStateIdAsync(stateId);
             return _mapper.Map<IEnumerable<CityDto>>(cities);
         }
-
     }
 }

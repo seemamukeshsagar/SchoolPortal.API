@@ -18,7 +18,7 @@ public class UserRepository : IUserRepository
 		return await _context.UserDetails
 			.Include(u => u.UserRole)
 			.ThenInclude(r => r.RolePrivileges.Where(rp => rp.IsActive && !rp.IsDeleted))
-			.ThenInclude(rp => rp.Privilege)
+			.ThenInclude(rp => rp.Privilege!)
 			.FirstOrDefaultAsync(u => u.UserName == username && !u.IsDeleted && u.IsActive);
 	}
 

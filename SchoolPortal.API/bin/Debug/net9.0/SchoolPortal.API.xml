@@ -85,6 +85,15 @@
             <response code="200">Returns the list of cities</response>
             <response code="500">If an error occurs while retrieving cities</response>
         </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.GetJurisdictionAreasByCity(System.Guid)">
+            <summary>
+            Retrieves jurisdiction areas by city ID
+            </summary>
+            <param name="cityId">The city ID</param>
+            <returns>A list of jurisdiction areas for the specified city</returns>
+            <response code="200">Returns the list of jurisdiction areas</response>
+            <response code="500">If an error occurs while retrieving jurisdiction areas</response>
+        </member>
         <member name="T:SchoolPortal.API.Controllers.SchoolController">
             <summary>
             Controller for managing school operations

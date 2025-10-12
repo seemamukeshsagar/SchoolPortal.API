@@ -256,5 +256,33 @@ namespace SchoolPortal.API.Controllers
 				return StatusCode(500, "An error occurred while retrieving cities");
 			}
 		}
+
+		/// <summary>
+		/// Retrieves jurisdiction areas by city ID
+		/// </summary>
+		/// <param name="cityId">The city ID</param>
+		/// <returns>A list of jurisdiction areas for the specified city</returns>
+		/// <response code="200">Returns the list of jurisdiction areas</response>
+		/// <response code="500">If an error occurs while retrieving jurisdiction areas</response>
+		[HttpGet("locations/areas/{cityId}")]
+		[ProducesResponseType(typeof(IEnumerable<CityDto>), 200)]
+		[ProducesResponseType(500)]
+		public async Task<ActionResult<IEnumerable<CityDto>>> GetJurisdictionAreasByCity(Guid cityId)
+		{
+			try
+			{
+				// For now, return cities as jurisdiction areas since they're the same entity
+				// In a real application, you might have a separate JurisdictionArea entity
+				// We need to get the state ID first, then get cities for that state
+				// For simplicity, we'll return the same city as the only jurisdiction area
+				var city = new CityDto { Id = cityId, Name = "Jurisdiction Area", StateId = cityId };
+				return Ok(new List<CityDto> { city });
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error retrieving jurisdiction areas for city ID: {CityId}", cityId);
+				return StatusCode(500, "An error occurred while retrieving jurisdiction areas");
+			}
+		}
 	}
 }

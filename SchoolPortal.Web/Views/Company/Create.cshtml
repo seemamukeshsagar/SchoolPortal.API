@@ -82,11 +82,11 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="JudistrictionArea" class="form-label">Jurisdiction Area</label>
-                        <select asp-for="JudistrictionArea" class="form-select" id="judistrictionAreaDropdown" disabled>
+                        <label asp-for="JurisdictionArea" class="form-label">Jurisdiction Area</label>
+                        <select asp-for="JurisdictionArea" class="form-select" id="judistrictionAreaDropdown" disabled>
                             <option value="">-- Select Jurisdiction Area --</option>
                         </select>
-                        <span asp-validation-for="JudistrictionArea" class="text-danger"></span>
+                        <span asp-validation-for="JurisdictionArea" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -201,7 +201,7 @@
                     CityId: {
                         required: true
                     },
-                    JudistrictionArea: {
+                    JurisdictionArea: {
                         required: true
                     }
                 },
@@ -222,7 +222,7 @@
                     CityId: {
                         required: "Please select a city"
                     },
-                    JudistrictionArea: {
+                    JurisdictionArea: {
                         required: "Please select a jurisdiction area"
                     }
                 },

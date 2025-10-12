@@ -26,6 +26,10 @@ namespace SchoolPortal.API.Mappings
             CreateMap<CountryMaster, CountryDto>();
             CreateMap<StateMaster, StateDto>();
             CreateMap<CityMaster, CityDto>();
+
+            // Add mapping for the anonymous type returned by GetAllCompaniesAsync
+            // Note: This mapping is removed as dynamic operations are not allowed in expression trees
+            // The mapping should be handled manually in the service layer instead
         }
     }
 }
