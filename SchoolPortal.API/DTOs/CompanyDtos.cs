@@ -1,54 +1,16 @@
+// This file is obsolete and kept for backward compatibility.
+// Please use the DTOs in the Company folder instead.
+
 using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace SchoolPortal.API.DTOs
 {
-    public class CompanyDto
-    {
-        public int Id { get; set; }
-        [Required]
-        [MaxLength(100)]
-        public required string Name { get; set; }
-        public required string Address { get; set; }
-        [MaxLength(20)]
-        public required string PhoneNumber { get; set; }
-        [EmailAddress]
-        [MaxLength(100)]
-        public required string Email { get; set; }
-        public bool IsActive { get; set; } = true;
-        public DateTime CreatedDate { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public int? ModifiedBy { get; set; }
-        public int? SchoolId { get; set; }
-    }
+    [Obsolete("This DTO is obsolete. Please use SchoolPortal.API.DTOs.Company.CompanyDto instead.")]
+    public class CompanyDto { }
 
-    public class CreateCompanyDto
-    {
-        [Required]
-        [MaxLength(100)]
-        public required string Name { get; set; }
-        public required string Address { get; set; }
-        [MaxLength(20)]
-        public required string PhoneNumber { get; set; }
-        [EmailAddress]
-        [MaxLength(100)]
-        public required string Email { get; set; }
-        public int? SchoolId { get; set; }
-    }
-
-    public class UpdateCompanyDto
-    {
-        [Required]
-        [MaxLength(100)]
-        public required string Name { get; set; }
-        public required string Address { get; set; }
-        [MaxLength(20)]
-        public required string PhoneNumber { get; set; }
-        [EmailAddress]
-        [MaxLength(100)]
-        public required string Email { get; set; }
-        public bool IsActive { get; set; } = true;
-        public int? SchoolId { get; set; }
-    }
+    [Obsolete("This DTO is obsolete. Please use SchoolPortal.API.DTOs.Company.CreateCompanyRequest instead.")]
+    public class CreateCompanyDto { }
+    
+    [Obsolete("This DTO is obsolete. Please use SchoolPortal.API.DTOs.Company.UpdateCompanyRequest instead.")]
+    public class UpdateCompanyDto { }
 }

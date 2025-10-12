@@ -2,293 +2,230 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using SchoolPortal.API.DTOs;
+using Microsoft.Extensions.Logging;
 using SchoolPortal.API.DTOs.Company;
+using SchoolPortal.API.DTOs;
 using SchoolPortal.Web.Models.Company;
+
+// Configure JSON serialization options
+public static class JsonOptions
+{
+    public static readonly JsonSerializerOptions Default = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        ReferenceHandler = ReferenceHandler.IgnoreCycles
+    };
+}
 
 namespace SchoolPortal.Web.Controllers
 {
-	// [Authorize]
-	public class CompanyController : Controller
-	{
-		private readonly HttpClient _httpClient;
-		private readonly IConfiguration _configuration;
-		private readonly string _apiBaseUrl;
+    [Authorize]
+    public class CompanyController : Controller
+    {
+        private readonly HttpClient _httpClient;
+        private readonly string _apiBaseUrl;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<CompanyController> _logger;
+        private const int CacheDurationHours = 1;
 
-		public CompanyController(IConfiguration configuration, IHttpClientFactory httpClientFactory)
-		{
-			_configuration = configuration;
-			_httpClient = httpClientFactory.CreateClient();
-			_apiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "/api/company";
-		}
-		[HttpGet]
-		public async Task<IActionResult> Index()
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        public CompanyController(
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IMemoryCache cache,
+            ILogger<CompanyController> logger)
+        {
+            _httpClient = httpClientFactory.CreateClient();
+            _apiBaseUrl = configuration["ApiSettings:BaseUrl"] + "/api/company";
+            _cache = cache;
+            _logger = logger;
+        }
 
-				var response = await _httpClient.GetAsync(_apiBaseUrl);
-				response.EnsureSuccessStatusCode();
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            try
+            {
+                var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				var content = await response.Content.ReadAsStringAsync();
-				var companies = JsonConvert.DeserializeObject<List<API.DTOs.CompanyDto>>(content);
+                var companies = await _cache.GetOrCreateAsync("AllCompanies", async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheDurationHours);
+                    var response = await _httpClient.GetAsync(_apiBaseUrl);
+                    response.EnsureSuccessStatusCode();
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<SchoolPortal.API.DTOs.Company.CompanyDto>>(content, JsonOptions.Default) 
+                        ?? new List<SchoolPortal.API.DTOs.Company.CompanyDto>();
+                });
 
-				return View(companies);
-			}
-			catch (Exception)
-			{
-				TempData["ErrorMessage"] = "Error retrieving companies. Please try again.";
-				return View(new List<API.DTOs.CompanyDto>());
-			}
-		}	
+                return View(companies);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving companies");
+                TempData["ErrorMessage"] = "Error retrieving companies. Please try again.";
+                return View(new List<SchoolPortal.API.DTOs.Company.CompanyDto>());
+            }
+        }
 
-		[HttpGet]
-		public async Task<IActionResult> Details(Guid id)
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            try
+            {
+                var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
-				response.EnsureSuccessStatusCode();
+                var company = await _cache.GetOrCreateAsync($"Company_{id}", async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                    var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
+                    response.EnsureSuccessStatusCode();
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<SchoolPortal.API.DTOs.Company.CompanyDto>(content, JsonOptions.Default);
+                });
 
-				var content = await response.Content.ReadAsStringAsync();
-				var company = JsonConvert.DeserializeObject<API.DTOs.CompanyDto>(content);
+                if (company == null)
+                {
+                    _logger.LogWarning("Company with ID {CompanyId} not found", id);
+                    return NotFound();
+                }
 
-				return View(company);
-			}
-			catch (Exception)
-			{
-				TempData["ErrorMessage"] = "Company not found.";
-				return RedirectToAction(nameof(Index));
-			}
-		}
+                return View(company);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving company with ID {CompanyId}", id);
+                TempData["ErrorMessage"] = "Error retrieving company details.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
-		[HttpGet]
-		public async Task<IActionResult> Create()
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        [HttpGet]
+        public async Task<IActionResult> GetStatesByCountry(Guid countryId)
+        {
+            try
+            {
+                var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				var model = new CreateCompanyViewModel
-				{
-					CompanyName = string.Empty,
-					Description = string.Empty,
-					Address = string.Empty,
-					ZipCode = string.Empty,
-					Email = string.Empty,
-					EstablishmentYear = string.Empty
-				};
-				await LoadDropdownData(model);
-				return View(model);
-			}
-			catch (Exception)
-			{
-				TempData["ErrorMessage"] = "Error loading form. Please try again.";
-				return RedirectToAction(nameof(Index));
-			}
-		}
+                var states = await _cache.GetOrCreateAsync($"States_{countryId}", async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheDurationHours);
+                    var response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/states/{countryId}");
+                    response.EnsureSuccessStatusCode();
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<StateDto>>(content, JsonOptions.Default)
+                        ?? new List<StateDto>();
+                });
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create(CreateCompanyViewModel model)
-		{
-			if (!ModelState.IsValid)
-			{
-				await LoadDropdownData(model);
-				return View(model);
-			}
+                return Json(states);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving states for country {CountryId}", countryId);
+                return Json(new List<StateDto>());
+            }
+        }
 
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        [HttpGet]
+        public async Task<IActionResult> GetCitiesByState(Guid stateId)
+        {
+            try
+            {
+                var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				var response = await _httpClient.PostAsJsonAsync(_apiBaseUrl, model);
-				response.EnsureSuccessStatusCode();
+                var cities = await _cache.GetOrCreateAsync($"Cities_{stateId}", async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheDurationHours);
+                    var response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/cities/{stateId}");
+                    response.EnsureSuccessStatusCode();
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<CityDto>>(content, JsonOptions.Default)
+                        ?? new List<CityDto>();
+                });
 
-				TempData["SuccessMessage"] = "Company created successfully!";
-				return RedirectToAction(nameof(Index));
-			}
-			catch (Exception)
-			{
-				ModelState.AddModelError(string.Empty, "Error creating company. Please try again.");
-				await LoadDropdownData(model);
-				return View(model);
-			}
-		}
+                return Json(cities);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving cities for state {StateId}", stateId);
+                return Json(new List<CityDto>());
+            }
+        }
 
-		[HttpGet]
-		public async Task<IActionResult> Edit(Guid id)
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        private async Task LoadDropdownDataAsync(CompanyBaseViewModel model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
 
-				var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
-				response.EnsureSuccessStatusCode();
+            try
+            {
+                // Ensure Authorization header
+                var token = HttpContext.Session.GetString("JWToken");
+                if (!string.IsNullOrEmpty(token))
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				var content = await response.Content.ReadAsStringAsync();
-				var model = JsonConvert.DeserializeObject<UpdateCompanyViewModel>(content);
+                // Load Countries
+                model.Countries = await GetCachedApiDataAsync<List<CountryDto>>(
+                    "Countries",
+                    $"{_apiBaseUrl}/locations/countries"
+                ) ?? new List<CountryDto>();
 
-				await LoadDropdownData(model);
-				return View(model);
-			}
-			catch (Exception ex)
-			{
-				ModelState.AddModelError(string.Empty, "Error loading company data. Please try again.");
-				return RedirectToAction(nameof(Index));
-			}
-		}
+                // Load States
+                model.States = model.CountryId != Guid.Empty
+                    ? await GetCachedApiDataAsync<List<StateDto>>(
+                        $"States_{model.CountryId}",
+                        $"{_apiBaseUrl}/locations/states/{model.CountryId}"
+                      ) ?? new List<StateDto>()
+                    : new List<StateDto>();
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(Guid id, UpdateCompanyViewModel model)
-		{
-			if (!ModelState.IsValid)
-			{
-				await LoadDropdownData(model);
-				return View(model);
-			}
+                // Load Cities + Jurisdiction Areas
+                model.Cities = model.StateId != Guid.Empty
+                    ? await GetCachedApiDataAsync<List<CityDto>>(
+                        $"Cities_{model.StateId}",
+                        $"{_apiBaseUrl}/locations/cities/{model.StateId}"
+                      ) ?? new List<CityDto>()
+                    : new List<CityDto>();
 
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                model.JudistrictionAreas = model.Cities?.ToList() ?? new List<CityDto>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading dropdown data");
 
-				var response = await _httpClient.PutAsJsonAsync($"{_apiBaseUrl}/{id}", model);
-				response.EnsureSuccessStatusCode();
+                model.Countries = new List<CountryDto>();
+                model.States = new List<StateDto>();
+                model.Cities = new List<CityDto>();
+                model.JudistrictionAreas = new List<CityDto>();
+            }
+        }
 
-				TempData["SuccessMessage"] = "Company updated successfully!";
-				return RedirectToAction(nameof(Index));
-			}
-			catch (Exception)
-			{
-				ModelState.AddModelError(string.Empty, "Error updating company. Please try again.");
-				await LoadDropdownData(model);
-				return View(model);
-			}
-		}
+        /// <summary>
+        /// Helper method that gets data from cache or API.
+        /// </summary>
+        private async Task<T?> GetCachedApiDataAsync<T>(string cacheKey, string apiUrl)
+        {
+            return await _cache.GetOrCreateAsync(cacheKey, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheDurationHours);
 
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Delete(Guid id)
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var response = await _httpClient.GetAsync(apiUrl).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
 
-				var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}/{id}");
-				response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                return JsonSerializer.Deserialize<T>(content, JsonOptions.Default);
+            }).ConfigureAwait(false);
+        }
 
-				TempData["SuccessMessage"] = "Company deleted successfully!";
-				return RedirectToAction(nameof(Index));
-			}
-			catch (Exception)
-			{
-				ModelState.AddModelError(string.Empty, "Error deleting company. Please try again.");
-				return View();
-			}
-		}
-
-		[HttpGet]
-		public async Task<IActionResult> GetStatesByCountry(Guid countryId)
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-				var response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/states/{countryId}");
-				response.EnsureSuccessStatusCode();
-
-				var content = await response.Content.ReadAsStringAsync();
-				var states = JsonConvert.DeserializeObject<List<StateDto>>(content);
-
-				return Json(states);
-			}
-			catch (Exception)
-			{
-				ModelState.AddModelError(string.Empty, "Error retrieving states. Please try again.");
-				return Json(new List<StateDto>());
-			}
-		}
-
-		[HttpGet]
-		public async Task<IActionResult> GetCityByState(Guid stateId)
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-				var response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/cities/{stateId}");
-				response.EnsureSuccessStatusCode();
-
-				var content = await response.Content.ReadAsStringAsync();
-				var cities = JsonConvert.DeserializeObject<List<CityDto>>(content);
-
-				return Json(cities);
-			}
-			catch (Exception)
-			{
-				ModelState.AddModelError(string.Empty, "Error retrieving cities. Please try again.");
-				return Json(new List<CityDto>());
-			}
-		}
-		
-		private async Task LoadDropdownData(CompanyBaseViewModel model)
-		{
-			try
-			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-				var response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/countries");
-				response.EnsureSuccessStatusCode();
-
-				var content = await response.Content.ReadAsStringAsync();
-				model.Countries = JsonConvert.DeserializeObject<List<CountryDto>>(content);
-
-				if (model.CountryId != Guid.Empty)
-				{
-					response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/states/{model.CountryId}");
-					response.EnsureSuccessStatusCode();
-					var statesContent = await response.Content.ReadAsStringAsync();
-					model.States = JsonConvert.DeserializeObject<List<StateDto>>(statesContent);
-				}
-
-				if (model.StateId != Guid.Empty)
-				{
-					response = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/cities/{model.StateId}");
-					response.EnsureSuccessStatusCode();
-					var citiesContent = await response.Content.ReadAsStringAsync();
-					model.Cities = JsonConvert.DeserializeObject<List<CityDto>>(citiesContent);
-				}
-
-				// Set Judistriction Area options to be the same as Cities
-				model.JudistrictionAreas = model.Cities;
-			}
-			catch (Exception)
-			{
-				// Handle error or log it
-				model.Countries = new List<CountryDto>();
-				model.States = new List<StateDto>();
-				model.Cities = new List<CityDto>();
-				model.JudistrictionAreas = new List<CityDto>();
-			}
-		}
-	}
+    }
 }

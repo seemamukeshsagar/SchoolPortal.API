@@ -71,7 +71,7 @@ namespace SchoolPortal.Web.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Logout()
+		public IActionResult Logout()
 		{
 			// Handle logout (e.g., clear auth cookies)
 			return RedirectToAction("Index", "Home");

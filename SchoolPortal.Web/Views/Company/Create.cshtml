@@ -1,4 +1,4 @@
-﻿@model SchoolPortal.Web.Models.Company.CreateCompanyViewModel
+@model SchoolPortal.Web.Models.Company.CreateCompanyViewModel
 
 @{
     ViewData["Title"] = "Create Company";
@@ -45,7 +45,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.CountryName })" 
+                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })" 
                                 class="form-select" id="countryDropdown">
                             <option value="">-- Select Country --</option>
                         </select>
@@ -149,7 +149,7 @@
                     
                     if (data && data.length > 0) {
                         $.each(data, function() {
-                            stateDropdown.append($('<option></option>').val(this.id).text(this.stateName));
+                            stateDropdown.append($('<option></option>').val(this.id).text(this.name));
                         });
                     } else {
                         stateDropdown.append('<option value="">No states found</option>');
@@ -170,8 +170,8 @@
                     
                     if (data && data.length > 0) {
                         $.each(data, function() {
-                            cityDropdown.append($('<option></option>').val(this.id).text(this.cityName));
-                            judistrictionDropdown.append($('<option></option>').val(this.id).text(this.cityName));
+                            cityDropdown.append($('<option></option>').val(this.id).text(this.name));
+                            judistrictionDropdown.append($('<option></option>').val(this.id).text(this.name));
                         });
                     } else {
                         cityDropdown.append('<option value="">No cities found</option>');

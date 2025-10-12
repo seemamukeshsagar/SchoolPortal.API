@@ -2905,23 +2905,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Mukesh Sagar\\.nuget\\packages\\": {},
+    "C:\\Users\\mukes\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\SchoolPortal.API\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
+      "projectUniqueName": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
       "projectName": "SchoolPortal.Web",
-      "projectPath": "E:\\SchoolPortal.API\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
-      "packagesPath": "C:\\Users\\Mukesh Sagar\\.nuget\\packages\\",
-      "outputPath": "E:\\SchoolPortal.API\\SchoolPortal.Web\\obj\\",
+      "projectPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
+      "packagesPath": "C:\\Users\\mukes\\.nuget\\packages\\",
+      "outputPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Mukesh Sagar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\mukes\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2937,8 +2937,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "E:\\SchoolPortal.API\\SchoolPortal.API\\SchoolPortal.API.csproj": {
-              "projectPath": "E:\\SchoolPortal.API\\SchoolPortal.API\\SchoolPortal.API.csproj"
+            "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj": {
+              "projectPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj"
             }
           }
         }

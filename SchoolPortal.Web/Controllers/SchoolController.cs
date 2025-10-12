@@ -184,6 +184,12 @@ namespace SchoolPortal.Web.Controllers
 				var content = await response.Content.ReadAsStringAsync();
 				var schoolDto = JsonConvert.DeserializeObject<SchoolDto>(content);
 
+				if (schoolDto == null)
+				{
+					ModelState.AddModelError(string.Empty, "School not found.");
+					return RedirectToAction(nameof(Index));
+				}
+
 				var model = new UpdateSchoolViewModel
 				{
 					Id = schoolDto.Id,
@@ -219,7 +225,7 @@ namespace SchoolPortal.Web.Controllers
 				await LoadDropdownData(model);
 				return View(model);
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				ModelState.AddModelError(string.Empty, "Error loading school data. Please try again.");
 				return RedirectToAction(nameof(Index));
@@ -388,13 +394,13 @@ namespace SchoolPortal.Web.Controllers
 				var companiesResponse = await _httpClient.GetAsync(_companyApiBaseUrl);
 				companiesResponse.EnsureSuccessStatusCode();
 				var companiesContent = await companiesResponse.Content.ReadAsStringAsync();
-				model.Companies = JsonConvert.DeserializeObject<List<CompanyDto>>(companiesContent);
+				model.Companies = JsonConvert.DeserializeObject<List<CompanyDto>>(companiesContent) ?? new List<CompanyDto>();
 
 				// Load countries
 				var countriesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/countries");
 				countriesResponse.EnsureSuccessStatusCode();
 				var countriesContent = await countriesResponse.Content.ReadAsStringAsync();
-				model.Countries = JsonConvert.DeserializeObject<List<CountryDto>>(countriesContent);
+				model.Countries = JsonConvert.DeserializeObject<List<CountryDto>>(countriesContent) ?? new List<CountryDto>();
 
 				// Load states if country is selected
 				if (model.CountryId != Guid.Empty)
@@ -402,7 +408,7 @@ namespace SchoolPortal.Web.Controllers
 					var statesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.CountryId}");
 					statesResponse.EnsureSuccessStatusCode();
 					var statesContent = await statesResponse.Content.ReadAsStringAsync();
-					model.States = JsonConvert.DeserializeObject<List<StateDto>>(statesContent);
+					model.States = JsonConvert.DeserializeObject<List<StateDto>>(statesContent) ?? new List<StateDto>();
 				}
 
 				// Load cities if state is selected
@@ -411,7 +417,7 @@ namespace SchoolPortal.Web.Controllers
 					var citiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.StateId}");
 					citiesResponse.EnsureSuccessStatusCode();
 					var citiesContent = await citiesResponse.Content.ReadAsStringAsync();
-					model.Cities = JsonConvert.DeserializeObject<List<CityDto>>(citiesContent);
+					model.Cities = JsonConvert.DeserializeObject<List<CityDto>>(citiesContent) ?? new List<CityDto>();
 				}
 
 				// Load jurisdiction countries (same as regular countries)
@@ -423,7 +429,7 @@ namespace SchoolPortal.Web.Controllers
 					var jurStatesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.JudistrictionCountryId}");
 					jurStatesResponse.EnsureSuccessStatusCode();
 					var jurStatesContent = await jurStatesResponse.Content.ReadAsStringAsync();
-					model.JudistrictionStates = JsonConvert.DeserializeObject<List<StateDto>>(jurStatesContent);
+					model.JudistrictionStates = JsonConvert.DeserializeObject<List<StateDto>>(jurStatesContent) ?? new List<StateDto>();
 				}
 
 				// Load jurisdiction cities if jurisdiction state is selected
@@ -432,7 +438,7 @@ namespace SchoolPortal.Web.Controllers
 					var jurCitiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.JudistrictionStateId}");
 					jurCitiesResponse.EnsureSuccessStatusCode();
 					var jurCitiesContent = await jurCitiesResponse.Content.ReadAsStringAsync();
-					model.JudistrictionCities = JsonConvert.DeserializeObject<List<CityDto>>(jurCitiesContent);
+					model.JudistrictionCities = JsonConvert.DeserializeObject<List<CityDto>>(jurCitiesContent) ?? new List<CityDto>();
 				}
 
 				// Load bank countries (same as regular countries)
@@ -444,7 +450,7 @@ namespace SchoolPortal.Web.Controllers
 					var bankStatesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.BankCountryId}");
 					bankStatesResponse.EnsureSuccessStatusCode();
 					var bankStatesContent = await bankStatesResponse.Content.ReadAsStringAsync();
-					model.BankStates = JsonConvert.DeserializeObject<List<StateDto>>(bankStatesContent);
+					model.BankStates = JsonConvert.DeserializeObject<List<StateDto>>(bankStatesContent) ?? new List<StateDto>();
 				}
 
 				// Load bank cities if bank state is selected
@@ -453,7 +459,7 @@ namespace SchoolPortal.Web.Controllers
 					var bankCitiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.BankStateId}");
 					bankCitiesResponse.EnsureSuccessStatusCode();
 					var bankCitiesContent = await bankCitiesResponse.Content.ReadAsStringAsync();
-					model.BankCities = JsonConvert.DeserializeObject<List<CityDto>>(bankCitiesContent);
+					model.BankCities = JsonConvert.DeserializeObject<List<CityDto>>(bankCitiesContent) ?? new List<CityDto>();
 				}
 			}
 			catch (Exception)

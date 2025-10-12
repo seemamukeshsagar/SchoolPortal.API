@@ -48,7 +48,7 @@
                         <label asp-for="CountryId" class="form-label">Country</label>
                         <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { 
                             Value = c.Id.ToString(), 
-                            Text = c.CountryName,
+                            Text = c.Name,
                             Selected = c.Id == Model.CountryId
                         })" class="form-select" id="countryDropdown">
                             <option value="">-- Select Country --</option>
@@ -62,7 +62,7 @@
                         <select asp-for="StateId" class="form-select" id="stateDropdown" 
                                 asp-items="Model.States.Select(s => new SelectListItem { 
                                     Value = s.Id.ToString(), 
-                                    Text = s.StateName,
+                                    Text = s.Name,
                                     Selected = s.Id == Model.StateId
                                 })">
                             <option value="">-- Select State --</option>
@@ -76,7 +76,7 @@
                         <select asp-for="CityId" class="form-select" id="cityDropdown"
                                 asp-items="Model.Cities.Select(c => new SelectListItem { 
                                     Value = c.Id.ToString(), 
-                                    Text = c.CityName,
+                                    Text = c.Name,
                                     Selected = c.Id == Model.CityId
                                 })">
                             <option value="">-- Select City --</option>
@@ -100,7 +100,7 @@
                         <select asp-for="JudistrictionArea" class="form-select" id="judistrictionAreaDropdown"
                                 asp-items="Model.JudistrictionAreas.Select(j => new SelectListItem { 
                                     Value = j.Id.ToString(), 
-                                    Text = j.CityName,
+                                    Text = j.Name,
                                     Selected = j.Id == Model.JudistrictionArea
                                 })">
                             <option value="">-- Select Jurisdiction Area --</option>

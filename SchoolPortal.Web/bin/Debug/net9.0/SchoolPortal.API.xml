@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SchoolPortal.API</name>
+    </assembly>
+    <members>
+        <member name="T:SchoolPortal.API.Controllers.CompanyController">
+            <summary>
+            Controller for managing company operations
+            </summary>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.GetAllCompanies">
+            <summary>
+            Retrieves all companies
+            </summary>
+            <returns>A list of all companies</returns>
+            <response code="200">Returns the list of companies</response>
+            <response code="500">If an error occurs while retrieving companies</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.GetCompany(System.Guid)">
+            <summary>
+            Retrieves a specific company by ID
+            </summary>
+            <param name="id">The company ID</param>
+            <returns>The company if found</returns>
+            <response code="200">Returns the company</response>
+            <response code="404">If the company is not found</response>
+            <response code="500">If an error occurs while retrieving the company</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.CreateCompany(SchoolPortal.API.DTOs.Company.CreateCompanyRequest)">
+            <summary>
+            Creates a new company
+            </summary>
+            <param name="request">The company creation request</param>
+            <returns>The created company</returns>
+            <response code="201">Returns the newly created company</response>
+            <response code="400">If the request is invalid</response>
+            <response code="500">If an error occurs while creating the company</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.UpdateCompany(System.Guid,SchoolPortal.API.DTOs.Company.UpdateCompanyRequest)">
+            <summary>
+            Updates an existing company
+            </summary>
+            <param name="id">The company ID</param>
+            <param name="request">The company update request</param>
+            <returns>The updated company</returns>
+            <response code="200">Returns the updated company</response>
+            <response code="400">If the request is invalid or IDs don't match</response>
+            <response code="404">If the company is not found</response>
+            <response code="500">If an error occurs while updating the company</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.DeleteCompany(System.Guid)">
+            <summary>
+            Deletes a company by ID
+            </summary>
+            <param name="id">The company ID</param>
+            <returns>No content if successful</returns>
+            <response code="204">If the company is deleted successfully</response>
+            <response code="404">If the company is not found</response>
+            <response code="500">If an error occurs while deleting the company</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.GetCountriesWithStatesAndCities">
+            <summary>
+            Retrieves all countries with their states and cities
+            </summary>
+            <returns>A list of countries with states and cities</returns>
+            <response code="200">Returns the list of countries</response>
+            <response code="500">If an error occurs while retrieving locations</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.GetStatesByCountry(System.Guid)">
+            <summary>
+            Retrieves states by country ID
+            </summary>
+            <param name="countryId">The country ID</param>
+            <returns>A list of states for the specified country</returns>
+            <response code="200">Returns the list of states</response>
+            <response code="500">If an error occurs while retrieving states</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.CompanyController.GetCitiesByState(System.Guid)">
+            <summary>
+            Retrieves cities by state ID
+            </summary>
+            <param name="stateId">The state ID</param>
+            <returns>A list of cities for the specified state</returns>
+            <response code="200">Returns the list of cities</response>
+            <response code="500">If an error occurs while retrieving cities</response>
+        </member>
+        <member name="T:SchoolPortal.API.Controllers.SchoolController">
+            <summary>
+            Controller for managing school operations
+            </summary>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.GetAllSchools">
+            <summary>
+            Retrieves all schools
+            </summary>
+            <returns>A list of all schools</returns>
+            <response code="200">Returns the list of schools</response>
+            <response code="500">If an error occurs while retrieving schools</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.GetSchool(System.Guid)">
+            <summary>
+            Retrieves a specific school by ID
+            </summary>
+            <param name="id">The school ID</param>
+            <returns>The school if found</returns>
+            <response code="200">Returns the school</response>
+            <response code="404">If the school is not found</response>
+            <response code="500">If an error occurs while retrieving the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.CreateSchool(SchoolPortal.API.DTOs.School.CreateSchoolRequest)">
+            <summary>
+            Creates a new school
+            </summary>
+            <param name="request">The school creation request</param>
+            <returns>The created school</returns>
+            <response code="201">Returns the newly created school</response>
+            <response code="400">If the request is invalid</response>
+            <response code="500">If an error occurs while creating the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.UpdateSchool(System.Guid,SchoolPortal.API.DTOs.School.UpdateSchoolRequest)">
+            <summary>
+            Updates an existing school
+            </summary>
+            <param name="id">The school ID</param>
+            <param name="request">The school update request</param>
+            <returns>The updated school</returns>
+            <response code="200">Returns the updated school</response>
+            <response code="400">If the request is invalid or IDs don't match</response>
+            <response code="404">If the school is not found</response>
+            <response code="500">If an error occurs while updating the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.DeleteSchool(System.Guid)">
+            <summary>
+            Deletes a school by ID
+            </summary>
+            <param name="id">The school ID</param>
+            <returns>No content if successful</returns>
+            <response code="204">If the school is deleted successfully</response>
+            <response code="404">If the school is not found</response>
+            <response code="500">If an error occurs while deleting the school</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolController.GetSchoolsByCompany(System.Guid)">
+            <summary>
+            Retrieves all schools by company ID
+            </summary>
+            <param name="companyId">The company ID</param>
+            <returns>A list of schools for the specified company</returns>
+            <response code="200">Returns the list of schools</response>
+            <response code="500">If an error occurs while retrieving schools</response>
+        </member>
+    </members>
+</doc>

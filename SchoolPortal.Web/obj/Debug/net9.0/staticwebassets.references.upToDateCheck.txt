@@ -11,3 +11,17 @@ E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 E:\SchoolPortal.API\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
