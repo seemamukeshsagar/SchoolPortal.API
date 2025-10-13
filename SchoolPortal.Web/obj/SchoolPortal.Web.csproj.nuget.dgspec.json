@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj": {}
+    "C:\\Mukesh.Sagar\\SchoolPortal.Web\\SchoolPortal.Web.csproj": {}
   },
   "projects": {
-    "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj": {
+    "C:\\Mukesh.Sagar\\SchoolPortal.API\\SchoolPortal.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
+        "projectUniqueName": "C:\\Mukesh.Sagar\\SchoolPortal.API\\SchoolPortal.API.csproj",
         "projectName": "SchoolPortal.API",
-        "projectPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
+        "projectPath": "C:\\Mukesh.Sagar\\SchoolPortal.API\\SchoolPortal.API.csproj",
         "packagesPath": "C:\\Users\\mukes\\.nuget\\packages\\",
-        "outputPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\obj\\",
+        "outputPath": "C:\\Mukesh.Sagar\\SchoolPortal.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -45,7 +45,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -123,18 +123,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.1.25451.107/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj": {
+    "C:\\Mukesh.Sagar\\SchoolPortal.Web\\SchoolPortal.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
+        "projectUniqueName": "C:\\Mukesh.Sagar\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
         "projectName": "SchoolPortal.Web",
-        "projectPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
+        "projectPath": "C:\\Mukesh.Sagar\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
         "packagesPath": "C:\\Users\\mukes\\.nuget\\packages\\",
-        "outputPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\obj\\",
+        "outputPath": "C:\\Mukesh.Sagar\\SchoolPortal.Web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -156,8 +156,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj": {
-                "projectPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj"
+              "C:\\Mukesh.Sagar\\SchoolPortal.API\\SchoolPortal.API.csproj": {
+                "projectPath": "C:\\Mukesh.Sagar\\SchoolPortal.API\\SchoolPortal.API.csproj"
               }
             }
           }
@@ -172,7 +172,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -206,7 +206,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.1.25451.107/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

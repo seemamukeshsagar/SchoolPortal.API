@@ -1,10 +1,16 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SchoolPortal.Web.Models;
+using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
+using SchoolPortal.API.Models;  // This is where SchoolPortalNewContext is located
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add HTTP context accessor
+builder.Services.AddHttpContextAccessor();
 
 // Add session services
 builder.Services.AddSession(options =>
@@ -47,6 +53,13 @@ builder.Services.AddCors(options =>
 // Add HttpClient
 builder.Services.AddHttpClient();
 
+// Add DbContext
+builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register LocationService
+builder.Services.AddScoped<SchoolPortal.API.Interfaces.ILocationService, SchoolPortal.API.Services.LocationService>();
+
 // Configure API settings
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
@@ -56,6 +69,13 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.Lax;
     options.Secure = CookieSecurePolicy.Always;
     options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+});
+
+// In Program.cs of the Web project
+builder.Services.AddHttpClient("LocationApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
 
 // Configure cookie settings

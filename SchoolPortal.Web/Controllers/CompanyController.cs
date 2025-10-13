@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -12,8 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SchoolPortal.API.DTOs.Company;
 using SchoolPortal.API.DTOs;
+using SchoolPortal.API.DTOs.Company;
+using SchoolPortal.API.Interfaces;
+using SchoolPortal.API.Interfaces.Services;
 using SchoolPortal.Web.Models.Company;
 
 // Configure JSON serialization options
@@ -36,13 +38,15 @@ namespace SchoolPortal.Web.Controllers
         private readonly string _apiBaseUrl;
         private readonly IMemoryCache _cache;
         private readonly ILogger<CompanyController> _logger;
+        private readonly ILocationService _locationService;
         private const int CacheDurationHours = 1;
 
         public CompanyController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IMemoryCache cache,
-            ILogger<CompanyController> logger)
+            ILogger<CompanyController> logger,
+            ILocationService locationService)
         {
             _httpClient = httpClientFactory.CreateClient();
             var baseUrl = configuration["ApiSettings:BaseUrl"];
@@ -52,6 +56,7 @@ namespace SchoolPortal.Web.Controllers
             //_logger.LogInformation("Initialized CompanyController with API Base URL: {ApiBaseUrl}", _apiBaseUrl);
             _cache = cache;
             _logger = logger;
+            _locationService = locationService;
         }
 
         [HttpGet]
@@ -162,7 +167,7 @@ namespace SchoolPortal.Web.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("GetStatesByCountry/{countryId}")]
         public async Task<IActionResult> GetStatesByCountry(Guid countryId)
         {
             try
@@ -189,7 +194,7 @@ namespace SchoolPortal.Web.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("GetCitiesByState/{stateId}")]
         public async Task<IActionResult> GetCitiesByState(Guid stateId)
         {
             try
@@ -216,7 +221,41 @@ namespace SchoolPortal.Web.Controllers
             }
         }
 
-        private async Task LoadDropdownDataAsync(CompanyBaseViewModel model)
+        [HttpGet("GetJurisdictionAreas/{stateId}")]
+        public async Task<IActionResult> GetJurisdictionAreas(Guid? stateId)
+        {
+            try
+            {
+                if (!stateId.HasValue || stateId == Guid.Empty)
+                {
+                    _logger.LogWarning("GetJurisdictionAreas called with null or empty stateId");
+                    return Json(new List<CityDto>());
+                }
+
+                _logger.LogInformation("Retrieving jurisdiction areas for state: {StateId}", stateId);
+                
+                if (_locationService == null)
+                {
+                    _logger.LogError("Location service is not initialized");
+                    return Json(new List<CityDto>());
+                }
+
+                var areas = await _locationService.GetJurisdictionAreasAsync(stateId.Value);
+                return Json(areas ?? new List<CityDto>());
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogError(ex, "Null reference error while retrieving jurisdiction areas for state {StateId}", stateId);
+                return Json(new List<CityDto>());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error retrieving jurisdiction areas for state {StateId}", stateId);
+                return Json(new List<CityDto>());
+            }
+        }
+
+        private async Task LoadDropdownDataAsync(CompanyBaseViewModel model, bool loadCountries = true, bool loadStates = true, bool loadCities = true, bool loadJurisdictions = true)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
@@ -228,10 +267,12 @@ namespace SchoolPortal.Web.Controllers
             model.ZipCode ??= string.Empty;
             model.Email ??= string.Empty;
             model.EstablishmentYear ??= string.Empty;
-            model.Countries ??= new List<CountryDto>();
-            model.States ??= new List<StateDto>();
-            model.Cities ??= new List<CityDto>();
-            model.JurisdictionAreas ??= new List<CityDto>();
+            
+            // Only initialize collections if they're going to be loaded
+            if (loadCountries) model.Countries ??= new List<CountryDto>();
+            if (loadStates) model.States ??= new List<StateDto>();
+            if (loadCities) model.Cities ??= new List<CityDto>();
+            if (loadJurisdictions) model.JurisdictionAreas ??= new List<CityDto>();
 
             try
             {
@@ -242,36 +283,39 @@ namespace SchoolPortal.Web.Controllers
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 }
 
-                // Load Countries
-                model.Countries = await GetCachedApiDataAsync<List<CountryDto>>(
-                    "Countries",
-                    $"{_apiBaseUrl}/locations/countries"
-                ) ?? new List<CountryDto>();
-                
-                _logger.LogInformation("Loaded {Count} countries", model.Countries.Count);
-                
-                // If no countries loaded, try direct API call
-                if (model.Countries.Count == 0)
+                // Load Countries if requested
+                if (loadCountries)
                 {
-                    _logger.LogWarning("No countries loaded from cache, trying direct API call");
-                    try
+                    model.Countries = await GetCachedApiDataAsync<List<CountryDto>>(
+                        "Countries",
+                        $"{_apiBaseUrl}/locations/countries"
+                    ) ?? new List<CountryDto>();
+                    
+                    _logger.LogInformation("Loaded {Count} countries", model.Countries.Count);
+                    
+                    // If no countries loaded, try direct API call
+                    if (model.Countries.Count == 0)
                     {
-                        var directResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/countries");
-                        if (directResponse.IsSuccessStatusCode)
+                        _logger.LogWarning("No countries loaded from cache, trying direct API call");
+                        try
                         {
-                            var directContent = await directResponse.Content.ReadAsStringAsync();
-                            model.Countries = JsonSerializer.Deserialize<List<CountryDto>>(directContent, JsonOptions.Default) ?? new List<CountryDto>();
-                            _logger.LogInformation("Direct API call loaded {Count} countries", model.Countries.Count);
+                            var directResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/locations/countries");
+                            if (directResponse.IsSuccessStatusCode)
+                            {
+                                var directContent = await directResponse.Content.ReadAsStringAsync();
+                                model.Countries = JsonSerializer.Deserialize<List<CountryDto>>(directContent, JsonOptions.Default) ?? new List<CountryDto>();
+                                _logger.LogInformation("Direct API call loaded {Count} countries", model.Countries.Count);
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Direct API call for countries also failed");
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Direct API call for countries also failed");
+                        }
                     }
                 }
 
-                // Load States if CountryId is set
-                if (model.CountryId != Guid.Empty)
+                // Load States if CountryId is set and states are requested
+                if (loadStates && model.CountryId != Guid.Empty)
                 {
                     _logger.LogInformation("Loading states for country: {CountryId}", model.CountryId);
                     model.States = await GetCachedApiDataAsync<List<StateDto>>(
@@ -281,8 +325,8 @@ namespace SchoolPortal.Web.Controllers
                     _logger.LogInformation("Loaded {Count} states", model.States.Count);
                 }
 
-                // Load Cities if StateId is set
-                if (model.StateId != Guid.Empty)
+                // Load Cities if StateId is set and cities are requested
+                if (loadCities && model.StateId != Guid.Empty)
                 {
                     _logger.LogInformation("Loading cities for state: {StateId}", model.StateId);
                     model.Cities = await GetCachedApiDataAsync<List<CityDto>>(
@@ -292,13 +336,23 @@ namespace SchoolPortal.Web.Controllers
                     _logger.LogInformation("Loaded {Count} cities", model.Cities.Count);
                 }
 
-                // Load Jurisdiction Areas - use cities as jurisdiction areas
-                if (model.StateId != Guid.Empty)
+                // Load Jurisdiction Areas if requested and StateId is set
+                if (loadJurisdictions && model.StateId != Guid.Empty)
                 {
-                    // Use cities from state as jurisdiction areas
-                    _logger.LogInformation("Using cities as jurisdiction areas for state: {StateId}", model.StateId);
-                    model.JurisdictionAreas = model.Cities.ToList();
-                    _logger.LogInformation("Set {Count} jurisdiction areas from cities", model.JurisdictionAreas.Count);
+                    try
+                    {
+                        _logger.LogInformation("Loading jurisdiction areas for state: {StateId}", model.StateId);
+                        var areas = await _locationService.GetJurisdictionAreasAsync(model.StateId);
+                        model.JurisdictionAreas = areas?.ToList() ?? new List<CityDto>();
+                        _logger.LogInformation("Loaded {Count} jurisdiction areas", model.JurisdictionAreas.Count);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error loading jurisdiction areas for state {StateId}", model.StateId);
+                        // Fallback to using cities if jurisdiction areas fail to load
+                        _logger.LogInformation("Falling back to using cities as jurisdiction areas");
+                        model.JurisdictionAreas = model.Cities?.ToList() ?? new List<CityDto>();
+                    }
                 }
             }
             catch (Exception ex)
@@ -383,7 +437,7 @@ namespace SchoolPortal.Web.Controllers
                     Email = model.Email ?? string.Empty,
                     IsActive = model.IsActive,
                     EstablishmentYear = model.EstablishmentYear ?? string.Empty,
-                    JurisdictionArea = model.JurisdictionArea
+                    JurisdictionArea = Guid.Parse(model.JurisdictionArea)
                 };
 
                 var response = await _httpClient.PostAsJsonAsync(_apiBaseUrl, createRequest, JsonOptions.Default);
@@ -408,61 +462,44 @@ namespace SchoolPortal.Web.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             _logger.LogInformation("Entering Edit action for company ID: {CompanyId}", id);
-            
+
             try
             {
-                var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                // Set authorization
+                var token = HttpContext.Session.GetString("JWToken");
+                if (!string.IsNullOrWhiteSpace(token))
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                // Get company details
-                var company = await _cache.GetOrCreateAsync($"Company_{id}", async entry =>
+                // Try cache first
+                var cacheKey = $"Company_{id}";
+                var company = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+
                     var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
-                    response.EnsureSuccessStatusCode();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        _logger.LogWarning("Failed to fetch company {CompanyId}. StatusCode: {StatusCode}", id, response.StatusCode);
+                        return null;
+                    }
+
                     var content = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<SchoolPortal.API.DTOs.Company.CompanyDto>(content, JsonOptions.Default);
                 });
 
-                if (company == null)
-                {
-                    _logger.LogWarning("Company with ID {CompanyId} not found for editing", id);
-                    return NotFound();
-                }
+                // Build the view model (with or without company data)
+                var viewModel = CreateCompanyViewModel(company, id);
 
-                // First create the view model with all properties
-                var viewModel = new UpdateCompanyViewModel
-                {
-                    Id = company.Id,
-                    CompanyName = company.CompanyName ?? string.Empty,
-                    Description = company.Description ?? string.Empty,
-                    Address = company.Address ?? string.Empty,
-                    CountryName = company.CountryName ?? string.Empty,
-                    StateName = company.StateName ?? string.Empty,
-                    CityName = company.CityName ?? string.Empty,
-                    JurisdictionAreaName = company.JurisdictionAreaName ?? string.Empty,
-                    CountryId = company.CountryId,
-                    StateId = company.StateId,
-                    CityId = company.CityId,
-                    ZipCode = company.ZipCode ?? string.Empty,
-                    Email = company.Email ?? string.Empty,
-                    IsActive = company.IsActive,
-                    EstablishmentYear = company.EstablishmentYear ?? string.Empty,
-                    JurisdictionArea = company.JurisdictionArea,
-                    Status = company.Status ?? string.Empty,
-                    StatusMessage = company.StatusMessage ?? string.Empty
-                };
+                // Load dropdowns in sequence (country → state → city → jurisdiction)
+                await LoadAllDropdownsAsync(viewModel);
 
-                // Log the values for debugging
-                _logger.LogInformation("Loading company data - CountryId: {CountryId}, StateId: {StateId}, CityId: {CityId}, JurisdictionArea: {JurisdictionArea}",
-                    company.CountryId, company.StateId, company.CityId, company.JurisdictionArea);
-
-                // Load dropdown data with the view model
-                await LoadDropdownDataAsync(viewModel);
-
-                // Log dropdown data after loading
-                _logger.LogInformation("Dropdown data loaded - Countries: {CountryCount}, States: {StateCount}, Cities: {CityCount}, JurisdictionAreas: {JurisdictionCount}",
-                    viewModel.Countries?.Count ?? 0, viewModel.States?.Count ?? 0, viewModel.Cities?.Count ?? 0, viewModel.JurisdictionAreas?.Count ?? 0);
+                _logger.LogInformation(
+                    "Dropdowns loaded: Countries={CountryCount}, States={StateCount}, Cities={CityCount}, Jurisdictions={JurisdictionCount}",
+                    viewModel.Countries?.Count ?? 0,
+                    viewModel.States?.Count ?? 0,
+                    viewModel.Cities?.Count ?? 0,
+                    viewModel.JurisdictionAreas?.Count ?? 0
+                );
 
                 return View(viewModel);
             }
@@ -473,6 +510,62 @@ namespace SchoolPortal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        /// <summary>
+        /// Creates and initializes a company view model (either from DTO or blank template)
+        /// </summary>
+        private static UpdateCompanyViewModel CreateCompanyViewModel(SchoolPortal.API.DTOs.Company.CompanyDto? company, Guid id)
+        {
+            return new UpdateCompanyViewModel
+            {
+                Id = company?.Id ?? id,
+                CompanyName = company?.CompanyName ?? string.Empty,
+                Description = company?.Description ?? string.Empty,
+                Address = company?.Address ?? string.Empty,
+                Email = company?.Email ?? string.Empty,
+                ZipCode = company?.ZipCode ?? string.Empty,
+                EstablishmentYear = company?.EstablishmentYear ?? string.Empty,
+                JurisdictionArea = company?.JurisdictionArea.ToString() ?? string.Empty,
+                IsActive = company?.IsActive ?? false
+            };
+        }
+
+        /// <summary>
+        /// Loads all dropdown data in proper dependency order.
+        /// </summary>
+        private async Task LoadAllDropdownsAsync(UpdateCompanyViewModel viewModel)
+        {
+            if (viewModel == null) throw new ArgumentNullException(nameof(viewModel));
+
+            // 1. Load countries first
+            await LoadDropdownDataAsync(viewModel, loadStates: false, loadCities: false, loadJurisdictions: false);
+            
+            // 2. Load states for the selected country
+            if (viewModel.CountryId != Guid.Empty)
+            {
+                await LoadDropdownDataAsync(viewModel, loadCountries: false, loadCities: false, loadJurisdictions: false);
+                
+                // 3. Load cities for the selected state
+                if (viewModel.StateId != Guid.Empty)
+                {
+                    await LoadDropdownDataAsync(viewModel, loadCountries: false, loadStates: false, loadJurisdictions: false);
+                    
+                    // 4. Load jurisdictions for the selected state
+                    // Note: JurisdictionArea is a string, not a Guid
+                    if (!string.IsNullOrEmpty(viewModel.JurisdictionArea))
+                    {
+                        await LoadDropdownDataAsync(viewModel, 
+                            loadCountries: false, 
+                            loadStates: false, 
+                            loadCities: false, 
+                            loadJurisdictions: true);
+                    }
+                }
+            }
+
+            // Jurisdiction loading is handled within LoadDropdownDataAsync
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

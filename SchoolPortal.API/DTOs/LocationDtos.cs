@@ -10,7 +10,6 @@ namespace SchoolPortal.API.DTOs
         [MaxLength(100)]
         public required string Name { get; set; }
         [MaxLength(10)]
-        public required string CountryCode { get; set; }
         public bool IsActive { get; set; } = true;
         public Guid? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

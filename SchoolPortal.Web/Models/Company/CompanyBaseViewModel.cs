@@ -40,7 +40,7 @@ namespace SchoolPortal.Web.Models.Company
         public required string EstablishmentYear { get; set; }
         
         [Required(ErrorMessage = "Jurisdiction area is required")]
-        public Guid JurisdictionArea { get; set; }
+        public string JurisdictionArea { get; set; } = string.Empty;
 
         // Dropdown lists
         public List<CountryDto> Countries { get; set; } = new List<CountryDto>();

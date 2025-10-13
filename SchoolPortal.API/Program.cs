@@ -12,6 +12,7 @@ using System.Text;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolPortal.API.Mappings;
+using SchoolPortal.API.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
