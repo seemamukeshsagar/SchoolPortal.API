@@ -416,3 +416,4 @@ C:\Mukesh.Sagar\SchoolPortal.Web\obj\Debug\net9.0\refint\SchoolPortal.Web.dll
 C:\Mukesh.Sagar\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.pdb
 C:\Mukesh.Sagar\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.genruntimeconfig.cache
 C:\Mukesh.Sagar\SchoolPortal.Web\obj\Debug\net9.0\ref\SchoolPortal.Web.dll
+C:\Seema.Mukesh\SchoolPortal\SchoolPortal.Web\obj\Debug\net9.0\SchoolPortal.Web.MvcApplicationPartsAssemblyInfo.cs

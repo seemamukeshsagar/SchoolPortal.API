@@ -25,57 +25,102 @@ namespace SchoolPortal.Web.Controllers
 			return View();
 		}
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
-		{
-			ViewData["ReturnUrl"] = returnUrl;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
 
-			if (!ModelState.IsValid)
-			{
-				return View(model);
-			}
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-			try
-			{
-				var client = _httpClientFactory.CreateClient();
-				var content = new StringContent(
-					JsonSerializer.Serialize(new { model.UserName, model.Password }),
-					Encoding.UTF8,
-					"application/json");
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var content = new StringContent(
+                    JsonSerializer.Serialize(new { model.UserName, model.Password }),
+                    Encoding.UTF8,
+                    "application/json");
 
-				var response = await client.PostAsync($"{ApiBaseUrl}Auth/login", content);
-				
-				if (response.IsSuccessStatusCode)
-				{
-					// Handle successful login (e.g., store token, set auth cookie)
-					// For now, redirect to home
-					if (Url.IsLocalUrl(returnUrl))
-					{
-						return Redirect(returnUrl);
-					}
-					return RedirectToAction("Index", "Home");
-				}
+                var response = await client.PostAsync($"{ApiBaseUrl}Auth/login", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
 
-				ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-				return View(model);
-			}
-			catch (Exception ex)
-			{
-				// Log the error
-				Debug.WriteLine($"Login error: {ex.Message}");
-				ModelState.AddModelError(string.Empty, "An error occurred while processing your request.");
-				return View(model);
-			}
-		}
+                    string firstName = loginResponse.FirstName ?? string.Empty;
+                    string lastName = loginResponse.LastName ?? string.Empty;
+                    string fullName = (firstName + " " + lastName).Trim();
+                    if (String.IsNullOrEmpty(fullName.Trim()))
+                    {
+                        fullName = "Guest";
+                    }
+                    // Store user details in session
+                    var userSession = new UserSession
+                    {
+                        UserId = loginResponse.UserId,
+                        UserName = loginResponse.UserName,
+                        Email = loginResponse.Email,
+                        FullName = fullName,
+                        Roles = loginResponse.Roles ?? new List<string>(),
+                        Privileges = loginResponse.Privileges ?? new List<string>()
+                    };
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public IActionResult Logout()
-		{
-			// Handle logout (e.g., clear auth cookies)
-			return RedirectToAction("Index", "Home");
-		}
+                    // Store session
+                    HttpContext.Session.SetString("UserSession", JsonSerializer.Serialize(userSession));
+
+                    // Store user roles in session for easy access
+                    HttpContext.Session.SetString("UserRoles", string.Join(",", userSession.Roles));
+
+                    // Redirect to return URL or home
+                    if (Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError(string.Empty, "Invalid username or password.");
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Debug.WriteLine($"Login error: {ex.Message}");
+                ModelState.AddModelError(string.Empty, "An error occurred while processing your request.");
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
+        {
+            // Clear the session
+            HttpContext.Session.Clear();
+            
+            // Clear any existing external cookie
+            // If you're using cookie authentication, add this:
+            // await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Helper method to get current user from session
+        private UserSession GetCurrentUser()
+        {
+            var userSession = HttpContext.Session.GetString("UserSession");
+            if (string.IsNullOrEmpty(userSession))
+                return null;
+
+            return JsonSerializer.Deserialize<UserSession>(userSession);
+        }
 
 		private IActionResult RedirectToLocal(string returnUrl)
 		{
