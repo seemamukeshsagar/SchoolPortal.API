@@ -31,34 +31,54 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.HttpOnly = true;
     });
 
 //https://localhost:7185/api/Auth/login
 
-// Add CORS policy
+// Add CORS policy - HTTPS only
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder.WithOrigins("https://localhost:7185", "http://localhost:5022")
+        builder.WithOrigins("https://localhost:7185")
                .AllowAnyHeader()
                .AllowAnyMethod()
-               .AllowCredentials()
-               .SetIsOriginAllowed(origin => 
-                   origin.StartsWith("https://localhost:") || 
-                   origin.StartsWith("http://localhost:"));
+               .AllowCredentials();
     });
 });
 
-// Add HttpClient
+// Add HTTP clients
 builder.Services.AddHttpClient();
 
+// Add named HTTP client for authentication with optimized settings
+builder.Services.AddHttpClient("AuthApi", client =>
+{
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? string.Empty;
+    if (string.IsNullOrWhiteSpace(baseUrl))
+    {
+        throw new InvalidOperationException("ApiSettings:BaseUrl is not configured in appsettings.json");
+    }
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+    UseProxy = false,
+    UseCookies = false,
+    MaxConnectionsPerServer = 100
+});
+
 // Add DbContext
-builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register LocationService
-builder.Services.AddScoped<SchoolPortal.API.Interfaces.ILocationService, SchoolPortal.API.Services.LocationService>();
+//builder.Services.AddScoped<SchoolPortal.API.Interfaces.ILocationService, SchoolPortal.API.Services.LocationService>();
 
 // Configure API settings
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
@@ -74,8 +94,21 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 // In Program.cs of the Web project
 builder.Services.AddHttpClient("LocationApi", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]);
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? string.Empty;
+    if (string.IsNullOrWhiteSpace(baseUrl))
+    {
+        throw new InvalidOperationException("ApiSettings:BaseUrl is not configured in appsettings.json");
+    }
+    client.BaseAddress = new Uri(baseUrl);
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+    UseProxy = false,
+    UseCookies = false,
+    MaxConnectionsPerServer = 100
 });
 
 // Configure cookie settings
@@ -100,9 +133,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Enforce HTTPS redirection
-app.UseHttpsRedirection();
-
 // Use Cookie Policy
 app.UseCookiePolicy();
 
@@ -113,12 +143,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Add session middleware (must be after UseRouting and before UseAuthentication)
+app.UseSession();
+
 // Add authentication middleware
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Add session middleware (must be after UseRouting and before MapControllerRoute)
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

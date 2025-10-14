@@ -45,7 +45,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })" 
+                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.CountryName })" 
                                 class="form-select" id="countryDropdown">
                             <option value="">-- Select Country --</option>
                         </select>
@@ -117,6 +117,7 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @Html.AntiForgeryToken()
     
     <script>
         $(document).ready(function() {
@@ -143,101 +144,118 @@
 
             // Function to load states
             function loadStates(countryId) {
-                $.get('/Company/GetStatesByCountry', { countryId: countryId }, function(data) {
-                    var stateDropdown = $('#stateDropdown');
-                    stateDropdown.empty().append('<option value="">-- Select State --</option>').prop('disabled', false);
+                var stateDropdown = $('#stateDropdown');
+                var cityDropdown = $('#cityDropdown');
+                
+                // Reset and disable state and city dropdowns
+                stateDropdown.empty().append($('<option>', {
+                    value: '',
+                    text: '-- Select State --'
+                })).prop('disabled', true);
+                
+                cityDropdown.empty().append($('<option>', {
+                    value: '',
+                    text: '-- Select City --'
+                })).prop('disabled', true);
+                
+                if (countryId) {
+                    stateDropdown.prop('disabled', true);
                     
-                    if (data && data.length > 0) {
-                        $.each(data, function() {
-                            stateDropdown.append($('<option></option>').val(this.id).text(this.name));
-                        });
-                    } else {
-                        stateDropdown.append('<option value="">No states found</option>');
-                    }
-                }).fail(function() {
-                    alert('Error loading states');
-                });
+                    // Call MVC endpoint to get states (uses server-side session auth)
+                    $.ajax({
+                        url: '@Url.Action("GetStatesByCountry", "Company")',
+                        type: 'GET',
+                        data: { countryId: countryId },
+                        success: function(data) {
+                            if (data && data.length > 0) {
+                                stateDropdown.prop('disabled', false);
+                                
+                                // Add states to dropdown
+                                $.each(data, function(index, state) {
+                                    var value = state.id || state.Id;
+                                    var text = state.name || state.stateName || state.StateName;
+                                    stateDropdown.append($('<option>', { value: value, text: text }));
+                                });
+                                
+                                // If there's a previously selected state, try to select it
+                                var selectedStateId = '@Model.StateId';
+                                if (selectedStateId) {
+                                    stateDropdown.val(selectedStateId);
+                                    // Load cities for the selected state
+                                    loadCities(selectedStateId);
+                                }
+                            } else {
+                                stateDropdown.append($('<option>', {
+                                    value: '',
+                                    text: 'No states available'
+                                }));
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error loading states:', { status, error, response: xhr.responseText });
+                            
+                            stateDropdown.append($('<option>', {
+                                value: '',
+                                text: 'Error loading states'
+                            }));
+                        },
+                        complete: function() {
+                            stateDropdown.prop('disabled', false);
+                        }
+                    });
+                }
             }
-
-            // Function to load cities
+                    
+            // Function to load cities and jurisdiction areas
             function loadCities(stateId) {
-                $.get('/Company/GetCitiesByState', { stateId: stateId }, function(data) {
+                // Load cities
+                $.get('@Url.Action("GetCitiesByState", "Company")', { stateId: stateId }, function(cities) {
                     var cityDropdown = $('#cityDropdown');
-                    var judistrictionDropdown = $('#judistrictionAreaDropdown');
-                    
                     cityDropdown.empty().append('<option value="">-- Select City --</option>').prop('disabled', false);
-                    judistrictionDropdown.empty().append('<option value="">-- Select Jurisdiction Area --</option>').prop('disabled', false);
                     
-                    if (data && data.length > 0) {
-                        $.each(data, function() {
-                            cityDropdown.append($('<option></option>').val(this.id).text(this.name));
-                            judistrictionDropdown.append($('<option></option>').val(this.id).text(this.name));
+                    if (cities && cities.length > 0) {
+                        $.each(cities, function() {
+                            var id = this.Id || this.id;
+                            var name = this.CityName || this.cityName;
+                            cityDropdown.append($('<option></option>').val(id).text(name));
                         });
                     } else {
                         cityDropdown.append('<option value="">No cities found</option>');
-                        judistrictionDropdown.append('<option value="">No jurisdiction areas found</option>');
                     }
                 }).fail(function() {
                     alert('Error loading cities');
                 });
+
+                // Load jurisdiction areas
+                $.get('@Url.Action("GetJurisdictionAreas", "Company")/' + stateId, function(areas) {
+                var jurisdictionDropdown = $('#judistrictionAreaDropdown');
+                jurisdictionDropdown.empty().append('<option value="">-- Select Jurisdiction Area --</option>').prop('disabled', false);
+
+                if (areas && areas.length > 0) {
+                    $.each(areas, function() {
+                        var id = this.Id || this.id;
+                        var name = this.CityName || this.cityName;
+                        jurisdictionDropdown.append($('<option></option>').val(id).text(name));
+                    });
+                } else {
+                    jurisdictionDropdown.append('<option value="">No jurisdiction areas found</option>');
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('Jurisdiction load failed', { status, error, response: xhr.responseText });
+                alert('Error loading jurisdiction areas');
+            });
             }
 
-            // Initialize form validation
-            $('#companyForm').validate({
-                rules: {
-                    CompanyName: {
-                        required: true,
-                        maxlength: 100
-                    },
-                    Email: {
-                        email: true
-                    },
-                    CountryId: {
-                        required: true
-                    },
-                    StateId: {
-                        required: true
-                    },
-                    CityId: {
-                        required: true
-                    },
-                    JurisdictionArea: {
-                        required: true
-                    }
-                },
-                messages: {
-                    CompanyName: {
-                        required: "Please enter company name",
-                        maxlength: "Company name cannot exceed 100 characters"
-                    },
-                    Email: {
-                        email: "Please enter a valid email address"
-                    },
-                    CountryId: {
-                        required: "Please select a country"
-                    },
-                    StateId: {
-                        required: "Please select a state"
-                    },
-                    CityId: {
-                        required: "Please select a city"
-                    },
-                    JurisdictionArea: {
-                        required: "Please select a jurisdiction area"
-                    }
-                },
-                errorElement: 'span',
-                errorPlacement: function (error, element) {
-                    error.addClass('invalid-feedback');
-                    element.closest('.form-group').append(error);
-                },
-                highlight: function (element, errorClass, validClass) {
-                    $(element).addClass('is-invalid');
-                },
-                unhighlight: function (element, errorClass, validClass) {
-                    $(element).removeClass('is-invalid');
-                }
+            // Ensure disabled selects are posted
+            $('#companyForm').on('submit', function() {
+                $('#stateDropdown, #cityDropdown, #judistrictionAreaDropdown').prop('disabled', false);
             });
+
+            // Optional: auto-load states if a country is preselected (e.g., after validation errors)
+            var initialCountry = $('#countryDropdown').val();
+            if (initialCountry) {
+                loadStates(initialCountry);
+            }
         });
     </script>
 }

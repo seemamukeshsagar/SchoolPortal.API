@@ -74,7 +74,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })" 
+                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.CountryName })" 
                                 class="form-select" id="countryDropdown">
                             <option value="">-- Select Country --</option>
                         </select>
@@ -140,7 +140,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="JudistrictionCountryId" class="form-label">Jurisdiction Country</label>
-                        <select asp-for="JudistrictionCountryId" asp-items="Model.JudistrictionCountries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })" 
+                        <select asp-for="JudistrictionCountryId" asp-items="Model.JudistrictionCountries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.CountryName })" 
                                 class="form-select" id="jurCountryDropdown">
                             <option value="">-- Select Country --</option>
                         </select>
@@ -202,7 +202,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="BankCountryId" class="form-label">Bank Country</label>
-                        <select asp-for="BankCountryId" asp-items="Model.BankCountries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })" 
+                        <select asp-for="BankCountryId" asp-items="Model.BankCountries.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.CountryName })" 
                                 class="form-select" id="bankCountryDropdown">
                             <option value="">-- Select Country --</option>
                         </select>

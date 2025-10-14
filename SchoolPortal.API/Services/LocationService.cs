@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolPortal.API.DTOs;
 using SchoolPortal.API.Interfaces;
-using SchoolPortal.API.DTOs;
 using SchoolPortal.API.Models;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ namespace SchoolPortal.API.Services
                 .Select(c => new CountryDto
                 {
                     Id = c.Id,
-                    Name = c.CountryName ?? string.Empty,
+                    CountryName = c.CountryName ?? string.Empty,
                     IsActive = c.IsActive
                     // Add other required properties if needed
                 })
@@ -46,7 +45,7 @@ namespace SchoolPortal.API.Services
                 .Select(s => new StateDto
                 {
                     Id = s.Id,
-                    Name = s.StateName ?? string.Empty,
+                    StateName = s.StateName ?? string.Empty,
                     CountryId = s.CountryId,
                     IsActive = s.IsActive
                 })
@@ -63,7 +62,7 @@ namespace SchoolPortal.API.Services
                 .Select(c => new CityDto
                 {
                     Id = c.Id,
-                    Name = c.CityName ?? string.Empty,
+                    CityName = c.CityName ?? string.Empty,
                     StateId = c.CityStateId
                 })
                 .ToListAsync();
@@ -80,7 +79,7 @@ namespace SchoolPortal.API.Services
                 .Select(c => new CityDto
                 {
                     Id = c.Id,
-                    Name = c.CityName ?? string.Empty,
+                    CityName = c.CityName ?? string.Empty,
                     StateId = c.CityStateId
                 })
                 .ToListAsync();

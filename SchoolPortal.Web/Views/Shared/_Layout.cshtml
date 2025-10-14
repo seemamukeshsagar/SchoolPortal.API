@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -28,25 +28,27 @@
 
 		/* MAIN CONTAINER */
 		.main-container {
-			display: flex;
-			min-height: calc(100vh - 120px); /* Adjusted for header and footer */
+			/* display: flex; */
+			min-height: calc(100vh - 56px); /* Full viewport height minus header */
 			margin-top: 56px;
-			margin-bottom: 60px; /* Space for fixed footer */
 			transition: all 0.3s ease;
+			overflow: hidden; /* Prevent content overflow */
 		}
 
 		/* SIDEBAR */
 		.nav-sidebar {
 			width: 240px;
+			height: calc(100vh - 112px); /* Viewport height minus header and footer */
 			background-color: #343a40;
 			color: white;
 			position: fixed;
 			top: 56px;
 			left: 0;
-			bottom: 0;
 			overflow-y: auto;
 			transition: width 0.3s ease, left 0.3s ease;
 			z-index: 1030;
+			/* display: flex; */
+			flex-direction: column;
 		}
 
 		.nav-sidebar.collapsed {
@@ -82,14 +84,19 @@
 		/* CONTENT AREA */
 		.content-area {
 			flex: 1;
-			padding: 20px;
+			padding: 20px 0 20px 20px; /* remove right padding to allow full-width content */
 			margin-left: 240px;
 			transition: margin-left 0.3s ease;
-			width: 100%;
+			width: calc(100% - 240px);
+			overflow-y: visible; /* allow body to handle vertical scroll to avoid right gutter */
+			height: calc(100vh - 112px); /* Viewport height minus header and footer */
+			position: relative;
+			box-sizing: border-box; /* ensure padding doesn't reduce usable width */
 		}
 
 		.content-area.expanded {
 			margin-left: 0;
+			width: 100%; /* fill full width when sidebar is collapsed */
 		}
 
 		/* FOOTER */
@@ -101,9 +108,11 @@
 			position: fixed;
 			bottom: 0;
 			left: 0;
+			right: 0;
 			width: 100%;
 			z-index: 1000;
 			border-top: 1px solid #495057;
+			margin: 0;
 		}
 
 		/* Toggle Button */
@@ -133,45 +142,20 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbarSupportedContent">
 					<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-						<li class="nav-item">
-							@{
-							var userSessionJson = Context.Session.GetString("UserSession");
-							var displayName = "Guest";
-							SchoolPortal.Web.Models.Account.UserSession userSession = null;
-							if (!string.IsNullOrEmpty(userSessionJson))
-							{
-								userSession = System.Text.Json.JsonSerializer.Deserialize<SchoolPortal.Web.Models.Account.UserSession>(userSessionJson);
-								displayName = userSession?.FullName ?? "Guest";
-							}
-
-							if (displayName != "Guest" && userSession != null)
-							{
-								<div class="dropdown">
-									<a class="nav-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-										Welcome, @displayName
-									</a>
-									<div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown" style="min-width: 200px;">
-										<div class="px-3 py-2">
-											<div class="fw-bold">@userSession.FullName</div>
-											<small class="text-muted">@userSession.Email</small>
-											<div class="mt-2">
-												<small class="text-muted">
-													@(string.Join(", ", userSession.Roles ?? new List<string>()))
-												</small>
-											</div>
-											<div class="dropdown-divider"></div>
-											<a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">
-												<i class="fas fa-sign-out-alt me-2"></i>Logout
-											</a>
-										</div>
-									</div>
-								</div>
-							}
-							else
-							{
-								<span class="nav-link">Welcome, @displayName</span>
-							}
+						@{
+							var fullName = Context.Session?.GetString("User_FullName");
 						}
+						<li class="nav-item">
+							<span class="nav-link">
+								@if (!string.IsNullOrEmpty(fullName))
+								{
+									<text>Welcome, @fullName</text>
+								}
+								else
+								{
+									<text>Welcome Guest</text>
+								}
+							</span>
 						</li>
 					</ul>
 				</div>
@@ -193,7 +177,7 @@
 	</div>
 
 	<!-- FOOTER -->
-	<footer class="footer text-muted" style="width:100%;">
+	<footer>
 		<div class="container-fluid">
 			&copy; 2025 - SchoolPortal.Web - <a asp-area="" asp-page="/Privacy" class="text-white">Privacy</a>
 		</div>

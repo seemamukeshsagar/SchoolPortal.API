@@ -80,7 +80,7 @@
                         <label asp-for="CountryId" class="form-label">Country</label>
                         <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { 
                             Value = c.Id.ToString(), 
-                            Text = c.Name,
+                            Text = c.CountryName,
                             Selected = c.Id == Model.CountryId
                         })" class="form-select" id="countryDropdown">
                             <option value="">-- Select Country --</option>
@@ -94,7 +94,7 @@
                         <select asp-for="StateId" class="form-select" id="stateDropdown" 
                                 asp-items="Model.States.Select(s => new SelectListItem { 
                                     Value = s.Id.ToString(), 
-                                    Text = s.Name,
+                                    Text = s.StateName,
                                     Selected = s.Id == Model.StateId
                                 })">
                             <option value="">-- Select State --</option>
@@ -108,7 +108,7 @@
                         <select asp-for="CityId" class="form-select" id="cityDropdown"
                                 asp-items="Model.Cities.Select(c => new SelectListItem { 
                                     Value = c.Id.ToString(), 
-                                    Text = c.Name,
+                                    Text = c.CityName,
                                     Selected = c.Id == Model.CityId
                                 })">
                             <option value="">-- Select City --</option>
@@ -171,7 +171,7 @@
                         <label asp-for="JudistrictionCountryId" class="form-label">Jurisdiction Country</label>
                         <select asp-for="JudistrictionCountryId" asp-items="Model.JudistrictionCountries.Select(c => new SelectListItem { 
                             Value = c.Id.ToString(), 
-                            Text = c.Name,
+                            Text = c.CountryName,
                             Selected = c.Id == Model.JudistrictionCountryId
                         })" class="form-select" id="jurCountryDropdown">
                             <option value="">-- Select Country --</option>
@@ -185,7 +185,7 @@
                         <select asp-for="JudistrictionStateId" class="form-select" id="jurStateDropdown" 
                                 asp-items="Model.JudistrictionStates.Select(s => new SelectListItem { 
                                     Value = s.Id.ToString(), 
-                                    Text = s.Name,
+                                    Text = s.StateName,
                                     Selected = s.Id == Model.JudistrictionStateId
                                 })">
                             <option value="">-- Select State --</option>
@@ -199,7 +199,7 @@
                         <select asp-for="JudistrictionCityId" class="form-select" id="jurCityDropdown"
                                 asp-items="Model.JudistrictionCities.Select(c => new SelectListItem { 
                                     Value = c.Id.ToString(), 
-                                    Text = c.Name,
+                                    Text = c.CityName,
                                     Selected = c.Id == Model.JudistrictionCityId
                                 })">
                             <option value="">-- Select City --</option>
@@ -246,7 +246,7 @@
                         <label asp-for="BankCountryId" class="form-label">Bank Country</label>
                         <select asp-for="BankCountryId" asp-items="Model.BankCountries.Select(c => new SelectListItem { 
                             Value = c.Id.ToString(), 
-                            Text = c.Name,
+                            Text = c.CountryName,
                             Selected = c.Id == Model.BankCountryId
                         })" class="form-select" id="bankCountryDropdown">
                             <option value="">-- Select Country --</option>
@@ -260,7 +260,7 @@
                         <select asp-for="BankStateId" class="form-select" id="bankStateDropdown" 
                                 asp-items="Model.BankStates.Select(s => new SelectListItem { 
                                     Value = s.Id.ToString(), 
-                                    Text = s.Name,
+                                    Text = s.StateName,
                                     Selected = s.Id == Model.BankStateId
                                 })">
                             <option value="">-- Select State --</option>
@@ -274,7 +274,7 @@
                         <select asp-for="BankCityId" class="form-select" id="bankCityDropdown"
                                 asp-items="Model.BankCities.Select(c => new SelectListItem { 
                                     Value = c.Id.ToString(), 
-                                    Text = c.Name,
+                                    Text = c.CityName,
                                     Selected = c.Id == Model.BankCityId
                                 })">
                             <option value="">-- Select City --</option>

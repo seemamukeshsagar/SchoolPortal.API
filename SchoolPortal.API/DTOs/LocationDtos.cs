@@ -8,7 +8,7 @@ namespace SchoolPortal.API.DTOs
         public Guid Id { get; set; }
         [Required]
         [MaxLength(100)]
-        public required string Name { get; set; }
+        public required string CountryName { get; set; }
         [MaxLength(10)]
         public bool IsActive { get; set; } = true;
         public Guid? CreatedBy { get; set; }
@@ -22,7 +22,7 @@ namespace SchoolPortal.API.DTOs
         public Guid Id { get; set; }
         [Required]
         [MaxLength(100)]
-        public required string Name { get; set; }
+        public required string StateName { get; set; }
         public Guid CountryId { get; set; }
         public bool IsActive { get; set; } = true;
         public Guid? CreatedBy { get; set; }
@@ -36,7 +36,7 @@ namespace SchoolPortal.API.DTOs
         public Guid Id { get; set; }
         [Required]
         [MaxLength(100)]
-        public required string Name { get; set; }
+        public required string CityName { get; set; }
         public Guid StateId { get; set; }
         public bool IsActive { get; set; } = true;
         public Guid? CreatedBy { get; set; }

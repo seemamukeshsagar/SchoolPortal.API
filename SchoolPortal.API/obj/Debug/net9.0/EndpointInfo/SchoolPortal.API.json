@@ -1082,7 +1082,7 @@
     "schemas": {
       "CityDto": {
         "required": [
-          "name"
+          "cityName"
         ],
         "type": "object",
         "properties": {
@@ -1090,7 +1090,7 @@
             "type": "string",
             "format": "uuid"
           },
-          "name": {
+          "cityName": {
             "maxLength": 100,
             "minLength": 1,
             "type": "string"
@@ -1218,7 +1218,7 @@
       },
       "CountryDto": {
         "required": [
-          "name"
+          "countryName"
         ],
         "type": "object",
         "properties": {
@@ -1226,7 +1226,7 @@
             "type": "string",
             "format": "uuid"
           },
-          "name": {
+          "countryName": {
             "maxLength": 100,
             "minLength": 1,
             "type": "string"
@@ -1323,6 +1323,16 @@
           "jurisdictionArea": {
             "type": "string",
             "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1748,7 +1758,7 @@
       },
       "StateDto": {
         "required": [
-          "name"
+          "stateName"
         ],
         "type": "object",
         "properties": {
@@ -1756,7 +1766,7 @@
             "type": "string",
             "format": "uuid"
           },
-          "name": {
+          "stateName": {
             "maxLength": 100,
             "minLength": 1,
             "type": "string"
@@ -1859,6 +1869,16 @@
           "jurisdictionArea": {
             "type": "string",
             "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "id": {
             "type": "string",

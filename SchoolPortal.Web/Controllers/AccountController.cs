@@ -4,18 +4,24 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using SchoolPortal.API.Models;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace SchoolPortal.Web.Controllers
 {
 	public class AccountController : Controller
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		private const string ApiBaseUrl = "https://localhost:7185/api/"; // Update with your API URL
+		private const string ApiBaseUrl = "https://localhost:7185/api/";
+		private readonly ILogger<AccountController> _logger;
 
-		public AccountController(IHttpClientFactory httpClientFactory)
+		public AccountController(IHttpClientFactory httpClientFactory, ILogger<AccountController> logger)
 		{
-			_httpClientFactory = httpClientFactory;
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		[HttpGet]
@@ -25,102 +31,175 @@ namespace SchoolPortal.Web.Controllers
 			return View();
 		}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+		{
+			ViewData["ReturnUrl"] = returnUrl;
 
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+			if (!ModelState.IsValid)
+			{
+				return View(model);
+			}
 
-            try
-            {
-                var client = _httpClientFactory.CreateClient();
-                var content = new StringContent(
-                    JsonSerializer.Serialize(new { model.UserName, model.Password }),
-                    Encoding.UTF8,
-                    "application/json");
+			try
+			{
+				using var client = _httpClientFactory.CreateClient("AuthApi");
+				
+				// Create request content with optimized JSON serialization
+				var jsonOptions = new JsonSerializerOptions
+				{
+					PropertyNameCaseInsensitive = true,
+					PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+				};
+				using var content = JsonContent.Create(new { model.UserName, model.Password }, options: jsonOptions);
+				
+				// Set timeout for the request
+				using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+				
+				_logger.LogInformation("Attempting to authenticate user: {Username}", model.UserName);
+				
+				using var response = await client.PostAsync("Auth/login", content, cts.Token);
+				
+				if (response.IsSuccessStatusCode)
+				{
+					_logger.LogInformation("User {Username} authenticated successfully", model.UserName);
+					
+					// Get user details and store in session
+					var userDetails = await GetUserDetailsAsync(model.UserName);
+					if (userDetails != null)
+					{
+						HttpContext.Session.SetString("User_FullName", userDetails.FullName ?? string.Empty);
+						if (userDetails.UserRoleId.HasValue)
+						{
+							HttpContext.Session.SetString("User_RoleId", userDetails.UserRoleId.Value.ToString());
+						}
+						HttpContext.Session.SetString("IsSuperUser", userDetails.IsSuperUser?.ToString() ?? "false");
+					}
+					
+					return Url.IsLocalUrl(returnUrl) 
+						? Redirect(returnUrl) 
+						: RedirectToAction("Index", "Home");
+				}
 
-                var response = await client.PostAsync($"{ApiBaseUrl}Auth/login", content);
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+				_logger.LogWarning("Failed login attempt for user: {Username}", model.UserName);
+				ModelState.AddModelError(string.Empty, "Invalid username or password.");
+				return View(model);
+			}
+			catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
+			{
+				_logger.LogError(ex, "Login request timed out for user: {Username}", model.UserName);
+				ModelState.AddModelError(string.Empty, "The request timed out. Please try again.");
+			}
+			catch (HttpRequestException ex)
+			{
+				_logger.LogError(ex, "Error connecting to authentication service for user: {Username}", model.UserName);
+				ModelState.AddModelError(string.Empty, "Unable to connect to the authentication service. Please try again later.");
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Unexpected error during login for user: {Username}", model.UserName);
+				ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+			}
 
-                    string firstName = loginResponse.FirstName ?? string.Empty;
-                    string lastName = loginResponse.LastName ?? string.Empty;
-                    string fullName = (firstName + " " + lastName).Trim();
-                    if (String.IsNullOrEmpty(fullName.Trim()))
-                    {
-                        fullName = "Guest";
-                    }
-                    // Store user details in session
-                    var userSession = new UserSession
-                    {
-                        UserId = loginResponse.UserId,
-                        UserName = loginResponse.UserName,
-                        Email = loginResponse.Email,
-                        FullName = fullName,
-                        Roles = loginResponse.Roles ?? new List<string>(),
-                        Privileges = loginResponse.Privileges ?? new List<string>()
-                    };
+			return View(model);
+		}
 
-                    // Store session
-                    HttpContext.Session.SetString("UserSession", JsonSerializer.Serialize(userSession));
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Logout()
+		{
+			// Clear session data
+			HttpContext.Session.Clear();
+			// Clear authentication cookies
+			// ... (your existing logout logic)
+			return RedirectToAction("Index", "Home");
+		}
+		
+		/*private async Task<UserSession> GetUserDetailsAsync(string username)
+		{
+			try
+			{
+				using var client = _httpClientFactory.CreateClient("AuthApi");
+				var response = await client.GetAsync($"Users/{username}");
+				
+				if (response.IsSuccessStatusCode)
+				{
+					_logger.LogInformation("User {Username} authenticated successfully", model.UserName);
 
-                    // Store user roles in session for easy access
-                    HttpContext.Session.SetString("UserRoles", string.Join(",", userSession.Roles));
+					// Parse login response to capture UserId and token for session
+					var loginJson = await response.Content.ReadAsStringAsync();
+					var loginResp = JsonSerializer.Deserialize<SchoolPortal.API.DTOs.Auth.LoginResponse>(
+						loginJson,
+						new JsonSerializerOptions { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+					);
+					if (loginResp != null)
+					{
+						HttpContext.Session.SetString("User_Id", loginResp.UserId.ToString());
+						if (!string.IsNullOrWhiteSpace(loginResp.Token))
+						{
+							HttpContext.Session.SetString("JWToken", loginResp.Token);
+						}
+					}
 
-                    // Redirect to return URL or home
-                    if (Url.IsLocalUrl(returnUrl))
-                    {
-                        return Redirect(returnUrl);
-                    }
-                    return RedirectToAction("Index", "Home");
-                }
+					// Get user details and store in session
+					var userDetails = await GetUserDetailsAsync(model.UserName);
+					if (userDetails != null)
+					{
+						HttpContext.Session.SetString("User_FullName", userDetails.FullName);
+						if (userDetails.UserRoleId.HasValue)
+						{
+							HttpContext.Session.SetString("User_RoleId", userDetails.UserRoleId.Value.ToString());
+						}
+						HttpContext.Session.SetString("IsSuperUser", userDetails.IsSuperUser?.ToString() ?? "false");
+					}
 
-                ModelState.AddModelError(string.Empty, "Invalid username or password.");
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                // Log the error
-                Debug.WriteLine($"Login error: {ex.Message}");
-                ModelState.AddModelError(string.Empty, "An error occurred while processing your request.");
-                return View(model);
-            }
-        }
+					return Url.IsLocalUrl(returnUrl)
+						? Redirect(returnUrl)
+						: RedirectToAction("Index", "Home");
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error fetching user details for {Username}", username);
+				return new UserSession { FullName = username };
+			}
+		}*/
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Logout()
-        {
-            // Clear the session
-            HttpContext.Session.Clear();
-            
-            // Clear any existing external cookie
-            // If you're using cookie authentication, add this:
-            // await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            
-            return RedirectToAction("Index", "Home");
-        }
+		private async Task<UserSession> GetUserDetailsAsync(string username)
+		{
+			try
+			{
+				using var client = _httpClientFactory.CreateClient("AuthApi");
+				var response = await client.GetAsync($"Users/{username}");
+				
+				if (response.IsSuccessStatusCode)
+				{
+					var content = await response.Content.ReadAsStringAsync();
+					var options = new JsonSerializerOptions
+					{
+						PropertyNameCaseInsensitive = true,
+						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+					};
+					
+					var userDetail = JsonSerializer.Deserialize<UserDetail>(content, options);
+					return new UserSession 
+					{ 
+						FullName = $"{userDetail?.FirstName} {userDetail?.LastName}".Trim(),
+						UserRoleId = userDetail?.UserRoleId,
+						IsSuperUser = userDetail?.IsSuperUser
+					};
+				}
 
-        // Helper method to get current user from session
-        private UserSession GetCurrentUser()
-        {
-            var userSession = HttpContext.Session.GetString("UserSession");
-            if (string.IsNullOrEmpty(userSession))
-                return null;
-
-            return JsonSerializer.Deserialize<UserSession>(userSession);
-        }
+				_logger.LogWarning("Failed to fetch user details for {Username}", username);
+				return new UserSession { FullName = username };
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error fetching user details for {Username}", username);
+				return new UserSession { FullName = username };
+			}
+		}
 
 		private IActionResult RedirectToLocal(string returnUrl)
 		{

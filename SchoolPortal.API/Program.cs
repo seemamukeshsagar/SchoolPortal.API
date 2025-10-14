@@ -57,7 +57,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-	options.RequireHttpsMetadata = false;
+	options.RequireHttpsMetadata = true;
 	options.SaveToken = true;
 	options.TokenValidationParameters = new TokenValidationParameters
 	{
@@ -130,15 +130,16 @@ builder.Services.AddSwaggerGen(c =>
 	c.EnableAnnotations();
 });
 
-// Add CORS services with a development policy
+// Add CORS services with HTTPS-only policy
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("AllowAllForDevelopment", builder =>
+	options.AddPolicy("HttpsOnly", builder =>
 	{
 		builder
-			.AllowAnyOrigin()
+			.WithOrigins("https://localhost:7029")
 			.AllowAnyMethod()
-			.AllowAnyHeader();
+			.AllowAnyHeader()
+			.AllowCredentials();
 	});
 });
 
@@ -154,8 +155,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Enable CORS with the development policy
-app.UseCors("AllowAllForDevelopment");
+// Enable CORS with the HTTPS-only policy
+app.UseCors("HttpsOnly");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,516 +1,389 @@
 @model SchoolPortal.Web.Models.Company.UpdateCompanyViewModel
 
 @{
-    // Debug output
-    Console.WriteLine($"Edit Company - CountryId: {Model.CountryId}");
-    Console.WriteLine($"Edit Company - StateId: {Model.StateId}");
-    Console.WriteLine($"Edit Company - CityId: {Model.CityId}");
-    Console.WriteLine($"Edit Company - JurisdictionArea: {Model.JurisdictionArea}");
-    Console.WriteLine($"Edit Company - Countries count: {Model.Countries?.Count}");
-    Console.WriteLine($"Edit Company - States count: {Model.States?.Count}");
-    Console.WriteLine($"Edit Company - Cities count: {Model.Cities?.Count}");
-    Console.WriteLine($"Edit Company - JurisdictionAreas count: {Model.JurisdictionAreas?.Count}");
+	// Debug output
+	Console.WriteLine($"Edit Company - CountryId: {Model.CountryId}");
+	Console.WriteLine($"Edit Company - StateId: {Model.StateId}");
+	Console.WriteLine($"Edit Company - CityId: {Model.CityId}");
+	Console.WriteLine($"Edit Company - JurisdictionArea: {Model.JurisdictionArea}");
+	Console.WriteLine($"Edit Company - Countries count: {Model.Countries?.Count}");
+	Console.WriteLine($"Edit Company - States count: {Model.States?.Count}");
+	Console.WriteLine($"Edit Company - Cities count: {Model.Cities?.Count}");
+	Console.WriteLine($"Edit Company - JurisdictionAreas count: {Model.JurisdictionAreas?.Count}");
 
-    ViewData["Title"] = "Edit Company";
+	ViewData["Title"] = "Edit Company";
 }
 
 <!-- Debug information -->
 <div class="alert alert-info" style="display: none;" id="debugInfo">
-    <strong>Debug Information:</strong><br/>
-    CountryId: @Model.CountryId<br/>
-    StateId: @Model.StateId<br/>
-    CityId: @Model.CityId<br/>
-    JurisdictionArea: @Model.JurisdictionArea<br/>
-    Countries Count: @(Model.Countries?.Count ?? 0)<br/>
-    States Count: @(Model.States?.Count ?? 0)<br/>
-    Cities Count: @(Model.Cities?.Count ?? 0)<br/>
-    JurisdictionAreas Count: @(Model.JurisdictionAreas?.Count ?? 0)<br/>
+	<strong>Debug Information:</strong><br/>
+	CountryId: @Model.CountryId<br/>
+	StateId: @Model.StateId<br/>
+	CityId: @Model.CityId<br/>
+	JurisdictionArea: @Model.JurisdictionArea<br/>
+	Countries Count: @(Model.Countries?.Count ?? 0)<br/>
+	States Count: @(Model.States?.Count ?? 0)<br/>
+	Cities Count: @(Model.Cities?.Count ?? 0)<br/>
+	JurisdictionAreas Count: @(Model.JurisdictionAreas?.Count ?? 0)<br/>
 </div>
 
 <div class="card">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Edit Company</h4>
-        <button type="button" class="btn btn-light btn-sm" onclick="toggleDebugInfo()">Debug Info</button>
-    </div>
-    <div class="card-body">
-        <form asp-action="Edit" method="post" id="companyForm">
-            <input type="hidden" asp-for="Id" />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="CompanyName" class="form-label"></label>
-                        <input asp-for="CompanyName" class="form-control" />
-                        <span asp-validation-for="CompanyName" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+	<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+		<h4 class="mb-0">Edit Company</h4>
+		<button type="button" class="btn btn-light btn-sm" onclick="toggleDebugInfo()">Debug Info</button>
+	</div>
+	<div class="card-body">
+		<form asp-action="Edit" method="post" id="companyForm">
+			<input type="hidden" asp-for="Id" />
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="CompanyName" class="form-label"></label>
+						<input asp-for="CompanyName" class="form-control" />
+						<span asp-validation-for="CompanyName" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="Email" class="form-label"></label>
+						<input asp-for="Email" class="form-control" />
+						<span asp-validation-for="Email" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+			<div class="form-group mb-3">
+				<label asp-for="Description" class="form-label"></label>
+				<textarea asp-for="Description" class="form-control" rows="3"></textarea>
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Address" class="form-label"></label>
-                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
+			<div class="form-group mb-3">
+				<label asp-for="Address" class="form-label"></label>
+				<textarea asp-for="Address" class="form-control" rows="2"></textarea>
+				<span asp-validation-for="Address" class="text-danger"></span>
+			</div>
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" class="form-select" id="countryDropdown">
-                            <option value="">-- Select Country --</option>
-                            @if (Model.Countries != null && Model.Countries.Any())
-                            {
-                                foreach (var country in Model.Countries)
-                                {
-                                    <option value="@country.Id" 
-                                            data-debug="CountryId: @Model.CountryId, country.Id: @country.Id, Selected: @(country.Id == Model.CountryId)"
-                                            selected="@(country.Id == Model.CountryId)">
-                                        @country.Name
-                                    </option>
-                                }
-                            }
-                            else
-                            {
-                                <option value="">No countries available</option>
-                            }
-                        </select>
-                        <span asp-validation-for="CountryId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="StateId" class="form-label">State</label>
-                        <select asp-for="StateId" class="form-select" id="stateDropdown">
-                            <option value="">-- Select State --</option>
-                            @foreach (var state in Model.States)
-                            {
-                                var isStateSelected = state.Id == Model.StateId;
-                                <option value="@state.Id" selected="@(isStateSelected ? "selected" : null)">@state.Name</option>
-                            }
-                        </select>
-                        <span asp-validation-for="StateId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="CityId" class="form-label">City</label>
-                        <select asp-for="CityId" class="form-select" id="cityDropdown">
-                            <option value="">-- Select City --</option>
-                            @foreach (var city in Model.Cities)
-                            {
-                                var isCitySelected = city.Id == Model.CityId;                                
-                                <option value="@city.Id" selected="@(isCitySelected ? "selected" : null)">@city.Name</option>
-                            }
-                        </select>
-                        <span asp-validation-for="CityId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+			<div class="row mb-3">
+				<div class="col-md-4">
+					<div class="form-group">
+						<label asp-for="CountryId" class="form-label">Country</label>
+						<select asp-for="CountryId" class="form-select" id="countryDropdown">
+							<option value="">-- Select Country --</option>
+							@if (Model.Countries != null)
+							{
+								foreach (var country in Model.Countries)
+								{
+									<option value="@country.Id" selected="@(country.Id == Model.CountryId)">
+										@(country.Id == Model.CountryId ? $"{country.CountryName} (Current)" : country.CountryName)
+									</option>
+								}
+							}
+						</select>
+						<span asp-validation-for="CountryId" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="form-group">
+						<label asp-for="StateId" class="form-label">State</label>
+						<select asp-for="StateId" class="form-select" id="stateDropdown">
+							<option value="">-- Select State --</option>
+							@if (Model.States != null)
+							{
+								foreach (var state in Model.States)
+								{
+									var isStateSelected = state.Id == Model.StateId;
+									<option value="@state.Id" selected="@(isStateSelected ? "selected" : null)">@state.StateName</option>
+								}
+							}
+						</select>
+						<span asp-validation-for="StateId" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="form-group">
+						<label asp-for="CityId" class="form-label">City</label>
+						<select asp-for="CityId" class="form-select" id="cityDropdown" disabled="@(Model.StateId == Guid.Empty)">
+							<option value="">-- Select City --</option>
+							@if (Model.Cities != null && Model.Cities.Any())
+							{
+								foreach (var city in Model.Cities)
+								{
+									var isCitySelected = city.Id == Model.CityId;
+									<option value="@city.Id" selected="@(isCitySelected ? "selected" : null)">@city.CityName</option>
+								}
+							}
+						</select>
+						<span asp-validation-for="CityId" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="ZipCode" class="form-label">Zip Code</label>
-                        <input asp-for="ZipCode" class="form-control" />
-                        <span asp-validation-for="ZipCode" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="JurisdictionArea" class="form-label">Jurisdiction Area</label>
-                        <select asp-for="JurisdictionArea" class="form-select" id="judistrictionAreaDropdown">
-                            <option value="">-- Select Jurisdiction Area --</option>
-                            @foreach (var jurisdiction in Model.JurisdictionAreas)
-                            {
-                                if (jurisdiction.Id.ToString() == Model.JurisdictionArea || jurisdiction.Id.ToString() == Model.JurisdictionArea.ToString())
-                                {
-                                    <option value="@jurisdiction.Id" selected>@jurisdiction.Name</option>
-                                }
-                                else
-                                {
-                                    <option value="@jurisdiction.Id">@jurisdiction.Name</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="JurisdictionArea" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="ZipCode" class="form-label">Zip Code</label>
+						<input asp-for="ZipCode" class="form-control" />
+						<span asp-validation-for="ZipCode" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="JurisdictionArea" class="form-label">Jurisdiction Area</label>
+						<select asp-for="JurisdictionArea" class="form-select" id="judistrictionAreaDropdown">
+							<option value="">-- Select Jurisdiction Area --</option>
+							@if (Model.JurisdictionAreas != null)
+							{
+								foreach (var jurisdiction in Model.JurisdictionAreas)
+								{
+									if (jurisdiction != null)
+									{
+										var isJurisdictionSelected = Model.JurisdictionArea != null && 
+											(jurisdiction.Id.ToString() == Model.JurisdictionArea || 
+											 jurisdiction.Id.ToString() == Model.JurisdictionArea.ToString());
+										<option value="@jurisdiction.Id" selected="@(isJurisdictionSelected ? "selected" : null)">@jurisdiction.CityName</option>
+									}
+								}
+							}
+						</select>
+						<span asp-validation-for="JurisdictionArea" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="EstablishmentYear" class="form-label">Establishment Year</label>
-                        <input asp-for="EstablishmentYear" class="form-control" />
-                        <span asp-validation-for="EstablishmentYear" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Status" class="form-label">Status</label>
-                        <select asp-for="Status" class="form-select">
-                        <option value="">-- Select Status --</option>
-                        @{
-                            var statuses = new[] { "Active", "Inactive", "Pending" };
-                            foreach (var status in statuses)
-                            {
-                                if (Model.Status == status)
-                                {
-                                    <option value="@status" selected>@status</option>
-                                }
-                                else
-                                {
-                                    <option value="@status">@status</option>
-                                }
-                            }
-                        }
-                    </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="EstablishmentYear" class="form-label">Establishment Year</label>
+						<input asp-for="EstablishmentYear" class="form-control" />
+						<span asp-validation-for="EstablishmentYear" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="Status" class="form-label">Status</label>
+						<select asp-for="Status" class="form-select">
+						<option value="">-- Select Status --</option>
+						@{
+							var statuses = new[] { "INC", "CMP", "PEND", "ERR" };
+							foreach (var status in statuses)
+							{
+								if (Model.Status == status)
+								{
+									<option value="@status" selected="selected">@status</option>
+								}
+								else
+								{
+									<option value="@status">@status</option>
+								}
+							}
+						}
+					</select>
+						<span asp-validation-for="Status" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="StatusMessage" class="form-label">Status Message</label>
-                <textarea asp-for="StatusMessage" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="StatusMessage" class="text-danger"></span>
-            </div>
+			<div class="form-group mb-3">
+				<label asp-for="StatusMessage" class="form-label">Status Message</label>
+				<textarea asp-for="StatusMessage" class="form-control" rows="2" readonly></textarea>
+				<span asp-validation-for="StatusMessage" class="text-danger"></span>
+			</div>
 
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                <label class="form-check-label" asp-for="IsActive"></label>
-            </div>
+			<div class="form-check form-switch mb-4">
+				<input class="form-check-input" type="checkbox" asp-for="IsActive">
+				<label class="form-check-label" asp-for="IsActive"></label>
+			</div>
 
-            <div class="form-group mt-4">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
-    </div>
+			<div class="form-group mt-4">
+				<button type="submit" class="btn btn-primary">Save Changes</button>
+				<a asp-action="Index" class="btn btn-secondary">Cancel</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <style>
-        /* Ensure dropdowns are always visible and functional */
-        .form-select:disabled {
-            opacity: 1 !important;
-            background-color: #fff !important;
-            color: #212529 !important;
-        }
-        
-        /* Style for dropdown options */
-        .form-select, 
-        .form-select option {
-            color: #212529 !important;
-            background-color: #fff !important;
-        }
-        
-        /* Style for disabled options */
-        .form-select:disabled,
-        .form-select option:disabled {
-            color: #6c757d !important;
-            background-color: #e9ecef !important;
-        }
-        
-        /* Ensure dropdown arrow is visible */
-        select.form-select {
-            -webkit-appearance: menulist !important;
-            -moz-appearance: menulist !important;
-            appearance: menulist !important;
-        }
-    </style>
-    
-    <script>
-        // Helper function for case-insensitive GUID comparison
-        function areGuidsEqual(guid1, guid2) {
-            if (!guid1 || !guid2) return false;
-            return guid1.toString().toLowerCase() === guid2.toString().toLowerCase();
-        }
-        
-        // Show loading state for dropdown
-        function showLoading(dropdownId) {
-            const dropdown = $(`#${dropdownId}`);
-            dropdown.prop('disabled', true);
-            dropdown.next('.spinner-border').remove();
-            dropdown.after('<div class="spinner-border spinner-border-sm text-primary ms-2" role="status"><span class="visually-hidden">Loading...</span></div>');
-        }
-        
-        // Hide loading state for dropdown
-        function hideLoading(dropdownId) {
-            const dropdown = $(`#${dropdownId}`);
-            dropdown.prop('disabled', false);
-            dropdown.next('.spinner-border').remove();
-        }
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	
+	<script>
+		// Function to update status message based on status
+		function updateStatusMessage(forceUpdate = false) {
+			const status = $('#Status').val();
+			const currentMessage = $('#StatusMessage').val();
+			let message = '';
+			
+			// Only update if forced, or if there's no existing message, or if it's one of our default messages
+			if (forceUpdate || !currentMessage || currentMessage.startsWith('[')) {
+				switch(status) {
+					case 'INC':
+						message = '[In Progress]';
+						break;
+					case 'CMP':
+						message = '[Completed]';
+						break;
+					case 'PEND':
+						message = '[Pending]';
+						break;
+					case 'ERR':
+						message = '[Error]';
+						break;
+					default:
+						message = '';
+				}
+				
+				$('#StatusMessage').val(message);
+			}
+		}
+		
+		$(document).ready(function() {
+			// Initialize status message on page load
+			updateStatusMessage();
+			
+			// Update status message when status changes (force update when user changes it)
+			$('#Status').on('change', function() {
+				updateStatusMessage(true);
+			});
+			
+			// Function to load states based on country
+			function loadStates(countryId) {
+				var stateDropdown = $('#stateDropdown');
+				var cityDropdown = $('#cityDropdown');
+				
+				// Only reset if we don't already have states loaded (more than just the default option)
+				if (stateDropdown.find('option').length <= 1) {
+					// Reset and disable state and city dropdowns
+					stateDropdown.empty().append($('<option>', {
+						value: '',
+						text: '-- Select State --'
+					})).prop('disabled', true);
+					
+					cityDropdown.empty().append($('<option>', {
+						value: '',
+						text: '-- Select City --'
+					})).prop('disabled', true);
+				}
+				
+				if (countryId) {
+					stateDropdown.prop('disabled', true);
+					
+					// Call API to get states for the selected country
+					$.get('@Url.Action("GetStatesByCountry", "Company")', { countryId: countryId })
+						.done(function(data) {
+							if (data && data.length > 0) {
+								stateDropdown.prop('disabled', false);
+								
+								// Add states to dropdown
+								$.each(data, function(index, state) {
+									stateDropdown.append($('<option>', {
+										value: state.id,
+										text: state.name
+									}));
+								});
+								
+								// If there's a previously selected state, try to select it
+								var selectedStateId = '@Model.StateId';
+								if (selectedStateId) {
+									stateDropdown.val(selectedStateId);
+									// Load cities for the selected state
+									loadCities(selectedStateId);
+								}
+							} else {
+								stateDropdown.append($('<option>', {
+									value: '',
+									text: 'No states available'
+								}));
+							}
+						})
+						.fail(function() {
+							console.error('Error loading states');
+							stateDropdown.append($('<option>', {
+								value: '',
+								text: 'Error loading states'
+							}));
+						})
+						.always(function() {
+							stateDropdown.prop('disabled', false);
+						});
+				}
+			}
 
-        function toggleDebugInfo() {
-            var debugDiv = document.getElementById('debugInfo');
-            if (debugDiv.style.display === 'none') {
-                debugDiv.style.display = 'block';
-            } else {
-                debugDiv.style.display = 'none';
-            }
-        }
+			// Function to load cities based on state
+			function loadCities(stateId) {
+				var cityDropdown = $('#cityDropdown');
+				
+				// Only reset if we don't already have cities loaded (more than just the default option)
+				if (cityDropdown.find('option').length <= 1) {
+					// Reset and disable city dropdown
+					cityDropdown.empty().append($('<option>', {
+						value: '',
+						text: '-- Select City --'
+					})).prop('disabled', true);
+				}
+				
+				if (stateId) {
+					cityDropdown.prop('disabled', true);
+					
+					// Call API to get cities for the selected state
+					$.get('@Url.Action("GetCitiesByState", "Company")', { stateId: stateId })
+						.done(function(data) {
+							if (data && data.length > 0) {
+								cityDropdown.prop('disabled', false);
+								
+								// Add cities to dropdown
+								$.each(data, function(index, city) {
+									cityDropdown.append($('<option>', {
+										value: city.id,
+										text: city.name
+									}));
+								});
+								
+								// If there's a previously selected city, try to select it
+								var selectedCityId = '@Model.CityId';
+								if (selectedCityId) {
+									cityDropdown.val(selectedCityId);
+								}
+							} else {
+								cityDropdown.append($('<option>', {
+									value: '',
+									text: 'No cities available'
+								}));
+							}
+						})
+						.fail(function() {
+							console.error('Error loading cities');
+							cityDropdown.append($('<option>', {
+								value: '',
+								text: 'Error loading cities'
+							}));
+						})
+						.always(function() {
+							cityDropdown.prop('disabled', false);
+						});
+				}
+			}
 
-        $(document).ready(function() {
-        console.log('Document ready. Initializing form...');
-        console.log('Initial values - Country:', '@Model.CountryId', 'State:', '@Model.StateId', 'City:', '@Model.CityId', 'Jurisdiction:', '@Model.JurisdictionArea');
-        
-        // Initialize dropdowns with server-side values first
-        initializeDropdowns();
-        
-        // Then load fresh data from API
-        loadCountries('@Model.CountryId', '@Model.StateId', '@Model.CityId', '@Model.JurisdictionArea');
-        
-        function initializeDropdowns() {
-            // Set initial selected values from model
-            if ('@Model.CountryId' !== '') {
-                $('#CountryId').val('@Model.CountryId');
-            }
-            
-            if ('@Model.StateId' !== '') {
-                $('#StateId').val('@Model.StateId');
-            }
-            
-            if ('@Model.CityId' !== '') {
-                $('#CityId').val('@Model.CityId');
-            }
-            
-            if ('@Model.JurisdictionArea' !== '') {
-                $('#JurisdictionArea').val('@Model.JurisdictionArea');
-            }
-        }
+			// Handle country change
+			$('#countryDropdown').change(function() {
+				loadStates($(this).val());
+			});
 
-    // Country change event
-    $('#CountryId').change(function() {
-        var countryId = $(this).val();
-        console.log('Country changed to:', countryId);
-        
-        // Reset dependent dropdowns
-        $('#StateId').empty().append('<option value="">-- Select State --</option>');
-        $('#CityId').empty().append('<option value="">-- Select City --</option>');
-        $('#JurisdictionArea').empty().append('<option value="">-- Select Jurisdiction Area --</option>');
-        
-        if (countryId) {
-            showLoading('StateId');
-            loadStates(countryId, null, null, null);
-        }
-    });
-
-    // State change event
-    $('#StateId').change(function() {
-        var stateId = $(this).val();
-        console.log('State changed to:', stateId);
-        
-        // Reset dependent dropdowns
-        $('#CityId').empty().append('<option value="">-- Select City --</option>');
-        $('#JurisdictionArea').empty().append('<option value="">-- Select Jurisdiction Area --</option>');
-        
-        if (stateId) {
-            showLoading('CityId');
-            showLoading('JurisdictionArea');
-            loadCities(stateId, null, null);
-        }
-    });
-
-    // Load countries
-    function loadCountries(selectedCountryId, selectedStateId, selectedCityId, selectedJurisdictionId) {
-        console.log('Loading countries...');
-        console.log('Selected Country ID:', selectedCountryId);
-        
-        showLoading('CountryId');
-        
-        $.get('/api/locations/countries')
-            .always(() => hideLoading('CountryId'))
-            .done(function(data) {
-                console.log('Countries API Response:', data);
-                
-                if (!data || !Array.isArray(data)) {
-                    console.error('Invalid data format received from countries API:', data);
-                    return;
-                }
-                
-                var countryDropdown = $('#CountryId');
-                countryDropdown.empty().append('<option value="">-- Select Country --</option>');
-                
-                if (data.length === 0) {
-                    console.warn('No countries returned from the API');
-                    return;
-                }
-                
-                $.each(data, function(index, item) {
-                    if (!item || !item.id || !item.name) {
-                        console.warn('Invalid country item:', item);
-                        return true; // continue to next iteration
-                    }
-                    
-                    countryDropdown.append($('<option>', {
-                        value: item.id,
-                        text: item.name,
-                        selected: areGuidsEqual(item.id, selectedCountryId)
-                    }));
-                });
-
-                if (selectedCountryId) {
-                    console.log('Loading states for country ID:', selectedCountryId);
-                    loadStates(selectedCountryId, selectedStateId, selectedCityId, selectedJurisdictionId);
-                }
-            })
-            .fail(function(xhr, status, error) {
-                console.error('Error loading countries:');
-                console.error('Status:', status);
-                console.error('Error:', error);
-                console.error('Response:', xhr.responseText);
-                
-                // Fallback: Try to use the server-side rendered options if available
-                var serverRenderedOptions = $('#CountryId').find('option[value!=""]');
-                if (serverRenderedOptions.length > 0) {
-                    console.log('Using server-rendered country options');
-                    if (selectedCountryId) {
-                        loadStates(selectedCountryId, selectedStateId, selectedCityId, selectedJurisdictionId);
-                    }
-                } else {
-                    console.error('No server-rendered country options available');
-                }
-            });
-    }
-
-    // Load states by country
-    function loadStates(countryId, selectedStateId, selectedCityId, selectedJurisdictionId) {
-        if (!countryId) return;
-
-        showLoading('StateId');
-
-        $.get(`/api/locations/states/${countryId}`)
-            .always(() => hideLoading('StateId'))
-            .done(function(data) {
-                var stateDropdown = $('#StateId');
-                stateDropdown.empty().append('<option value="">-- Select State --</option>');
-                
-                $.each(data, function(index, item) {
-                    stateDropdown.append($('<option>', {
-                        value: item.id,
-                        text: item.name,
-                        selected: areGuidsEqual(item.id, selectedStateId)
-                    }));
-                });
-
-                if (selectedStateId) {
-                    loadCities(selectedStateId, selectedCityId, selectedJurisdictionId);
-                } else {
-                    $('#CityId').empty().append('<option value="">-- Select City --</option>');
-                    $('#JurisdictionArea').empty().append('<option value="">-- Select Jurisdiction Area --</option>');
-                }
-            })
-            .fail(function(error) {
-                console.error('Error loading states:', error);
-            });
-    }
-
-    // Load cities by state
-    function loadCities(stateId, selectedCityId, selectedJurisdictionId) {
-        if (!stateId) return;
-
-        showLoading('CityId');
-
-        // Load regular cities
-        $.get(`/api/locations/cities/${stateId}`)
-            .always(() => hideLoading('CityId'))
-            .done(function(data) {
-                var cityDropdown = $('#CityId');
-                cityDropdown.empty().append('<option value="">-- Select City --</option>');
-                
-                $.each(data, function(index, item) {
-                    cityDropdown.append($('<option>', {
-                        value: item.id,
-                        text: item.name,
-                        selected: areGuidsEqual(item.id, selectedCityId)
-                    }));
-                });
-
-                // Load jurisdiction areas (which are also cities)
-                loadJurisdictionAreas(stateId, selectedJurisdictionId);
-            })
-            .fail(function(error) {
-                console.error('Error loading cities:', error);
-            });
-    }
-
-    // Load jurisdiction areas
-    function loadJurisdictionAreas(stateId, selectedJurisdictionId) {
-        if (!stateId) return;
-
-        showLoading('JurisdictionArea');
-
-        $.get(`/Company/GetJurisdictionAreas/${stateId}`)
-            .always(() => hideLoading('JurisdictionArea'))
-            .done(function(data) {
-                var jurisdictionDropdown = $('#JurisdictionArea');
-                jurisdictionDropdown.empty().append('<option value="">-- Select Jurisdiction Area --</option>');
-                
-                $.each(data, function(index, item) {
-                    jurisdictionDropdown.append($('<option>', {
-                        value: item.id,
-                        text: item.name,
-                        selected: areGuidsEqual(item.id, selectedJurisdictionId)
-                    }));
-                });
-            })
-            .fail(function(error) {
-                console.error('Error loading jurisdiction areas:', error);
-                    text: item.name,
-                    selected: areGuidsEqual(item.id, selectedJurisdictionId)
-                }));
-            });
-        }).fail(function(error) {
-            console.error('Error loading jurisdiction areas:', error);
-        });
-    }
-
-    // Form submission
-    $('#companyForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        // Add loading state
-        var submitButton = $(this).find('button[type="submit"]');
-        var originalText = submitButton.html();
-        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
-
-        // Submit form via AJAX
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function(response) {
-                // Handle success
-                window.location.href = '/Company'; // Redirect to list view
-            },
-            error: function(xhr) {
-                // Handle error
-                alert('An error occurred while saving the company. Please try again.');
-                console.error('Error:', xhr.responseText);
-            },
-            complete: function() {
-                // Re-enable button
-                submitButton.prop('disabled', false).html(originalText);
-            }
-        });
-    });
-});
-    </script>
+			// Handle state change
+			$('#stateDropdown').change(function() {
+				loadCities($(this).val());
+			});
+			
+			// Initialize dropdowns if values are already selected
+			// Only load states if country is selected AND we don't already have states loaded
+			if ($('#countryDropdown').val() && $('#stateDropdown option').length <= 1) {
+				loadStates($('#countryDropdown').val());
+			}
+			// Only load cities if state is selected AND we don't already have cities loaded
+			else if ($('#stateDropdown').val() && $('#cityDropdown option').length <= 1) {
+				loadCities($('#stateDropdown').val());
+			}
+		});
+	</script>
 }

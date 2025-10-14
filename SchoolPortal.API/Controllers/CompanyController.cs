@@ -275,7 +275,7 @@ namespace SchoolPortal.API.Controllers
 				// In a real application, you might have a separate JurisdictionArea entity
 				// We need to get the state ID first, then get cities for that state
 				// For simplicity, we'll return the same city as the only jurisdiction area
-				var city = new CityDto { Id = cityId, Name = "Jurisdiction Area", StateId = cityId };
+				var city = new CityDto { Id = cityId, CityName = "Jurisdiction Area", StateId = cityId };
 				return Ok(new List<CityDto> { city });
 			}
 			catch (Exception ex)

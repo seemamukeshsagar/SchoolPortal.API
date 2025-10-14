@@ -43,5 +43,8 @@ namespace SchoolPortal.API.DTOs.Company
 		
 		[Required]
 		public Guid JurisdictionArea { get; set; }
+
+		public Guid? CreatedBy { get; set; }
+		public Guid? ModifiedBy { get; set; }
 	}
 }

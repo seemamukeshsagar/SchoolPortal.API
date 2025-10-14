@@ -21,7 +21,6 @@
             <div class="mb-4">
                 <div class="d-flex justify-content-between">
                     <label asp-for="Password" class="form-label">Password</label>
-                    <a href="#" class="text-decoration-none small">Forgot password?</a>
                 </div>
                 <input asp-for="Password" type="password" class="form-control form-control-lg" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
                 <span asp-validation-for="Password" class="text-danger small"></span>
@@ -35,11 +34,10 @@
             </div>
             
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary btn-lg">Log In</button>
-            </div>
-            
-            <div class="text-center mt-4">
-                <p class="mb-0">Don't have an account? <a href="#" class="text-decoration-none">Sign up</a></p>
+                <button type="submit" class="btn btn-primary btn-lg" id="loginButton">
+                    <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status" aria-hidden="true"></span>
+                    <span id="buttonText">Log In</span>
+                </button>
             </div>
         </form>
     </div>
@@ -47,4 +45,28 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const spinner = document.getElementById('spinner');
+            const buttonText = document.getElementById('buttonText');
+            const loginButton = document.getElementById('loginButton');
+
+            form.addEventListener('submit', function() {
+                // Disable the button and show spinner
+                loginButton.disabled = true;
+                spinner.classList.remove('d-none');
+                buttonText.textContent = 'Processing...';
+            });
+        });
+    </script>
+    <style>
+        #spinner {
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        #buttonText {
+            vertical-align: middle;
+        }
+    </style>
 }
