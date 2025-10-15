@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -27,8 +27,8 @@ namespace SchoolPortal.Web.Controllers
 		{
 			_configuration = configuration;
 			_httpClient = httpClientFactory.CreateClient();
-			_apiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "/api/school";
-			_companyApiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "/api/company";
+			_apiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "school";
+			_companyApiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "company";
 		}
 
 		[HttpGet]
@@ -47,8 +47,9 @@ namespace SchoolPortal.Web.Controllers
 
 				return View(schools);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
+				string temp = ex.Message + "\n" + ex.StackTrace;
 				TempData["ErrorMessage"] = "Error retrieving schools. Please try again.";
 				return View(new List<SchoolDto>());
 			}
@@ -82,8 +83,11 @@ namespace SchoolPortal.Web.Controllers
 		{
 			try
 			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
-				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				var token = HttpContext.Session.GetString("JWToken");
+				if (!string.IsNullOrEmpty(token))
+				{
+					_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				}
 
 				var model = new CreateSchoolViewModel
 				{
@@ -100,17 +104,40 @@ namespace SchoolPortal.Web.Controllers
 					BankAddress2 = string.Empty,
 					BankZipCode = string.Empty,
 					AccountNumber = string.Empty,
-					ZipCode = string.Empty
-				};
-				await LoadDropdownData(model);
-				return View(model);
-			}
-			catch (Exception)
-			{
-				TempData["ErrorMessage"] = "Error loading form. Please try again.";
-				return RedirectToAction(nameof(Index));
-			}
-		}
+					ZipCode = string.Empty,
+					IsActive = true,
+                    // Initialize collections to prevent null reference exceptions
+                    Companies = new List<CompanyDto>(),
+                    Countries = new List<CountryDto>(),
+                    States = new List<StateDto>(),
+                    Cities = new List<CityDto>(),
+                    JudistrictionCountries = new List<CountryDto>(),
+                    JudistrictionStates = new List<StateDto>(),
+                    JudistrictionCities = new List<CityDto>(),
+                    BankCountries = new List<CountryDto>(),
+                    BankStates = new List<StateDto>(),
+                    BankCities = new List<CityDto>()
+                };
+
+                try
+                {
+                    await LoadDropdownData(model);
+                }
+                catch (Exception ex)
+                {
+                    // Log the error but don't fail the page load
+                    Console.WriteLine($"Error loading dropdown data: {ex.Message}");
+                }
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Create GET: {ex}");
+                TempData["ErrorMessage"] = "Error loading the form. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -391,90 +418,129 @@ namespace SchoolPortal.Web.Controllers
 				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 				// Load companies
+				Console.WriteLine("Loading companies...");
 				var companiesResponse = await _httpClient.GetAsync(_companyApiBaseUrl);
-				companiesResponse.EnsureSuccessStatusCode();
+				if (!companiesResponse.IsSuccessStatusCode)
+				{
+					var errorContent = await companiesResponse.Content.ReadAsStringAsync();
+					throw new Exception($"Failed to load companies. Status: {companiesResponse.StatusCode}, Content: {errorContent}");
+				}
 				var companiesContent = await companiesResponse.Content.ReadAsStringAsync();
 				model.Companies = JsonConvert.DeserializeObject<List<CompanyDto>>(companiesContent) ?? new List<CompanyDto>();
+				Console.WriteLine($"Loaded {model.Companies.Count} companies");
 
 				// Load countries
+				Console.WriteLine("Loading countries...");
 				var countriesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/countries");
-				countriesResponse.EnsureSuccessStatusCode();
+				if (!countriesResponse.IsSuccessStatusCode)
+				{
+					var errorContent = await countriesResponse.Content.ReadAsStringAsync();
+					throw new Exception($"Failed to load countries. Status: {countriesResponse.StatusCode}, Content: {errorContent}");
+				}
 				var countriesContent = await countriesResponse.Content.ReadAsStringAsync();
 				model.Countries = JsonConvert.DeserializeObject<List<CountryDto>>(countriesContent) ?? new List<CountryDto>();
+				Console.WriteLine($"Loaded {model.Countries.Count} countries");
+
+				// Set jurisdiction and bank countries to the same as regular countries
+				model.JudistrictionCountries = model.Countries.ToList();
+				model.BankCountries = model.Countries.ToList();
 
 				// Load states if country is selected
 				if (model.CountryId != Guid.Empty)
 				{
+					Console.WriteLine($"Loading states for country {model.CountryId}...");
 					var statesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.CountryId}");
-					statesResponse.EnsureSuccessStatusCode();
-					var statesContent = await statesResponse.Content.ReadAsStringAsync();
-					model.States = JsonConvert.DeserializeObject<List<StateDto>>(statesContent) ?? new List<StateDto>();
+					if (statesResponse.IsSuccessStatusCode)
+					{
+						var statesContent = await statesResponse.Content.ReadAsStringAsync();
+						model.States = JsonConvert.DeserializeObject<List<StateDto>>(statesContent) ?? new List<StateDto>();
+						Console.WriteLine($"Loaded {model.States.Count} states");
+					}
 				}
 
 				// Load cities if state is selected
 				if (model.StateId != Guid.Empty)
 				{
+					Console.WriteLine($"Loading cities for state {model.StateId}...");
 					var citiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.StateId}");
-					citiesResponse.EnsureSuccessStatusCode();
-					var citiesContent = await citiesResponse.Content.ReadAsStringAsync();
-					model.Cities = JsonConvert.DeserializeObject<List<CityDto>>(citiesContent) ?? new List<CityDto>();
+					if (citiesResponse.IsSuccessStatusCode)
+					{
+						var citiesContent = await citiesResponse.Content.ReadAsStringAsync();
+						model.Cities = JsonConvert.DeserializeObject<List<CityDto>>(citiesContent) ?? new List<CityDto>();
+						Console.WriteLine($"Loaded {model.Cities.Count} cities");
+					}
 				}
-
-				// Load jurisdiction countries (same as regular countries)
-				model.JudistrictionCountries = model.Countries;
 
 				// Load jurisdiction states if jurisdiction country is selected
 				if (model.JudistrictionCountryId != Guid.Empty)
 				{
+					Console.WriteLine($"Loading jurisdiction states for country {model.JudistrictionCountryId}...");
 					var jurStatesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.JudistrictionCountryId}");
-					jurStatesResponse.EnsureSuccessStatusCode();
-					var jurStatesContent = await jurStatesResponse.Content.ReadAsStringAsync();
-					model.JudistrictionStates = JsonConvert.DeserializeObject<List<StateDto>>(jurStatesContent) ?? new List<StateDto>();
+					if (jurStatesResponse.IsSuccessStatusCode)
+					{
+						var jurStatesContent = await jurStatesResponse.Content.ReadAsStringAsync();
+						model.JudistrictionStates = JsonConvert.DeserializeObject<List<StateDto>>(jurStatesContent) ?? new List<StateDto>();
+						Console.WriteLine($"Loaded {model.JudistrictionStates.Count} jurisdiction states");
+					}
 				}
 
 				// Load jurisdiction cities if jurisdiction state is selected
 				if (model.JudistrictionStateId != Guid.Empty)
 				{
+					Console.WriteLine($"Loading jurisdiction cities for state {model.JudistrictionStateId}...");
 					var jurCitiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.JudistrictionStateId}");
-					jurCitiesResponse.EnsureSuccessStatusCode();
-					var jurCitiesContent = await jurCitiesResponse.Content.ReadAsStringAsync();
-					model.JudistrictionCities = JsonConvert.DeserializeObject<List<CityDto>>(jurCitiesContent) ?? new List<CityDto>();
+					if (jurCitiesResponse.IsSuccessStatusCode)
+					{
+						var jurCitiesContent = await jurCitiesResponse.Content.ReadAsStringAsync();
+						model.JudistrictionCities = JsonConvert.DeserializeObject<List<CityDto>>(jurCitiesContent) ?? new List<CityDto>();
+						Console.WriteLine($"Loaded {model.JudistrictionCities.Count} jurisdiction cities");
+					}
 				}
-
-				// Load bank countries (same as regular countries)
-				model.BankCountries = model.Countries;
 
 				// Load bank states if bank country is selected
 				if (model.BankCountryId != Guid.Empty)
 				{
+					Console.WriteLine($"Loading bank states for country {model.BankCountryId}...");
 					var bankStatesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.BankCountryId}");
-					bankStatesResponse.EnsureSuccessStatusCode();
-					var bankStatesContent = await bankStatesResponse.Content.ReadAsStringAsync();
-					model.BankStates = JsonConvert.DeserializeObject<List<StateDto>>(bankStatesContent) ?? new List<StateDto>();
+					if (bankStatesResponse.IsSuccessStatusCode)
+					{
+						var bankStatesContent = await bankStatesResponse.Content.ReadAsStringAsync();
+						model.BankStates = JsonConvert.DeserializeObject<List<StateDto>>(bankStatesContent) ?? new List<StateDto>();
+						Console.WriteLine($"Loaded {model.BankStates.Count} bank states");
+					}
 				}
 
 				// Load bank cities if bank state is selected
 				if (model.BankStateId != Guid.Empty)
 				{
+					Console.WriteLine($"Loading bank cities for state {model.BankStateId}...");
 					var bankCitiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.BankStateId}");
-					bankCitiesResponse.EnsureSuccessStatusCode();
-					var bankCitiesContent = await bankCitiesResponse.Content.ReadAsStringAsync();
-					model.BankCities = JsonConvert.DeserializeObject<List<CityDto>>(bankCitiesContent) ?? new List<CityDto>();
+					if (bankCitiesResponse.IsSuccessStatusCode)
+					{
+						var bankCitiesContent = await bankCitiesResponse.Content.ReadAsStringAsync();
+						model.BankCities = JsonConvert.DeserializeObject<List<CityDto>>(bankCitiesContent) ?? new List<CityDto>();
+						Console.WriteLine($"Loaded {model.BankCities.Count} bank cities");
+					}
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				// Handle error or log it
-				model.Companies = new List<CompanyDto>();
-				model.Countries = new List<CountryDto>();
-				model.States = new List<StateDto>();
-				model.Cities = new List<CityDto>();
-				model.JudistrictionCountries = new List<CountryDto>();
-				model.JudistrictionStates = new List<StateDto>();
-				model.JudistrictionCities = new List<CityDto>();
-				model.BankCountries = new List<CountryDto>();
-				model.BankStates = new List<StateDto>();
-				model.BankCities = new List<CityDto>();
+				Console.WriteLine($"Error in LoadDropdownData: {ex}");
+				
+				// Initialize all collections to empty lists to prevent null reference exceptions
+				model.Companies ??= new List<CompanyDto>();
+				model.Countries ??= new List<CountryDto>();
+				model.States ??= new List<StateDto>();
+				model.Cities ??= new List<CityDto>();
+				model.JudistrictionCountries ??= model.Countries.ToList();
+				model.JudistrictionStates ??= new List<StateDto>();
+				model.JudistrictionCities ??= new List<CityDto>();
+				model.BankCountries ??= model.Countries.ToList();
+				model.BankStates ??= new List<StateDto>();
+				model.BankCities ??= new List<CityDto>();
+
+				// Re-throw the exception to be handled by the calling method
+				throw;
 			}
 		}
 	}

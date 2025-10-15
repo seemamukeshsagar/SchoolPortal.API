@@ -1,18 +1,22 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using SchoolPortal.API.Models; // For SchoolPortalNewContext
 using SchoolPortal.Web.Models;
 using System.Net.Http.Headers;
-using Microsoft.EntityFrameworkCore;
-using SchoolPortal.API.Models;  // This is where SchoolPortalNewContext is located
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ----------------------------
+// Add MVC controllers + views
+// ----------------------------
 builder.Services.AddControllersWithViews();
 
-// Add HTTP context accessor
+// ----------------------------
+// Add session & context accessor
+// ----------------------------
 builder.Services.AddHttpContextAccessor();
-
-// Add session services
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -20,9 +24,13 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.Name = "__Host-SchoolPortal.Session";
+    options.Cookie.Path = "/";
 });
 
-// Add authentication
+// ----------------------------
+// Add authentication with secure cookies
+// ----------------------------
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -31,36 +39,65 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
+        options.Cookie.Name = "__Host-SchoolPortal.Auth";
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+        options.Cookie.Path = "/";
     });
 
-//https://localhost:7185/api/Auth/login
+// ----------------------------
+// HTTPS redirection
+// ----------------------------
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+    options.HttpsPort = 443;
+});
 
-// Add CORS policy - HTTPS only
+// ----------------------------
+// Add CORS
+// ----------------------------
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.WithOrigins("https://localhost:7185")
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials();
+        policy.WithOrigins(
+                "https://localhost:7185",
+                "https://your-production-domain.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
 });
 
-// Add HTTP clients
-builder.Services.AddHttpClient();
+// ----------------------------
+// Configure global API settings
+// ----------------------------
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
-// Add named HTTP client for authentication with optimized settings
-builder.Services.AddHttpClient("AuthApi", client =>
-{
-    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? string.Empty;
-    if (string.IsNullOrWhiteSpace(baseUrl))
+// ----------------------------
+// Add HttpClients (properly structured)
+// ----------------------------
+
+// Default client
+builder.Services.AddHttpClient("DefaultClient")
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
     {
-        throw new InvalidOperationException("ApiSettings:BaseUrl is not configured in appsettings.json");
-    }
+        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+        UseProxy = false,
+        UseCookies = false,
+        MaxConnectionsPerServer = 100
+    });
+
+// Auth client
+builder.Services.AddHttpClient("AuthApi", (serviceProvider, client) =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
+
     client.BaseAddress = new Uri(baseUrl);
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     client.Timeout = TimeSpan.FromSeconds(30);
@@ -73,80 +110,103 @@ builder.Services.AddHttpClient("AuthApi", client =>
     MaxConnectionsPerServer = 100
 });
 
-// Add DbContext
-//builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// General API client
+builder.Services.AddHttpClient("ApiClient", (serviceProvider, client) =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
 
-// Register LocationService
-//builder.Services.AddScoped<SchoolPortal.API.Interfaces.ILocationService, SchoolPortal.API.Services.LocationService>();
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+    UseProxy = false,
+    UseCookies = false,
+    MaxConnectionsPerServer = 100
+});
 
-// Configure API settings
-builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+// Location API client
+builder.Services.AddHttpClient("LocationApi", (serviceProvider, client) =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
 
-// Configure cookie policy
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+    UseProxy = false,
+    UseCookies = false,
+    MaxConnectionsPerServer = 100
+});
+
+// ----------------------------
+// Configure cookie policy & antiforgery
+// ----------------------------
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.Lax;
     options.Secure = CookieSecurePolicy.Always;
-    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+    options.HttpOnly = HttpOnlyPolicy.Always;
+    options.CheckConsentNeeded = _ => false;
 });
 
-// In Program.cs of the Web project
-builder.Services.AddHttpClient("LocationApi", client =>
+builder.Services.AddAntiforgery(options =>
 {
-    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? string.Empty;
-    if (string.IsNullOrWhiteSpace(baseUrl))
-    {
-        throw new InvalidOperationException("ApiSettings:BaseUrl is not configured in appsettings.json");
-    }
-    client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-{
-    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-    UseProxy = false,
-    UseCookies = false,
-    MaxConnectionsPerServer = 100
-});
-
-// Configure cookie settings
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.Name = "__Host-Antiforgery";
+    options.Cookie.Path = "/";
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-    options.SlidingExpiration = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.HeaderName = "X-CSRF-TOKEN";
 });
 
+// ----------------------------
+// Build the app
+// ----------------------------
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ----------------------------
+// Middleware pipeline
+// ----------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
+
+// Security headers
+app.Use((context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+
+    if (context.Request.IsHttps)
+        context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+
+    return next();
+});
 
 app.UseHttpsRedirection();
-
-// Use Cookie Policy
-app.UseCookiePolicy();
-
-// Use CORS (must be before UseRouting and after UseHttpsRedirection)
-app.UseCors();
-
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseCookiePolicy();
+app.UseCors();
 
-// Add session middleware (must be after UseRouting and before UseAuthentication)
 app.UseSession();
-
-// Add authentication middleware
 app.UseAuthentication();
 app.UseAuthorization();
 

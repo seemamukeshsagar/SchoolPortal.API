@@ -1,442 +1,556 @@
 @model SchoolPortal.Web.Models.School.UpdateSchoolViewModel
 
 @{
-    ViewData["Title"] = "Edit School";
+	ViewData["Title"] = "Edit School";
 }
 
+<style>
+	.card-header.collapsible {
+		background-color: #f8f9fa;
+		transition: background-color 0.2s;
+		cursor: pointer;
+	}
+
+	.card-header.collapsible:hover {
+		background-color: #e9ecef;
+	}
+
+	.card-header.collapsible h5 {
+		margin: 0;
+		padding: 0.5rem 0;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.card-header.collapsible h5:after {
+		content: '+';
+		font-size: 1.25rem;
+		transition: transform 0.2s;
+	}
+
+	.card-header.collapsible[aria-expanded="true"] h5:after {
+		content: '-';
+	}
+
+	.collapse.show .card-body {
+		max-height: 400px;
+		overflow-y: auto;
+	}
+</style>
+
 <div class="card">
-    <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Edit School</h4>
-    </div>
-    <div class="card-body">
-        <form asp-action="Edit" method="post" id="schoolForm">
-            <input type="hidden" asp-for="Id" />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-            <!-- Basic Information -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Name" class="form-label">School Name *</label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Email" class="form-label">Email *</label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+	<div class="card-header collapsible" data-bs-toggle="collapse" href="#basicInfoCollapse" role="button" aria-expanded="false" aria-controls="basicInfoCollapse">
+		<h5 class="mb-0">School Information</h5>
+	</div>
+	<div class="card-body">
+		<form asp-action="Edit" method="post" id="schoolForm">
+			<input type="hidden" asp-for="Id" />
+			<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="form-label">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+			<!-- Basic Information Section -->
+			<div class="card mb-3">
+				<div class="card-header collapsible" data-bs-toggle="collapse" href="#basicInfoCollapse" role="button" aria-expanded="true" aria-controls="basicInfoCollapse">
+					<h5 class="mb-0">Basic Information</h5>
+				</div>
+				<div class="collapse show" id="basicInfoCollapse">
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="Name" class="form-label">School Name *</label>
+									<input asp-for="Name" class="form-control" />
+									<span asp-validation-for="Name" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="Email" class="form-label">Email *</label>
+									<input asp-for="Email" class="form-control" />
+									<span asp-validation-for="Email" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="CompanyId" class="form-label">Company *</label>
-                        <select asp-for="CompanyId" asp-items="Model.Companies.Select(c => new SelectListItem { 
-                            Value = c.Id.ToString(), 
-                            Text = c.CompanyName,
-                            Selected = c.Id == Model.CompanyId
-                        })" class="form-select">
-                            <option value="">-- Select Company --</option>
-                        </select>
-                        <span asp-validation-for="CompanyId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="EstablishmentYear" class="form-label">Establishment Year</label>
-                        <input asp-for="EstablishmentYear" class="form-control" placeholder="YYYY" />
-                        <span asp-validation-for="EstablishmentYear" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="form-group mb-3">
+							<label asp-for="Description" class="form-label">Description</label>
+							<textarea asp-for="Description" class="form-control" rows="3"></textarea>
+							<span asp-validation-for="Description" class="text-danger"></span>
+						</div>
 
-            <!-- Address Information -->
-            <h5 class="mt-4 mb-3">Address Information</h5>
-            <div class="form-group mb-3">
-                <label asp-for="Address1" class="form-label">Address Line 1 *</label>
-                <textarea asp-for="Address1" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="Address1" class="text-danger"></span>
-            </div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="CompanyId" class="form-label">Company *</label>
+									<select asp-for="CompanyId" asp-items="Model.Companies.Select(c => new SelectListItem { 
+										Value = c.Id.ToString(), 
+										Text = c.CompanyName,
+										Selected = c.Id == Model.CompanyId
+									})" class="form-select" id="companyDropdown">
+										<option value="">-- Select Company --</option>
+									</select>
+									<span asp-validation-for="CompanyId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="EstablishmentYear" class="form-label">Establishment Year</label>
+									<input asp-for="EstablishmentYear" class="form-control" placeholder="YYYY" />
+									<span asp-validation-for="EstablishmentYear" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Address2" class="form-label">Address Line 2</label>
-                <textarea asp-for="Address2" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="Address2" class="text-danger"></span>
-            </div>
+			<!-- Address Information Section -->
+			<div class="card mb-3">
+				<div class="card-header collapsible" data-bs-toggle="collapse" href="#addressInfoCollapse" role="button" aria-expanded="false" aria-controls="addressInfoCollapse">
+					<h5 class="mb-0">Address Information</h5>
+				</div>
+				<div class="collapse" id="addressInfoCollapse">
+					<div class="card-body">
+						<div class="form-group mb-3">
+							<label asp-for="Address1" class="form-label">Address Line 1 *</label>
+							<textarea asp-for="Address1" class="form-control" rows="2"></textarea>
+							<span asp-validation-for="Address1" class="text-danger"></span>
+						</div>
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { 
-                            Value = c.Id.ToString(), 
-                            Text = c.CountryName,
-                            Selected = c.Id == Model.CountryId
-                        })" class="form-select" id="countryDropdown">
-                            <option value="">-- Select Country --</option>
-                        </select>
-                        <span asp-validation-for="CountryId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="StateId" class="form-label">State</label>
-                        <select asp-for="StateId" class="form-select" id="stateDropdown" 
-                                asp-items="Model.States.Select(s => new SelectListItem { 
-                                    Value = s.Id.ToString(), 
-                                    Text = s.StateName,
-                                    Selected = s.Id == Model.StateId
-                                })">
-                            <option value="">-- Select State --</option>
-                        </select>
-                        <span asp-validation-for="StateId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="CityId" class="form-label">City</label>
-                        <select asp-for="CityId" class="form-select" id="cityDropdown"
-                                asp-items="Model.Cities.Select(c => new SelectListItem { 
-                                    Value = c.Id.ToString(), 
-                                    Text = c.CityName,
-                                    Selected = c.Id == Model.CityId
-                                })">
-                            <option value="">-- Select City --</option>
-                        </select>
-                        <span asp-validation-for="CityId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="form-group mb-3">
+							<label asp-for="Address2" class="form-label">Address Line 2</label>
+							<textarea asp-for="Address2" class="form-control" rows="2"></textarea>
+							<span asp-validation-for="Address2" class="text-danger"></span>
+						</div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="ZipCode" class="form-label">Zip Code</label>
-                        <input asp-for="ZipCode" class="form-control" />
-                        <span asp-validation-for="ZipCode" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Phone" class="form-label">Phone</label>
-                        <input asp-for="Phone" class="form-control" />
-                        <span asp-validation-for="Phone" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="row mb-3">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="CountryId" class="form-label">Country</label>
+									<select asp-for="CountryId" asp-items="Model.Countries.Select(c => new SelectListItem { 
+										Value = c.Id.ToString(), 
+										Text = c.CountryName,
+										Selected = c.Id == Model.CountryId
+									})" class="form-select" id="countryDropdown">
+										<option value="">-- Select Country --</option>
+									</select>
+									<span asp-validation-for="CountryId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="StateId" class="form-label">State</label>
+									<select asp-for="StateId" class="form-select" id="stateDropdown" 
+											asp-items="Model.States?.Select(s => new SelectListItem { 
+												Value = s.Id.ToString(), 
+												Text = s.StateName,
+												Selected = s.Id == Model.StateId
+											}) ?? new List<SelectListItem>()">
+										<option value="">-- Select State --</option>
+									</select>
+									<span asp-validation-for="StateId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="CityId" class="form-label">City</label>
+									<select asp-for="CityId" class="form-select" id="cityDropdown"
+											asp-items="Model.Cities?.Select(c => new SelectListItem { 
+												Value = c.Id.ToString(), 
+												Text = c.CityName,
+												Selected = c.Id == Model.CityId
+											}) ?? new List<SelectListItem>()">
+										<option value="">-- Select City --</option>
+									</select>
+									<span asp-validation-for="CityId" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Mobile" class="form-label">Mobile</label>
-                        <input asp-for="Mobile" class="form-control" />
-                        <span asp-validation-for="Mobile" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Status" class="form-label">Status</label>
-                        <select asp-for="Status" class="form-select">
-                            <option value="">-- Select Status --</option>
-                            <option value="Active" selected="@(Model.Status == "Active")">Active</option>
-                            <option value="Inactive" selected="@(Model.Status == "Inactive")">Inactive</option>
-                            <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
-                        </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="ZipCode" class="form-label">Zip Code</label>
+									<input asp-for="ZipCode" class="form-control" />
+									<span asp-validation-for="ZipCode" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="Phone" class="form-label">Phone</label>
+									<input asp-for="Phone" class="form-control" />
+									<span asp-validation-for="Phone" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="StatusMessage" class="form-label">Status Message</label>
-                <textarea asp-for="StatusMessage" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="StatusMessage" class="text-danger"></span>
-            </div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="Mobile" class="form-label">Mobile</label>
+									<input asp-for="Mobile" class="form-control" />
+									<span asp-validation-for="Mobile" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-check form-switch mt-4 pt-3">
+									<input class="form-check-input" type="checkbox" asp-for="IsActive">
+									<label class="form-check-label" asp-for="IsActive">Active</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- Jurisdiction Information -->
-            <h5 class="mt-4 mb-3">Jurisdiction Information</h5>
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="JudistrictionCountryId" class="form-label">Jurisdiction Country</label>
-                        <select asp-for="JudistrictionCountryId" asp-items="Model.JudistrictionCountries.Select(c => new SelectListItem { 
-                            Value = c.Id.ToString(), 
-                            Text = c.CountryName,
-                            Selected = c.Id == Model.JudistrictionCountryId
-                        })" class="form-select" id="jurCountryDropdown">
-                            <option value="">-- Select Country --</option>
-                        </select>
-                        <span asp-validation-for="JudistrictionCountryId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="JudistrictionStateId" class="form-label">Jurisdiction State</label>
-                        <select asp-for="JudistrictionStateId" class="form-select" id="jurStateDropdown" 
-                                asp-items="Model.JudistrictionStates.Select(s => new SelectListItem { 
-                                    Value = s.Id.ToString(), 
-                                    Text = s.StateName,
-                                    Selected = s.Id == Model.JudistrictionStateId
-                                })">
-                            <option value="">-- Select State --</option>
-                        </select>
-                        <span asp-validation-for="JudistrictionStateId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="JudistrictionCityId" class="form-label">Jurisdiction City</label>
-                        <select asp-for="JudistrictionCityId" class="form-select" id="jurCityDropdown"
-                                asp-items="Model.JudistrictionCities.Select(c => new SelectListItem { 
-                                    Value = c.Id.ToString(), 
-                                    Text = c.CityName,
-                                    Selected = c.Id == Model.JudistrictionCityId
-                                })">
-                            <option value="">-- Select City --</option>
-                        </select>
-                        <span asp-validation-for="JudistrictionCityId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+			<!-- Jurisdiction Information Section -->
+			<div class="card mb-3">
+				<div class="card-header collapsible" data-bs-toggle="collapse" href="#jurisdictionInfoCollapse" role="button" aria-expanded="false" aria-controls="jurisdictionInfoCollapse">
+					<h5 class="mb-0">Jurisdiction Information</h5>
+				</div>
+				<div class="collapse" id="jurisdictionInfoCollapse">
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="JudistrictionCountryId" class="form-label">Jurisdiction Country</label>
+									<select asp-for="JudistrictionCountryId" asp-items="Model.JudistrictionCountries?.Select(c => new SelectListItem { 
+										Value = c.Id.ToString(), 
+										Text = c.CountryName,
+										Selected = c.Id == Model.JudistrictionCountryId
+									}) ?? new List<SelectListItem>()" class="form-select" id="jurCountryDropdown">
+										<option value="">-- Select Country --</option>
+									</select>
+									<span asp-validation-for="JudistrictionCountryId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="JudistrictionStateId" class="form-label">Jurisdiction State</label>
+									<select asp-for="JudistrictionStateId" class="form-select" id="jurStateDropdown" 
+											asp-items="Model.JudistrictionStates?.Select(s => new SelectListItem { 
+												Value = s.Id.ToString(), 
+												Text = s.StateName,
+												Selected = s.Id == Model.JudistrictionStateId
+											}) ?? new List<SelectListItem>()">
+										<option value="">-- Select State --</option>
+									</select>
+									<span asp-validation-for="JudistrictionStateId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="JudistrictionCityId" class="form-label">Jurisdiction City</label>
+									<select asp-for="JudistrictionCityId" class="form-select" id="jurCityDropdown"
+											asp-items="Model.JudistrictionCities?.Select(c => new SelectListItem { 
+									Value = c.Id.ToString(), 
+									Text = c.CityName,
+									Selected = c.Id == Model.JudistrictionCityId
+								}) ?? new List<SelectListItem>()">
+										<option value="">-- Select City --</option>
+									</select>
+									<span asp-validation-for="JudistrictionCityId" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
 
-            <!-- Bank Information -->
-            <h5 class="mt-4 mb-3">Bank Information</h5>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="BankName" class="form-label">Bank Name</label>
-                        <input asp-for="BankName" class="form-control" />
-                        <span asp-validation-for="BankName" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="AccountNumber" class="form-label">Account Number</label>
-                        <input asp-for="AccountNumber" class="form-control" />
-                        <span asp-validation-for="AccountNumber" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="form-group mb-3">
+							<label asp-for="Status" class="form-label">Status</label>
+							<select asp-for="Status" class="form-select">
+								<option value="">-- Select Status --</option>
+								<option value="Active">Active</option>
+								<option value="Inactive">Inactive</option>
+								<option value="Pending">Pending</option>
+							</select>
+							<span asp-validation-for="Status" class="text-danger"></span>
+						</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="BankAddress1" class="form-label">Bank Address Line 1</label>
-                <textarea asp-for="BankAddress1" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="BankAddress1" class="text-danger"></span>
-            </div>
+						<div class="form-group mb-3">
+							<label asp-for="StatusMessage" class="form-label">Status Message</label>
+							<textarea asp-for="StatusMessage" class="form-control" rows="2"></textarea>
+							<span asp-validation-for="StatusMessage" class="text-danger"></span>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <div class="form-group mb-3">
-                <label asp-for="BankAddress2" class="form-label">Bank Address Line 2</label>
-                <textarea asp-for="BankAddress2" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="BankAddress2" class="text-danger"></span>
-            </div>
+			<!-- Bank Information Section -->
+			<div class="card mb-3">
+				<div class="card-header collapsible" data-bs-toggle="collapse" href="#bankInfoCollapse" role="button" aria-expanded="false" aria-controls="bankInfoCollapse">
+					<h5 class="mb-0">Bank Information</h5>
+				</div>
+				<div class="collapse" id="bankInfoCollapse">
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="BankName" class="form-label">Bank Name</label>
+									<input asp-for="BankName" class="form-control" />
+									<span asp-validation-for="BankName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="AccountNumber" class="form-label">Account Number</label>
+									<input asp-for="AccountNumber" class="form-control" />
+									<span asp-validation-for="AccountNumber" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="BankCountryId" class="form-label">Bank Country</label>
-                        <select asp-for="BankCountryId" asp-items="Model.BankCountries.Select(c => new SelectListItem { 
-                            Value = c.Id.ToString(), 
-                            Text = c.CountryName,
-                            Selected = c.Id == Model.BankCountryId
-                        })" class="form-select" id="bankCountryDropdown">
-                            <option value="">-- Select Country --</option>
-                        </select>
-                        <span asp-validation-for="BankCountryId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="BankStateId" class="form-label">Bank State</label>
-                        <select asp-for="BankStateId" class="form-select" id="bankStateDropdown" 
-                                asp-items="Model.BankStates.Select(s => new SelectListItem { 
-                                    Value = s.Id.ToString(), 
-                                    Text = s.StateName,
-                                    Selected = s.Id == Model.BankStateId
-                                })">
-                            <option value="">-- Select State --</option>
-                        </select>
-                        <span asp-validation-for="BankStateId" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="BankCityId" class="form-label">Bank City</label>
-                        <select asp-for="BankCityId" class="form-select" id="bankCityDropdown"
-                                asp-items="Model.BankCities.Select(c => new SelectListItem { 
-                                    Value = c.Id.ToString(), 
-                                    Text = c.CityName,
-                                    Selected = c.Id == Model.BankCityId
-                                })">
-                            <option value="">-- Select City --</option>
-                        </select>
-                        <span asp-validation-for="BankCityId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="form-group mb-3">
+							<label asp-for="BankAddress1" class="form-label">Bank Address Line 1</label>
+							<textarea asp-for="BankAddress1" class="form-control" rows="2"></textarea>
+							<span asp-validation-for="BankAddress1" class="text-danger"></span>
+						</div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="BankZipCode" class="form-label">Bank Zip Code</label>
-                        <input asp-for="BankZipCode" class="form-control" />
-                        <span asp-validation-for="BankZipCode" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+						<div class="form-group mb-3">
+							<label asp-for="BankAddress2" class="form-label">Bank Address Line 2</label>
+							<textarea asp-for="BankAddress2" class="form-control" rows="2"></textarea>
+							<span asp-validation-for="BankAddress2" class="text-danger"></span>
+						</div>
 
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                <label class="form-check-label" asp-for="IsActive">Active</label>
-            </div>
+						<div class="row mb-3">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="BankCountryId" class="form-label">Bank Country</label>
+									<select asp-for="BankCountryId" asp-items="Model.BankCountries?.Select(c => new SelectListItem { 
+										Value = c.Id.ToString(), 
+										Text = c.CountryName,
+										Selected = c.Id == Model.BankCountryId
+									}) ?? new List<SelectListItem>()" class="form-select" id="bankCountryDropdown">
+										<option value="">-- Select Country --</option>
+									</select>
+									<span asp-validation-for="BankCountryId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="BankStateId" class="form-label">Bank State</label>
+									<select asp-for="BankStateId" class="form-select" id="bankStateDropdown" 
+											asp-items="Model.BankStates?.Select(s => new SelectListItem { 
+												Value = s.Id.ToString(), 
+												Text = s.StateName,
+												Selected = s.Id == Model.BankStateId
+											}) ?? new List<SelectListItem>()" disabled>
+										<option value="">-- Select State --</option>
+									</select>
+									<span asp-validation-for="BankStateId" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label asp-for="BankCityId" class="form-label">Bank City</label>
+									<select asp-for="BankCityId" class="form-select" id="bankCityDropdown"
+											asp-items="Model.BankCities?.Select(c => new SelectListItem { 
+												Value = c.Id.ToString(), 
+												Text = c.CityName,
+												Selected = c.Id == Model.BankCityId
+											}) ?? new List<SelectListItem>()" disabled>
+										<option value="">-- Select City --</option>
+									</select>
+									<span asp-validation-for="BankCityId" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
 
-            <div class="form-group mt-4">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
-    </div>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label asp-for="BankZipCode" class="form-label">Bank Zip Code</label>
+									<input asp-for="BankZipCode" class="form-control" />
+									<span asp-validation-for="BankZipCode" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="AccountHolderName" class="form-label">Account Holder Name</label>
+									<input type="text" class="form-control" id="AccountHolderName" name="AccountHolderName" />
+								</div>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="IFSCCode" class="form-label">IFSC Code</label>
+									<input type="text" class="form-control" id="IFSCCode" name="IFSCCode" />
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="BranchName" class="form-label">Branch Name</label>
+									<input type="text" class="form-control" id="BranchName" name="BranchName" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group mt-4">
+				<button type="submit" class="btn btn-primary">Update</button>
+				<a asp-action="Index" class="btn btn-secondary">Cancel</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <script>
-        $(document).ready(function() {
-            // Initialize dropdowns
-            var countryId = '@Model.CountryId';
-            var stateId = '@Model.StateId';
-            var cityId = '@Model.CityId';
-            var jurCountryId = '@Model.JudistrictionCountryId';
-            var jurStateId = '@Model.JudistrictionStateId';
-            var jurCityId = '@Model.JudistrictionCityId';
-            var bankCountryId = '@Model.BankCountryId';
-            var bankStateId = '@Model.BankStateId';
-            var bankCityId = '@Model.BankCityId';
+	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	
+	<script>
+		$(document).ready(function() {
+			// Initialize collapsible sections
+			$('.collapsible').on('click', function() {
+				$(this).toggleClass('collapsed');
+			});
 
-            // Enable dropdowns if values are selected
-            if (countryId) {
-                $('#stateDropdown').prop('disabled', false);
-            }
-            if (stateId) {
-                $('#cityDropdown').prop('disabled', false);
-            }
-            if (jurCountryId) {
-                $('#jurStateDropdown').prop('disabled', false);
-            }
-            if (jurStateId) {
-                $('#jurCityDropdown').prop('disabled', false);
-            }
-            if (bankCountryId) {
-                $('#bankStateDropdown').prop('disabled', false);
-            }
-            if (bankStateId) {
-                $('#bankCityDropdown').prop('disabled', false);
-            }
-
-            // Country dropdown change events
-            $('#countryDropdown').change(function() {
-                var newCountryId = $(this).val();
-                if (newCountryId) {
-                    loadStates(newCountryId, '#stateDropdown');
-                } else {
-                    $('#stateDropdown').empty().prop('disabled', true).append('<option value="">-- Select State --</option>');
-                    $('#cityDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
-                }
-            });
-
-            $('#jurCountryDropdown').change(function() {
-                var newCountryId = $(this).val();
-                if (newCountryId) {
-                    loadStates(newCountryId, '#jurStateDropdown');
-                } else {
-                    $('#jurStateDropdown').empty().prop('disabled', true).append('<option value="">-- Select State --</option>');
-                    $('#jurCityDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
-                }
-            });
-
-            $('#bankCountryDropdown').change(function() {
-                var newCountryId = $(this).val();
-                if (newCountryId) {
-                    loadStates(newCountryId, '#bankStateDropdown');
-                } else {
-                    $('#bankStateDropdown').empty().prop('disabled', true).append('<option value="">-- Select State --</option>');
-                    $('#bankCityDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
-                }
-            });
-
-            // State dropdown change events
-            $('#stateDropdown').change(function() {
-                var newStateId = $(this).val();
-                if (newStateId) {
-                    loadCities(newStateId, '#cityDropdown');
-                } else {
-                    $('#cityDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
-                }
-            });
-
-            $('#jurStateDropdown').change(function() {
-                var newStateId = $(this).val();
-                if (newStateId) {
-                    loadCities(newStateId, '#jurCityDropdown');
-                } else {
-                    $('#jurCityDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
-                }
-            });
-
-            $('#bankStateDropdown').change(function() {
-                var newStateId = $(this).val();
-                if (newStateId) {
-                    loadCities(newStateId, '#bankCityDropdown');
-                } else {
-                    $('#bankCityDropdown').empty().prop('disabled', true).append('<option value="">-- Select City --</option>');
-                }
-            });
-
-            // Function to load states
-            function loadStates(countryId, stateDropdownSelector) {
-                $.get('/School/GetStatesByCountry', { countryId: countryId }, function(data) {
-                    var stateDropdown = $(stateDropdownSelector);
-                    stateDropdown.empty().append('<option value="">-- Select State --</option>').prop('disabled', false);
-                    
-                    if (data && data.length > 0) {
-                        $.each(data, function() {
-                            stateDropdown.append($('<option></option>').val(this.id).text(this.stateName));
-                        });
-                    } else {
-                        stateDropdown.append('<option value="">No states found</option>');
-                    }
-                }).fail(function() {
-                    alert('Error loading states');
-                });
-            }
-
-            // Function to load cities
-            function loadCities(stateId, cityDropdownSelector) {
-                $.get('/School/GetCitiesByState', { stateId: stateId }, function(data) {
-                    var cityDropdown = $(cityDropdownSelector);
-                    cityDropdown.empty().append('<option value="">-- Select City --</option>').prop('disabled', false);
-                    
-                    if (data && data.length > 0) {
-                        $.each(data, function() {
-                            cityDropdown.append($('<option></option>').val(this.id).text(this.cityName));
-                        });
-                    } else {
-                        cityDropdown.append('<option value="">No cities found</option>');
-                    }
-                }).fail(function() {
-                    alert('Error loading cities');
-                });
-            }
-        });
-    </script>
+			// Initialize dropdowns
+			var countryId = '@Model.CountryId';
+			var stateId = '@Model.StateId';
+			var cityId = '@Model.CityId';
+			
+			var jurCountryId = '@Model.JudistrictionCountryId';
+			var jurStateId = '@Model.JudistrictionStateId';
+			var jurCityId = '@Model.JudistrictionCityId';
+			
+			var bankCountryId = '@Model.BankCountryId';
+			
+			// Load states and cities when the page loads
+			if (countryId) {
+				loadStates(countryId, '#stateDropdown');
+				if (stateId) {
+					loadCities(stateId, '#cityDropdown');
+				}
+			}
+			
+			if (jurCountryId) {
+				loadStates(jurCountryId, '#jurStateDropdown');
+				if (jurStateId) {
+					loadCities(jurStateId, '#jurCityDropdown');
+				}
+			}
+			
+			if (bankCountryId) {
+				loadBankStates(bankCountryId);
+			}
+			
+			// Country change event
+			$('#countryDropdown').change(function() {
+				var countryId = $(this).val();
+				if (countryId) {
+					loadStates(countryId, '#stateDropdown');
+				} else {
+					$('#stateDropdown').empty().append('<option value="">-- Select State --</option>').prop('disabled', true);
+					$('#cityDropdown').empty().append('<option value="">-- Select City --</option>').prop('disabled', true);
+				}
+			});
+			
+			// State change event
+			$('#stateDropdown').change(function() {
+				var stateId = $(this).val();
+				if (stateId) {
+					loadCities(stateId, '#cityDropdown');
+				} else {
+					$('#cityDropdown').empty().append('<option value="">-- Select City --</option>').prop('disabled', true);
+				}
+			});
+			
+			// Jurisdiction Country change event
+			$('#jurCountryDropdown').change(function() {
+				var countryId = $(this).val();
+				if (countryId) {
+					loadStates(countryId, '#jurStateDropdown');
+				} else {
+					$('#jurStateDropdown').empty().append('<option value="">-- Select State --</option>').prop('disabled', true);
+					$('#jurCityDropdown').empty().append('<option value="">-- Select City --</option>').prop('disabled', true);
+				}
+			});
+			
+			// Jurisdiction State change event
+			$('#jurStateDropdown').change(function() {
+				var stateId = $(this).val();
+				if (stateId) {
+					loadCities(stateId, '#jurCityDropdown');
+				} else {
+					$('#jurCityDropdown').empty().append('<option value="">-- Select City --</option>').prop('disabled', true);
+				}
+			});
+			
+			// Bank Country change event
+			$('#bankCountryDropdown').change(function() {
+				var countryId = $(this).val();
+				if (countryId) {
+					loadBankStates(countryId);
+				} else {
+					$('#bankStateDropdown').empty().append('<option value="">-- Select State --</option>').prop('disabled', true);
+				}
+			});
+			
+			// Function to load states
+			function loadStates(countryId, stateDropdownSelector) {
+				$.get('/School/GetStatesByCountry', { countryId: countryId }, function(data) {
+					var stateDropdown = $(stateDropdownSelector);
+					stateDropdown.empty().append('<option value="">-- Select State --</option>').prop('disabled', false);
+					
+					$.each(data, function(index, state) {
+						stateDropdown.append($('<option></option>').attr('value', state.id).text(state.stateName));
+					});
+					
+					// Set the selected value if it exists
+					if (stateDropdownSelector === '#stateDropdown' && stateId) {
+						stateDropdown.val(stateId);
+					} else if (stateDropdownSelector === '#jurStateDropdown' && jurStateId) {
+						stateDropdown.val(jurStateId);
+					}
+					
+					// Trigger change event to load cities if needed
+					stateDropdown.trigger('change');
+				}).fail(function() {
+					console.error('Failed to load states');
+				});
+			}
+			
+			// Function to load cities
+			function loadCities(stateId, cityDropdownSelector) {
+				$.get('/School/GetCitiesByState', { stateId: stateId }, function(data) {
+					var cityDropdown = $(cityDropdownSelector);
+					cityDropdown.empty().append('<option value="">-- Select City --</option>').prop('disabled', false);
+					
+					$.each(data, function(index, city) {
+						cityDropdown.append($('<option></option>').attr('value', city.id).text(city.cityName));
+					});
+					
+					// Set the selected value if it exists
+					if (cityDropdownSelector === '#cityDropdown' && cityId) {
+						cityDropdown.val(cityId);
+					} else if (cityDropdownSelector === '#jurCityDropdown' && jurCityId) {
+						cityDropdown.val(jurCityId);
+					}
+				}).fail(function() {
+					console.error('Failed to load cities');
+				});
+			}
+			
+			// Function to load bank states
+			function loadBankStates(countryId) {
+				$.get('/School/GetStatesByCountry', { countryId: countryId }, function(data) {
+					var bankStateDropdown = $('#bankStateDropdown');
+					bankStateDropdown.empty().append('<option value="">-- Select State --</option>').prop('disabled', false);
+					
+					$.each(data, function(index, state) {
+						bankStateDropdown.append($('<option></option>').attr('value', state.id).text(state.stateName));
+					});
+					
+					// Set the selected value if it exists
+					if ('@Model.BankStateId') {
+						bankStateDropdown.val('@Model.BankStateId');
+					}
+				}).fail(function() {
+					console.error('Failed to load bank states');
+				});
+			}
+		});
+	</script>
 }

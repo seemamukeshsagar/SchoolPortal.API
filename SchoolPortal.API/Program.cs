@@ -33,17 +33,20 @@ builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
 
 // Register repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ISchoolRepository, SchoolRepository>();
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
-builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
 {
 	cfg.AddProfile<CompanyProfile>();
+	cfg.AddProfile<SchoolProfile>();
 }, typeof(Program).Assembly);
 
 // Configure JWT Authentication

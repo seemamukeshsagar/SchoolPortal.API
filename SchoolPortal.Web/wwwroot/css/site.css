@@ -29,3 +29,20 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* Scrollable form container for desktop */
+.form-scrollable {
+  overflow-x: auto;
+  max-width: 100%;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure form elements don't break the layout */
+.form-scrollable .form-control,
+.form-scrollable .form-select,
+.form-scrollable .form-check-input,
+.form-scrollable .btn {
+  min-width: 150px;
+}
+
