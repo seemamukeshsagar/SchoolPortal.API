@@ -1,8 +1,12 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "Uc/gppWVl44=",
+=======
+  "dgSpecHash": "Obv9LX17czk=",
+>>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
   "success": true,
-  "projectFilePath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
+  "projectFilePath": "C:\\MyWorkSpace\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mukes\\.nuget\\packages\\automapper\\15.0.1\\automapper.15.0.1.nupkg.sha512",
     "C:\\Users\\mukes\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
