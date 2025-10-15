@@ -4856,11 +4856,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
+      "projectUniqueName": "C:\\MyWorkSpace\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
       "projectName": "SchoolPortal.API",
-      "projectPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
+      "projectPath": "C:\\MyWorkSpace\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
       "packagesPath": "C:\\Users\\mukes\\.nuget\\packages\\",
-      "outputPath": "C:\\Seema.Mukesh\\SchoolPortal\\SchoolPortal.API\\obj\\",
+      "outputPath": "C:\\MyWorkSpace\\SchoolPortal\\SchoolPortal.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4972,7 +4972,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.1.25451.107/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.2.25502.107/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

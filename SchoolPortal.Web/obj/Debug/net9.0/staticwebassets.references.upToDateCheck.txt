@@ -185,3 +185,9 @@ C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.b
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
 C:\Seema.Mukesh\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\MyWorkSpace\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\MyWorkSpace\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\MyWorkSpace\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\MyWorkSpace\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\MyWorkSpace\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
+C:\MyWorkSpace\SchoolPortal\SchoolPortal.API\obj\Debug\net9.0\staticwebassets.build.json
