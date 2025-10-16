@@ -94,6 +94,62 @@
             <response code="200">Returns the list of jurisdiction areas</response>
             <response code="500">If an error occurs while retrieving jurisdiction areas</response>
         </member>
+        <member name="T:SchoolPortal.API.Controllers.SchoolContactController">
+            <summary>
+            Controller for managing school contact operations
+            </summary>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolContactController.GetBySchoolId(System.Guid)">
+            <summary>
+            Gets all contacts for a school
+            </summary>
+            <param name="schoolId">The school ID</param>
+            <returns>List of school contacts</returns>
+            <response code="200">Returns the list of contacts</response>
+            <response code="500">If an error occurs while retrieving contacts</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolContactController.GetById(System.Guid)">
+            <summary>
+            Gets a specific contact by ID
+            </summary>
+            <param name="id">The contact ID</param>
+            <returns>The contact if found</returns>
+            <response code="200">Returns the contact</response>
+            <response code="404">If the contact is not found</response>
+            <response code="500">If an error occurs while retrieving the contact</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolContactController.Create(SchoolPortal.API.DTOs.School.SchoolContactRequest)">
+            <summary>
+            Creates a new school contact
+            </summary>
+            <param name="request">The contact creation request</param>
+            <returns>The created contact</returns>
+            <response code="201">Returns the newly created contact</response>
+            <response code="400">If the request is invalid</response>
+            <response code="500">If an error occurs while creating the contact</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolContactController.Update(System.Guid,SchoolPortal.API.DTOs.School.SchoolContactRequest)">
+            <summary>
+            Updates an existing school contact
+            </summary>
+            <param name="id">The contact ID</param>
+            <param name="request">The contact update request</param>
+            <returns>The updated contact</returns>
+            <response code="200">Returns the updated contact</response>
+            <response code="400">If the request is invalid</response>
+            <response code="404">If the contact is not found</response>
+            <response code="500">If an error occurs while updating the contact</response>
+        </member>
+        <member name="M:SchoolPortal.API.Controllers.SchoolContactController.Delete(System.Guid)">
+            <summary>
+            Deletes a school contact
+            </summary>
+            <param name="id">The contact ID</param>
+            <returns>No content if successful</returns>
+            <response code="204">If the contact was deleted successfully</response>
+            <response code="404">If the contact is not found</response>
+            <response code="500">If an error occurs while deleting the contact</response>
+        </member>
         <member name="T:SchoolPortal.API.Controllers.SchoolController">
             <summary>
             Controller for managing school operations
@@ -157,6 +213,52 @@
             <returns>A list of schools for the specified company</returns>
             <response code="200">Returns the list of schools</response>
             <response code="500">If an error occurs while retrieving schools</response>
+        </member>
+        <member name="T:SchoolPortal.API.DTOs.School.SchoolContactRequest">
+            <summary>
+            Request model for creating or updating a school contact
+            </summary>
+        </member>
+        <member name="T:SchoolPortal.API.Interfaces.Services.ISchoolContactService">
+            <summary>
+            Service interface for school contact operations
+            </summary>
+        </member>
+        <member name="M:SchoolPortal.API.Interfaces.Services.ISchoolContactService.GetContactsBySchoolIdAsync(System.Guid)">
+            <summary>
+            Gets all contacts for a school
+            </summary>
+            <param name="schoolId">The school ID</param>
+            <returns>List of school contacts</returns>
+        </member>
+        <member name="M:SchoolPortal.API.Interfaces.Services.ISchoolContactService.GetContactByIdAsync(System.Guid)">
+            <summary>
+            Gets a school contact by ID
+            </summary>
+            <param name="id">The contact ID</param>
+            <returns>The school contact if found</returns>
+        </member>
+        <member name="M:SchoolPortal.API.Interfaces.Services.ISchoolContactService.CreateContactAsync(SchoolPortal.API.DTOs.School.SchoolContactRequest)">
+            <summary>
+            Creates a new school contact
+            </summary>
+            <param name="request">The contact creation request</param>
+            <returns>The created contact</returns>
+        </member>
+        <member name="M:SchoolPortal.API.Interfaces.Services.ISchoolContactService.UpdateContactAsync(System.Guid,SchoolPortal.API.DTOs.School.SchoolContactRequest)">
+            <summary>
+            Updates an existing school contact
+            </summary>
+            <param name="id">The contact ID</param>
+            <param name="request">The contact update request</param>
+            <returns>The updated contact</returns>
+        </member>
+        <member name="M:SchoolPortal.API.Interfaces.Services.ISchoolContactService.DeleteContactAsync(System.Guid)">
+            <summary>
+            Deletes a school contact
+            </summary>
+            <param name="id">The contact ID</param>
+            <returns>True if deleted successfully</returns>
         </member>
     </members>
 </doc>

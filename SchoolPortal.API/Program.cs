@@ -13,6 +13,8 @@ using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolPortal.API.Mappings;
 using SchoolPortal.API.Interfaces;
+using SchoolPortal.API.Data.Repositories;
+using SchoolPortal.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolPortal.API.Interfaces;
+using SchoolPortal.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,11 @@ namespace SchoolPortal.API.Data
         public virtual async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public virtual IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
         }
     }
 }

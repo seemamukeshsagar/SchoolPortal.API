@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using SchoolPortal.API.Interfaces;
+using SchoolPortal.API.Models;
 
 namespace SchoolPortal.API.Data
 {

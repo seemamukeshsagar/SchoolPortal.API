@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchoolPortal.API.Data;
 using SchoolPortal.API.DTOs.School;
+using SchoolPortal.API.Interfaces;
 using SchoolPortal.API.Interfaces.Repositories;
 using SchoolPortal.API.Interfaces.Services;
 using SchoolPortal.API.Models;
@@ -17,6 +18,7 @@ namespace SchoolPortal.API.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<SchoolContactService> _logger;
+        private readonly IRepository<SchoolContactMaster> _repository;
 
         public SchoolContactService(
             IUnitOfWork unitOfWork,
@@ -26,14 +28,21 @@ namespace SchoolPortal.API.Services
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _repository = _unitOfWork.GetRepository<SchoolContactMaster>();
         }
 
         public async Task<IEnumerable<SchoolContactDto>> GetContactsBySchoolIdAsync(Guid schoolId)
         {
             try
             {
-                var contacts = await _unitOfWork.SchoolContactRepository
-                    .GetBySchoolIdWithDetailsAsync(schoolId);
+                var query = _repository.GetQueryable()
+                    .Include(c => c.City)
+                    .Include(c => c.State)
+                    .Include(c => c.Country)
+                    .Include(c => c.School)
+                    .Where(c => c.SchoolId == schoolId && !c.IsDeleted);
+
+                var contacts = await query.ToListAsync();
                 return _mapper.Map<IEnumerable<SchoolContactDto>>(contacts);
             }
             catch (Exception ex)
@@ -47,7 +56,13 @@ namespace SchoolPortal.API.Services
         {
             try
             {
-                var contact = await _unitOfWork.SchoolContactRepository.GetByIdWithDetailsAsync(id);
+                var contact = await _repository.GetQueryable()
+                    .Include(c => c.City)
+                    .Include(c => c.State)
+                    .Include(c => c.Country)
+                    .Include(c => c.School)
+                    .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+                    
                 if (contact == null)
                 {
                     _logger.LogWarning("Contact {ContactId} not found", id);
@@ -66,12 +81,13 @@ namespace SchoolPortal.API.Services
         {
             try
             {
+                var repository = _unitOfWork.GetRepository<SchoolContactMaster>();
                 var contact = _mapper.Map<SchoolContactMaster>(request);
                 contact.Id = Guid.NewGuid();
                 contact.CreatedDate = DateTime.UtcNow;
                 contact.IsDeleted = false;
 
-                await _unitOfWork.SchoolContactRepository.AddAsync(contact);
+                await repository.AddAsync(contact);
                 await _unitOfWork.CommitAsync();
 
                 _logger.LogInformation("Created new contact {ContactId} for school {SchoolId}", 
@@ -86,11 +102,13 @@ namespace SchoolPortal.API.Services
             }
         }
 
-        public async Task<SchoolContactDto> UpdateContactAsync(Guid id, SchoolContactRequest request)
+        public async Task<SchoolContactDto?> UpdateContactAsync(Guid id, SchoolContactRequest request)
         {
             try
             {
-                var existingContact = await _unitOfWork.SchoolContactRepository.GetByIdAsync(id);
+                var existingContact = await _repository.GetQueryable()
+                                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+                    
                 if (existingContact == null)
                 {
                     _logger.LogWarning("Contact {ContactId} not found for update", id);
@@ -100,11 +118,10 @@ namespace SchoolPortal.API.Services
                 _mapper.Map(request, existingContact);
                 existingContact.ModifiedDate = DateTime.UtcNow;
 
-                _unitOfWork.SchoolContactRepository.Update(existingContact);
+                _repository.Update(existingContact);
                 await _unitOfWork.CommitAsync();
 
                 _logger.LogInformation("Updated contact {ContactId}", id);
-
                 return _mapper.Map<SchoolContactDto>(existingContact);
             }
             catch (Exception ex)
@@ -118,7 +135,9 @@ namespace SchoolPortal.API.Services
         {
             try
             {
-                var contact = await _unitOfWork.SchoolContactRepository.GetByIdAsync(id);
+                var contact = await _repository.GetQueryable()
+                                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+                    
                 if (contact == null)
                 {
                     _logger.LogWarning("Contact {ContactId} not found for deletion", id);
@@ -128,7 +147,7 @@ namespace SchoolPortal.API.Services
                 contact.IsDeleted = true;
                 contact.ModifiedDate = DateTime.UtcNow;
 
-                _unitOfWork.SchoolContactRepository.Update(contact);
+                _repository.Update(contact);
                 await _unitOfWork.CommitAsync();
 
                 _logger.LogInformation("Soft-deleted contact {ContactId}", id);

@@ -1,10 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "3P07DpnDfdU=",
-=======
   "dgSpecHash": "Q+QvikDzQU4=",
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
   "success": true,
   "projectFilePath": "C:\\MyWorkSpace\\SchoolPortal\\SchoolPortal.API\\SchoolPortal.API.csproj",
   "expectedPackageFiles": [

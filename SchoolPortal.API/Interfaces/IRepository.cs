@@ -14,5 +14,6 @@ namespace SchoolPortal.API.Interfaces
         void Update(T entity);
         void Remove(T entity);
         Task<int> SaveChangesAsync();
+        IQueryable<T> GetQueryable();
     }
 }

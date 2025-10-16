@@ -1,10 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "Uc/gppWVl44=",
-=======
-  "dgSpecHash": "Obv9LX17czk=",
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
+  "dgSpecHash": "HMxQ2ogEyWI=",
   "success": true,
   "projectFilePath": "C:\\MyWorkSpace\\SchoolPortal\\SchoolPortal.Web\\SchoolPortal.Web.csproj",
   "expectedPackageFiles": [
