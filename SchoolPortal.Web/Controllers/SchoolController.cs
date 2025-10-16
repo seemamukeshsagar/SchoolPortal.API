@@ -1,29 +1,18 @@
-<<<<<<< HEAD
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-=======
-﻿using Microsoft.AspNetCore.Authorization;
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SchoolPortal.API.DTOs;
 using SchoolPortal.API.DTOs.School;
 using SchoolPortal.Web.Models.School;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CompanyDto = SchoolPortal.API.DTOs.Company.CompanyDto;
-using System.Text.Json;
 
 namespace SchoolPortal.Web.Controllers
 {
@@ -34,55 +23,56 @@ namespace SchoolPortal.Web.Controllers
 		private readonly IConfiguration _configuration;
 		private readonly string _apiBaseUrl;
 		private readonly string _companyApiBaseUrl;
-        private readonly string _locationsBaseUrl;  // for locations (states, cities, jurisdictions)
-        private readonly IMemoryCache _cache;
-        private readonly ILogger<SchoolController> _logger;
-        private const int CacheDurationHours = 1;
+		private readonly string _locationsBaseUrl;  // for locations (states, cities, jurisdictions)
+		private readonly IMemoryCache _cache;
+		private readonly ILogger<SchoolController> _logger;
+		private const int CacheDurationHours = 1;
 
+		public SchoolController(
+			IConfiguration configuration,
+			IHttpClientFactory httpClientFactory,
+			IMemoryCache cache,
+			ILogger<SchoolController> logger)
+		{
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			_httpClient = httpClientFactory?.CreateClient() ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_cache = cache ?? throw new ArgumentNullException(nameof(cache));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        public SchoolController(
-            IConfiguration configuration,
-            IHttpClientFactory httpClientFactory,
-            IMemoryCache cache,
-            ILogger<SchoolController> logger)
-        {
-            _httpClient = httpClientFactory.CreateClient();
+			var baseUrl = _configuration["ApiSettings:BaseUrl"];
+			if (string.IsNullOrEmpty(baseUrl))
+				throw new ArgumentException("ApiSettings:BaseUrl configuration is missing or empty.", nameof(configuration));
 
-            var baseUrl = configuration["ApiSettings:BaseUrl"];
-            if (baseUrl == null)
-                throw new ArgumentNullException(nameof(baseUrl), "ApiSettings:BaseUrl configuration is missing.");
-
-            baseUrl = baseUrl.TrimEnd('/');
-            _apiBaseUrl = $"{baseUrl}/school";
+			baseUrl = baseUrl.TrimEnd('/');
+			_apiBaseUrl = $"{baseUrl}/school";
 			_companyApiBaseUrl = $"{baseUrl}/company";
 			_locationsBaseUrl = $"{baseUrl}/locations";
-
-            _cache = cache;
-            _logger = logger;
-        }
+		}
 
 		private async Task<T?> GetCachedApiDataAsync<T>(string cacheKey, string apiUrl)
 		{
-<<<<<<< HEAD
-			_configuration = configuration;
-			_httpClient = httpClientFactory.CreateClient();
-			_apiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "school";
-			_companyApiBaseUrl = _configuration["ApiSettings:BaseUrl"] + "company";
-=======
 			return await _cache.GetOrCreateAsync(cacheKey, async entry =>
 			{
 				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheDurationHours);
 
-				var response = await _httpClient.GetAsync(apiUrl).ConfigureAwait(false);
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					var response = await _httpClient.GetAsync(apiUrl).ConfigureAwait(false);
+					response.EnsureSuccessStatusCode();
 
-				var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				return JsonSerializer.Deserialize<T>(content, JsonOptions.Default);
+					var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+					if (string.IsNullOrEmpty(content)) return default(T);
+					return JsonConvert.DeserializeObject<T>(content) ?? default(T);
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Error fetching data from {ApiUrl}", apiUrl);
+					return default;
+				}
 			}).ConfigureAwait(false);
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 		}
 
-        [HttpGet]
+		[HttpGet]
 		public async Task<IActionResult> Index()
 		{
 			_logger.LogInformation("Entering Index action. API Base URL: {ApiBaseUrl}", _apiBaseUrl);
@@ -148,13 +138,10 @@ namespace SchoolPortal.Web.Controllers
 			}
 			catch (Exception ex)
 			{
-<<<<<<< HEAD
 				string temp = ex.Message + "\n" + ex.StackTrace;
 				TempData["ErrorMessage"] = "Error retrieving schools. Please try again.";
-=======
 				_logger.LogError(ex, "Unexpected error in Index action");
 				TempData["ErrorMessage"] = "An unexpected error occurred while loading schools. Please try again later.";
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 				return View(new List<SchoolDto>());
 			}
 		}
@@ -224,38 +211,38 @@ namespace SchoolPortal.Web.Controllers
 					AccountNumber = string.Empty,
 					ZipCode = string.Empty,
 					IsActive = true,
-                    // Initialize collections to prevent null reference exceptions
-                    Companies = new List<CompanyDto>(),
-                    Countries = new List<CountryDto>(),
-                    States = new List<StateDto>(),
-                    Cities = new List<CityDto>(),
-                    JudistrictionCountries = new List<CountryDto>(),
-                    JudistrictionStates = new List<StateDto>(),
-                    JudistrictionCities = new List<CityDto>(),
-                    BankCountries = new List<CountryDto>(),
-                    BankStates = new List<StateDto>(),
-                    BankCities = new List<CityDto>()
-                };
+					// Initialize collections to prevent null reference exceptions
+					Companies = new List<CompanyDto>(),
+					Countries = new List<CountryDto>(),
+					States = new List<StateDto>(),
+					Cities = new List<CityDto>(),
+					JudistrictionCountries = new List<CountryDto>(),
+					JudistrictionStates = new List<StateDto>(),
+					JudistrictionCities = new List<CityDto>(),
+					BankCountries = new List<CountryDto>(),
+					BankStates = new List<StateDto>(),
+					BankCities = new List<CityDto>()
+				};
 
-                try
-                {
-                    await LoadDropdownData(model);
-                }
-                catch (Exception ex)
-                {
-                    // Log the error but don't fail the page load
-                    Console.WriteLine($"Error loading dropdown data: {ex.Message}");
-                }
+				try
+				{
+					await LoadDropdownData(model);
+				}
+				catch (Exception ex)
+				{
+					// Log the error but don't fail the page load
+					Console.WriteLine($"Error loading dropdown data: {ex.Message}");
+				}
 
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in Create GET: {ex}");
-                TempData["ErrorMessage"] = "Error loading the form. Please try again.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
+				return View(model);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error in Create GET: {ex}");
+				TempData["ErrorMessage"] = "Error loading the form. Please try again.";
+				return RedirectToAction(nameof(Index));
+			}
+		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -315,28 +302,60 @@ namespace SchoolPortal.Web.Controllers
 			}
 		}
 
+
 		[HttpGet]
 		public async Task<IActionResult> Edit(Guid id)
 		{
+			_logger.LogInformation("Entering Edit action for School ID: {SchoolId}", id);
+
+			if (id == Guid.Empty)
+			{
+				_logger.LogWarning("Invalid school ID provided for edit.");
+				TempData["ErrorMessage"] = "Invalid school ID.";
+				return RedirectToAction(nameof(Index));
+			}
+
 			try
 			{
-				var token = HttpContext.Session.GetString("JWToken") ?? string.Empty;
+				// Retrieve JWT token from session
+				var token = HttpContext.Session.GetString("JWToken");
+				if (string.IsNullOrEmpty(token))
+				{
+					_logger.LogWarning("JWT token not found in session.");
+					TempData["ErrorMessage"] = "Session expired. Please log in again.";
+					return RedirectToAction("Login", "Account");
+				}
+
+				// Set up authorization header
 				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-				_logger.LogInformation("Loading school for edit. ID: {SchoolId}", id);
-				var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
-				response.EnsureSuccessStatusCode();
+				// Call API endpoint
+				var requestUrl = $"{_apiBaseUrl}/{id}";
+				_logger.LogInformation("Fetching school details from API: {Url}", requestUrl);
 
-				var content = await response.Content.ReadAsStringAsync();
-				var schoolDto = JsonSerializer.Deserialize<SchoolDto>(content, JsonOptions.Default);
-
-				if (schoolDto == null)
+				using var response = await _httpClient.GetAsync(requestUrl);
+				if (!response.IsSuccessStatusCode)
 				{
-					_logger.LogWarning("School not found. ID: {SchoolId}", id);
-					ModelState.AddModelError(string.Empty, "School not found.");
+					_logger.LogWarning("Failed to retrieve school data. Status Code: {StatusCode}", response.StatusCode);
+					TempData["ErrorMessage"] = "Failed to load school details.";
 					return RedirectToAction(nameof(Index));
 				}
 
+				var content = await response.Content.ReadAsStringAsync();
+
+				var schoolDto = System.Text.Json.JsonSerializer.Deserialize<SchoolDto>(
+					content,
+					new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+				);
+
+				if (schoolDto == null)
+				{
+					_logger.LogWarning("No school found for ID: {SchoolId}", id);
+					TempData["ErrorMessage"] = "School not found.";
+					return RedirectToAction(nameof(Index));
+				}
+
+				// Map DTO to ViewModel
 				var model = new UpdateSchoolViewModel
 				{
 					Id = schoolDto.Id,
@@ -370,15 +389,29 @@ namespace SchoolPortal.Web.Controllers
 				};
 
 				await LoadDropdownData(model);
+
+				_logger.LogInformation("Successfully loaded school data for editing. ID: {SchoolId}", id);
 				return View(model);
+			}
+			catch (HttpRequestException ex)
+			{
+				_logger.LogError(ex, "HTTP request failed while loading school data. ID: {SchoolId}", id);
+				TempData["ErrorMessage"] = "Unable to connect to the server. Please try again later.";
+			}
+			catch (System.Text.Json.JsonException ex)
+			{
+				_logger.LogError(ex, "JSON deserialization error while loading school data. ID: {SchoolId}", id);
+				TempData["ErrorMessage"] = "Invalid data format received from server.";
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Error loading school data for edit. ID: {SchoolId}", id);
-				ModelState.AddModelError(string.Empty, "Error loading school data. Please try again.");
-				return RedirectToAction(nameof(Index));
+				_logger.LogError(ex, "Unexpected error while loading school data. ID: {SchoolId}", id);
+				TempData["ErrorMessage"] = "An unexpected error occurred.";
 			}
+
+			return RedirectToAction(nameof(Index));
 		}
+
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -534,7 +567,7 @@ namespace SchoolPortal.Web.Controllers
 			}
 		}
 
-		private async Task LoadDropdownData(SchoolBaseViewModel model)
+				private async Task LoadDropdownData(SchoolBaseViewModel model)
 		{
 			try
 			{
@@ -544,7 +577,6 @@ namespace SchoolPortal.Web.Controllers
 					_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 				}
 
-<<<<<<< HEAD
 				// Load companies
 				Console.WriteLine("Loading companies...");
 				var companiesResponse = await _httpClient.GetAsync(_companyApiBaseUrl);
@@ -572,21 +604,9 @@ namespace SchoolPortal.Web.Controllers
 				// Set jurisdiction and bank countries to the same as regular countries
 				model.JudistrictionCountries = model.Countries.ToList();
 				model.BankCountries = model.Countries.ToList();
-=======
-				model.Companies = await GetCachedApiDataAsync<List<CompanyDto>>(
-					"Companies_All",
-					_companyApiBaseUrl
-				) ?? new List<CompanyDto>();
-
-				model.Countries = await GetCachedApiDataAsync<List<CountryDto>>(
-					"Countries",
-					$"{_companyApiBaseUrl}/locations/countries"
-				) ?? new List<CountryDto>();
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 
 				if (model.CountryId != Guid.Empty)
 				{
-<<<<<<< HEAD
 					Console.WriteLine($"Loading states for country {model.CountryId}...");
 					var statesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/states/{model.CountryId}");
 					if (statesResponse.IsSuccessStatusCode)
@@ -595,17 +615,10 @@ namespace SchoolPortal.Web.Controllers
 						model.States = JsonConvert.DeserializeObject<List<StateDto>>(statesContent) ?? new List<StateDto>();
 						Console.WriteLine($"Loaded {model.States.Count} states");
 					}
-=======
-					model.States = await GetCachedApiDataAsync<List<StateDto>>(
-						$"States_Country_{model.CountryId}",
-						$"{_companyApiBaseUrl}/locations/states/{model.CountryId}"
-					) ?? new List<StateDto>();
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 				}
 
 				if (model.StateId != Guid.Empty)
 				{
-<<<<<<< HEAD
 					Console.WriteLine($"Loading cities for state {model.StateId}...");
 					var citiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.StateId}");
 					if (citiesResponse.IsSuccessStatusCode)
@@ -627,27 +640,10 @@ namespace SchoolPortal.Web.Controllers
 						model.JudistrictionStates = JsonConvert.DeserializeObject<List<StateDto>>(jurStatesContent) ?? new List<StateDto>();
 						Console.WriteLine($"Loaded {model.JudistrictionStates.Count} jurisdiction states");
 					}
-=======
-					model.Cities = await GetCachedApiDataAsync<List<CityDto>>(
-						$"Cities_State_{model.StateId}",
-						$"{_companyApiBaseUrl}/locations/cities/{model.StateId}"
-					) ?? new List<CityDto>();
-				}
-
-				model.JudistrictionCountries = model.Countries;
-
-				if (model.JudistrictionCountryId != Guid.Empty)
-				{
-					model.JudistrictionStates = await GetCachedApiDataAsync<List<StateDto>>(
-						$"Jur_States_Country_{model.JudistrictionCountryId}",
-						$"{_companyApiBaseUrl}/locations/states/{model.JudistrictionCountryId}"
-					) ?? new List<StateDto>();
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 				}
 
 				if (model.JudistrictionStateId != Guid.Empty)
 				{
-<<<<<<< HEAD
 					Console.WriteLine($"Loading jurisdiction cities for state {model.JudistrictionStateId}...");
 					var jurCitiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.JudistrictionStateId}");
 					if (jurCitiesResponse.IsSuccessStatusCode)
@@ -669,27 +665,10 @@ namespace SchoolPortal.Web.Controllers
 						model.BankStates = JsonConvert.DeserializeObject<List<StateDto>>(bankStatesContent) ?? new List<StateDto>();
 						Console.WriteLine($"Loaded {model.BankStates.Count} bank states");
 					}
-=======
-					model.JudistrictionCities = await GetCachedApiDataAsync<List<CityDto>>(
-						$"Jur_Cities_State_{model.JudistrictionStateId}",
-						$"{_companyApiBaseUrl}/locations/cities/{model.JudistrictionStateId}"
-					) ?? new List<CityDto>();
-				}
-
-				model.BankCountries = model.Countries;
-
-				if (model.BankCountryId != Guid.Empty)
-				{
-					model.BankStates = await GetCachedApiDataAsync<List<StateDto>>(
-						$"Bank_States_Country_{model.BankCountryId}",
-						$"{_companyApiBaseUrl}/locations/states/{model.BankCountryId}"
-					) ?? new List<StateDto>();
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 				}
 
 				if (model.BankStateId != Guid.Empty)
 				{
-<<<<<<< HEAD
 					Console.WriteLine($"Loading bank cities for state {model.BankStateId}...");
 					var bankCitiesResponse = await _httpClient.GetAsync($"{_companyApiBaseUrl}/locations/cities/{model.BankStateId}");
 					if (bankCitiesResponse.IsSuccessStatusCode)
@@ -698,17 +677,10 @@ namespace SchoolPortal.Web.Controllers
 						model.BankCities = JsonConvert.DeserializeObject<List<CityDto>>(bankCitiesContent) ?? new List<CityDto>();
 						Console.WriteLine($"Loaded {model.BankCities.Count} bank cities");
 					}
-=======
-					model.BankCities = await GetCachedApiDataAsync<List<CityDto>>(
-						$"Bank_Cities_State_{model.BankStateId}",
-						$"{_companyApiBaseUrl}/locations/cities/{model.BankStateId}"
-					) ?? new List<CityDto>();
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 				}
 			}
 			catch (Exception ex)
 			{
-<<<<<<< HEAD
 				Console.WriteLine($"Error in LoadDropdownData: {ex}");
 				
 				// Initialize all collections to empty lists to prevent null reference exceptions
@@ -725,19 +697,6 @@ namespace SchoolPortal.Web.Controllers
 
 				// Re-throw the exception to be handled by the calling method
 				throw;
-=======
-				_logger.LogError(ex, "Error loading dropdown data");
-				model.Companies = new List<CompanyDto>();
-				model.Countries = new List<CountryDto>();
-				model.States = new List<StateDto>();
-				model.Cities = new List<CityDto>();
-				model.JudistrictionCountries = new List<CountryDto>();
-				model.JudistrictionStates = new List<StateDto>();
-				model.JudistrictionCities = new List<CityDto>();
-				model.BankCountries = new List<CountryDto>();
-				model.BankStates = new List<StateDto>();
-				model.BankCities = new List<CityDto>();
->>>>>>> 0e5f10e9c378fdd6a6a0df3d0162372e3d96a58f
 			}
 		}
 	}
