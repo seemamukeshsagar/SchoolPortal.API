@@ -5,6 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using SchoolPortal.API.Models; // For SchoolPortalNewContext
 using SchoolPortal.Web.Models;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Caching.Memory;
+using Polly;
+using Polly.Extensions.Http;
+using System.Net;
+using System.Net.Sockets;
+using Microsoft.Extensions.Http;
+using SchoolPortal.Web.Services;
+using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,69 +90,59 @@ builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSet
 // Add HttpClients (properly structured)
 // ----------------------------
 
-// Default client
-builder.Services.AddHttpClient("DefaultClient")
-    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+// Configure HTTP clients with policies
+var loggerFactory = builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+
+// Default client with basic configuration
+ConfigureHttpClient(builder.Services, "DefaultClient");
+
+// Auth API client with retry and circuit breaker policies
+ConfigureHttpClient(builder.Services, "AuthApi", true, true);
+
+// General API client with retry policy
+ConfigureHttpClient(builder.Services, "ApiClient", true, false);
+
+// Helper method to configure HTTP clients
+static void ConfigureHttpClient(IServiceCollection services, string name, bool addRetryPolicy = false, bool addCircuitBreaker = false)
+{
+    var builder = services.AddHttpClient(name, (serviceProvider, client) =>
     {
-        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-        UseProxy = false,
-        UseCookies = false,
-        MaxConnectionsPerServer = 100
+        var config = serviceProvider.GetRequiredService<IConfiguration>();
+        var baseUrl = config["ApiSettings:BaseUrl"] ?? 
+            throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
+            
+        client.BaseAddress = new Uri(baseUrl);
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        client.Timeout = TimeSpan.FromSeconds(30);
     });
 
-// Auth client
-builder.Services.AddHttpClient("AuthApi", (serviceProvider, client) =>
-{
-    var config = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
+    // Configure primary HTTP message handler
+    builder.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+        MaxConnectionsPerServer = 100,
+        UseCookies = false,
+        UseProxy = false,
+        EnableMultipleHttp2Connections = true
+    });
 
-    client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-{
-    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-    UseProxy = false,
-    UseCookies = false,
-    MaxConnectionsPerServer = 100
-});
-
-// General API client
-builder.Services.AddHttpClient("ApiClient", (serviceProvider, client) =>
-{
-    var config = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
-
-    client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-{
-    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-    UseProxy = false,
-    UseCookies = false,
-    MaxConnectionsPerServer = 100
-});
-
-// Location API client
-builder.Services.AddHttpClient("LocationApi", (serviceProvider, client) =>
-{
-    var config = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
-
-    client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-{
-    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-    UseProxy = false,
-    UseCookies = false,
-    MaxConnectionsPerServer = 100
-});
+    // Add policies if requested
+    if (addRetryPolicy || addCircuitBreaker)
+    {
+        var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+        
+        if (addRetryPolicy)
+        {
+            builder.AddPolicyHandler(GetRetryPolicy(loggerFactory));
+        }
+        
+        if (addCircuitBreaker)
+        {
+            builder.AddPolicyHandler(GetCircuitBreakerPolicy());
+        }
+    }
+}
 
 // ----------------------------
 // Configure cookie policy & antiforgery
@@ -167,6 +165,92 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
     options.HeaderName = "X-CSRF-TOKEN";
 });
+
+// Add these services before builder.Build()
+builder.Services.AddMemoryCache(); // Add memory cache service
+builder.Services.AddResponseCaching(); // Add response caching middleware
+
+// Add the CachingService
+builder.Services.AddScoped<ICachingService, CachingService>();
+
+// Add response compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+// Configure HTTP retry policy
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(ILoggerFactory loggerFactory)
+{
+    var logger = loggerFactory.CreateLogger("HttpPolicies");
+    
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == HttpStatusCode.TooManyRequests)
+        .WaitAndRetryAsync(
+            retryCount: 3,
+            sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+            onRetry: (outcome, delay, retryCount, context) =>
+            {
+                logger.LogWarning(
+                    "[Retry {RetryCount}] Delaying for {Delay}ms due to {StatusCode}",
+                    retryCount,
+                    delay.TotalMilliseconds,
+                    outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.Message ?? "unknown error"
+                );
+            });
+}
+
+// Configure HTTP circuit breaker policy
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .CircuitBreakerAsync(
+            handledEventsAllowedBeforeBreaking: 5,
+            durationOfBreak: TimeSpan.FromSeconds(30),
+            onBreak: (ex, breakDelay) =>
+            {
+                // Log circuit breaker state change
+                var logger = new LoggerFactory().CreateLogger("HttpPolicies");
+                logger.LogWarning("Circuit breaker opened for {BreakDelay}ms due to {Exception}", 
+                    breakDelay.TotalMilliseconds, ex?.Exception.Message ?? "unknown error");
+            },
+            onReset: () =>
+            {
+                var logger = new LoggerFactory().CreateLogger("HttpPolicies");
+                logger.LogInformation("Circuit breaker reset");
+            },
+            onHalfOpen: () =>
+            {
+                var logger = new LoggerFactory().CreateLogger("HttpPolicies");
+                logger.LogInformation("Circuit breaker half-open");
+            }
+        );
+}
+
+// Update the HttpClient configuration to pass the logger factory
+builder.Services.AddHttpClient("AuthApi", (serviceProvider, client) =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+    PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+    MaxConnectionsPerServer = 100,
+    UseCookies = false,
+    UseProxy = false,
+    EnableMultipleHttp2Connections = true
+})
+.AddPolicyHandler(GetRetryPolicy(builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>()))
+.AddPolicyHandler(GetCircuitBreakerPolicy());
 
 // ----------------------------
 // Build the app
@@ -209,6 +293,10 @@ app.UseCors();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// In the app configuration section, after var app = builder.Build();
+app.UseResponseCompression();
+app.UseResponseCaching();
 
 app.MapControllerRoute(
     name: "default",
