@@ -1,5 +1,6 @@
 using AutoMapper;
 using SchoolPortal.API.DTOs;
+using SchoolPortal.API.DTOs.ClassSection;
 using SchoolPortal.API.Models;
 
 namespace SchoolPortal.API.Mappings
@@ -12,6 +13,9 @@ namespace SchoolPortal.API.Mappings
             CreateMap<CityMaster, CityDto>().ReverseMap();
             CreateMap<StateMaster, StateDto>().ReverseMap();
             CreateMap<CountryMaster, CountryDto>().ReverseMap();
+            CreateMap<ClassSectionDetail, ClassSectionDetailDto>().ReverseMap();
+            CreateMap<CreateClassSectionDetailRequest, ClassSectionDetail>();
+            CreateMap<UpdateClassSectionDetailRequest, ClassSectionDetail>();
         }
     }
 }

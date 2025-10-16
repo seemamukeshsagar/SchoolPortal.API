@@ -13,6 +13,7 @@ using SchoolPortal.Web.Services;  // For ICachingService
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolPortal.Web.Controllers
 {
@@ -38,6 +39,7 @@ namespace SchoolPortal.Web.Controllers
 		}
 
 		[HttpGet]
+		[AllowAnonymous]
 		public IActionResult Login(string? returnUrl = null)
 		{
 			ViewData["ReturnUrl"] = returnUrl;

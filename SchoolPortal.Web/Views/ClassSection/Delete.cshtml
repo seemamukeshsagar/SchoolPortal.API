@@ -1,0 +1,42 @@
+@* SchoolPortal.Web/Views/ClassSection/Delete.cshtml *@
+@model ClassSectionDetailDto
+
+@{
+    ViewData["Title"] = "Delete Class Section";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h4>@ViewData["Title"]</h4>
+    </div>
+    <div class="card-body">
+        <h5 class="text-danger">Are you sure you want to delete this class section?</h5>
+        <div class="alert alert-warning">
+            <strong>Warning:</strong> This action cannot be undone. All related data will be permanently deleted.
+        </div>
+        
+        <dl class="row">
+            <dt class="col-sm-3">Class</dt>
+            <dd class="col-sm-9">@Model.ClassName</dd>
+
+            <dt class="col-sm-3">Section</dt>
+            <dd class="col-sm-9">@Model.SectionName</dd>
+
+            <dt class="col-sm-3">Class Teacher</dt>
+            <dd class="col-sm-9">@(Model.ClassTeacherName ?? "N/A")</dd>
+
+            <dt class="col-sm-3">Academic Year</dt>
+            <dd class="col-sm-9">@Model.AcademicYear</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </form>
+    </div>
+</div>

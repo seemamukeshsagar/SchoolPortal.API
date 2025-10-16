@@ -13,31 +13,46 @@ using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolPortal.API.Mappings;
 using SchoolPortal.API.Interfaces;
-using SchoolPortal.API.Data.Repositories;
 using SchoolPortal.API.Data;
+using SchoolPortal.API.Data.Repositories;
+using SchoolPortal.API.Profiles;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Add DbContext with connection string from configuration
+// Update the DbContext registration to use the correct namespace
 builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
-	options.UseSqlServer(
-		builder.Configuration.GetConnectionString("DefaultConnection"),
-		sqlServerOptions =>
-		{
-			sqlServerOptions.EnableRetryOnFailure(
-				maxRetryCount: 5,
-				maxRetryDelay: TimeSpan.FromSeconds(30),
-				errorNumbersToAdd: null);
-		}));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json");
+    }
+    
+    options.UseSqlServer(
+        connectionString,
+        sqlServerOptions =>
+        {
+            sqlServerOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        });
+});
 
 // Register repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<ISchoolRepository, SchoolRepository>();
 builder.Services.AddScoped<ISchoolContactRepository, SchoolContactRepository>();
+builder.Services.AddScoped<SchoolPortal.API.Interfaces.Repositories.IClassSectionRepository, ClassSectionRepository>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+
+// Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register services
@@ -47,16 +62,26 @@ builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<ISchoolContactService, SchoolContactService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IClassService, ClassService>();
-builder.Services.AddScoped<IClassRepository, ClassRepository>();
-builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<ISectionService, SectionService>();
+builder.Services.AddScoped<IClassSectionService, ClassSectionService>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
 {
-	cfg.AddProfile<CompanyProfile>();
-	cfg.AddProfile<SchoolProfile>();
+    cfg.AddProfile<CompanyProfile>();
+    cfg.AddProfile<SchoolProfile>();
+    cfg.AddProfile<ClassSectionProfile>();
+	cfg.AddProfile<ClassProfile>();
+	cfg.AddProfile<SectionProfile>();
 }, typeof(Program).Assembly);
+
+// In Program.cs (Web project)
+builder.Services.AddHttpClient("AuthAPI", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:AuthAPI"]);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JWT");
@@ -64,23 +89,25 @@ var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new InvalidOper
 
 builder.Services.AddAuthentication(options =>
 {
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
-	options.RequireHttpsMetadata = true;
-	options.SaveToken = true;
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuerSigningKey = true,
-		IssuerSigningKey = new SymmetricSecurityKey(key),
-		ValidateIssuer = true,
-		ValidateAudience = true,
-		ValidIssuer = jwtSettings["ValidIssuer"],
-		ValidAudience = jwtSettings["ValidAudience"],
-		ClockSkew = TimeSpan.Zero
-	};
+    options.RequireHttpsMetadata = false; // Set to true in production
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = jwtSettings["ValidIssuer"],
+        ValidAudience = jwtSettings["ValidAudience"],
+        ClockSkew = TimeSpan.Zero,
+        ValidateLifetime = true,
+        RequireExpirationTime = true
+    };
 });
 
 // Configure Swagger
@@ -145,15 +172,28 @@ builder.Services.AddSwaggerGen(c =>
 // Add CORS services with HTTPS-only policy
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy("HttpsOnly", builder =>
-	{
-		builder
-			.WithOrigins("https://localhost:7029")
-			.AllowAnyMethod()
-			.AllowAnyHeader()
-			.AllowCredentials();
-	});
+    options.AddPolicy("AllowAll",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
+// builder.Services.AddCors(options =>
+// {
+// 	options.AddPolicy("HttpsOnly", builder =>
+// 	{
+// 		builder
+// 			.WithOrigins("https://localhost:7029")
+// 			.AllowAnyMethod()
+// 			.AllowAnyHeader()
+// 			.AllowCredentials();
+// 	});
+// });
+
+// Add logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 var app = builder.Build();
 
@@ -168,7 +208,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Enable CORS with the HTTPS-only policy
-app.UseCors("HttpsOnly");
+//app.UseCors("HttpsOnly");
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

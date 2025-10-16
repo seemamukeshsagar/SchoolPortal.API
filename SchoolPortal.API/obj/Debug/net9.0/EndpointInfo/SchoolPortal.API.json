@@ -1,0 +1,3609 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "School Portal API",
+    "description": "API for School Portal Management System",
+    "contact": {
+      "name": "School Portal Support",
+      "url": "https://schoolportal.com/support",
+      "email": "support@schoolportal.com"
+    },
+    "license": {
+      "name": "School Portal License",
+      "url": "https://schoolportal.com/license"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/validate-token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/check-username/{username}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassListDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassListDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassListDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Class"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{id}": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Class"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Class"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ClassSection": {
+      "get": {
+        "tags": [
+          "ClassSection"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassSectionDetailDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ClassSection"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassSectionDetailRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassSectionDetailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassSectionDetailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassSectionDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/ClassSection/{id}": {
+      "get": {
+        "tags": [
+          "ClassSection"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassSectionDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ClassSection"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassSectionDetailRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassSectionDetailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassSectionDetailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassSectionDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ClassSection"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/ClassSection/class/{classId}": {
+      "get": {
+        "tags": [
+          "ClassSection"
+        ],
+        "parameters": [
+          {
+            "name": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassSectionDetailDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/ClassSection/active": {
+      "get": {
+        "tags": [
+          "ClassSection"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClassSectionDetailDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/Company": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves all companies",
+        "responses": {
+          "200": {
+            "description": "Returns the list of companies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving companies"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Creates a new company",
+        "requestBody": {
+          "description": "The company creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while creating the company"
+          }
+        }
+      }
+    },
+    "/api/Company/{id}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves a specific company by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the company is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving the company"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Updates an existing company",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The company update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated company",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid or IDs don't match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the company is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while updating the company"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Deletes a company by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "If the company is deleted successfully"
+          },
+          "404": {
+            "description": "If the company is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while deleting the company"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/countries": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves all countries with their states and cities",
+        "responses": {
+          "200": {
+            "description": "Returns the list of countries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving locations"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/states/{countryId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves states by country ID",
+        "parameters": [
+          {
+            "name": "countryId",
+            "in": "path",
+            "description": "The country ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of states",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StateDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving states"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/cities/{stateId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves cities by state ID",
+        "parameters": [
+          {
+            "name": "stateId",
+            "in": "path",
+            "description": "The state ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of cities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving cities"
+          }
+        }
+      }
+    },
+    "/api/Company/locations/areas/{cityId}": {
+      "get": {
+        "tags": [
+          "Company"
+        ],
+        "summary": "Retrieves jurisdiction areas by city ID",
+        "parameters": [
+          {
+            "name": "cityId",
+            "in": "path",
+            "description": "The city ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of jurisdiction areas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving jurisdiction areas"
+          }
+        }
+      }
+    },
+    "/api/Locations/countries": {
+      "get": {
+        "tags": [
+          "Locations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Locations/states/{countryId}": {
+      "get": {
+        "tags": [
+          "Locations"
+        ],
+        "parameters": [
+          {
+            "name": "countryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StateDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StateDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StateDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Locations/cities/{stateId}": {
+      "get": {
+        "tags": [
+          "Locations"
+        ],
+        "parameters": [
+          {
+            "name": "stateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Locations/jurisdiction-areas/{stateId}": {
+      "get": {
+        "tags": [
+          "Locations"
+        ],
+        "parameters": [
+          {
+            "name": "stateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CityDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/School": {
+      "get": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Retrieves all schools",
+        "responses": {
+          "200": {
+            "description": "Returns the list of schools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving schools"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Creates a new school",
+        "requestBody": {
+          "description": "The school creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSchoolRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSchoolRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSchoolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created school",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while creating the school"
+          }
+        }
+      }
+    },
+    "/api/School/{id}": {
+      "get": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Retrieves a specific school by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the school",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the school is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving the school"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Updates an existing school",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The school update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSchoolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated school",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid or IDs don't match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the school is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while updating the school"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Deletes a school by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "If the school is deleted successfully"
+          },
+          "404": {
+            "description": "If the school is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while deleting the school"
+          }
+        }
+      }
+    },
+    "/api/School/company/{companyId}": {
+      "get": {
+        "tags": [
+          "School"
+        ],
+        "summary": "Retrieves all schools by company ID",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The company ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of schools",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving schools"
+          }
+        }
+      }
+    },
+    "/api/SchoolContact/school/{schoolId}": {
+      "get": {
+        "tags": [
+          "SchoolContact"
+        ],
+        "summary": "Gets all contacts for a school",
+        "parameters": [
+          {
+            "name": "schoolId",
+            "in": "path",
+            "description": "The school ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of contacts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolContactDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving contacts"
+          }
+        }
+      }
+    },
+    "/api/SchoolContact/{id}": {
+      "get": {
+        "tags": [
+          "SchoolContact"
+        ],
+        "summary": "Gets a specific contact by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The contact ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolContactDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the contact is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while retrieving the contact"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SchoolContact"
+        ],
+        "summary": "Updates an existing school contact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The contact ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The contact update request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolContactRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolContactRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolContactRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolContactDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the contact is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while updating the contact"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SchoolContact"
+        ],
+        "summary": "Deletes a school contact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The contact ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "If the contact was deleted successfully"
+          },
+          "404": {
+            "description": "If the contact is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while deleting the contact"
+          }
+        }
+      }
+    },
+    "/api/SchoolContact": {
+      "post": {
+        "tags": [
+          "SchoolContact"
+        ],
+        "summary": "Creates a new school contact",
+        "requestBody": {
+          "description": "The contact creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolContactRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolContactRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolContactRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolContactDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an error occurs while creating the contact"
+          }
+        }
+      }
+    },
+    "/api/Sections": {
+      "get": {
+        "tags": [
+          "Sections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SectionListDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SectionListDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SectionListDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sections"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSectionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSectionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sections/{id}": {
+      "get": {
+        "tags": [
+          "Sections"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Sections"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSectionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSectionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sections"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/WeatherForecast": {
+      "get": {
+        "tags": [
+          "WeatherForecast"
+        ],
+        "operationId": "GetWeatherForecast",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CityDto": {
+        "required": [
+          "cityName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityName": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClassDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "examAssessment": {
+            "type": "string",
+            "nullable": true
+          },
+          "isGradePointApplicable": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orderBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClassListDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "examAssessment": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "orderBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "schoolName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClassSectionDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classTeacherId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "maxStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "academicYear": {
+            "type": "string",
+            "nullable": true
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "sectionName": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "classTeacherName": {
+            "type": "string",
+            "nullable": true
+          },
+          "class": {
+            "$ref": "#/components/schemas/ClassDto"
+          },
+          "section": {
+            "$ref": "#/components/schemas/SectionDto"
+          },
+          "classTeacher": {
+            "$ref": "#/components/schemas/TeacherDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyDto": {
+        "required": [
+          "address",
+          "cityName",
+          "companyName",
+          "countryName",
+          "description",
+          "email",
+          "establishmentYear",
+          "jurisdictionAreaName",
+          "stateName",
+          "status",
+          "statusMessage",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "zipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "establishmentYear": {
+            "type": "string",
+            "nullable": true
+          },
+          "jurisdictionArea": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "jurisdictionAreaName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CountryDto": {
+        "required": [
+          "countryName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "isActive": {
+            "maxLength": 10,
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateClassRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "examAssessment": {
+            "type": "string",
+            "nullable": true
+          },
+          "isGradePointApplicable": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "orderBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateClassSectionDetailRequest": {
+        "required": [
+          "academicYear",
+          "classId",
+          "maxStudents",
+          "sectionId"
+        ],
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classTeacherId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "maxStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "academicYear": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCompanyRequest": {
+        "required": [
+          "address",
+          "cityId",
+          "companyName",
+          "countryId",
+          "description",
+          "email",
+          "establishmentYear",
+          "jurisdictionArea",
+          "stateId",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^\\d{4}$",
+            "type": "string"
+          },
+          "jurisdictionArea": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSchoolRequest": {
+        "required": [
+          "address1",
+          "companyId",
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "address1": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "address2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "pattern": "^\\d{4}$",
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankName": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress1": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankZipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSectionRequest": {
+        "required": [
+          "companyId",
+          "name",
+          "schoolId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiration": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "privileges": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "SchoolContactDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contactType": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPrimary": {
+            "type": "boolean"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobilePhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressLine1": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressLine2": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "cityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "schoolName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SchoolContactRequest": {
+        "required": [
+          "cityId",
+          "countryId",
+          "firstName",
+          "lastName",
+          "schoolId",
+          "stateId"
+        ],
+        "type": "object",
+        "properties": {
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "lastName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "phone": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "format": "tel",
+            "nullable": true
+          },
+          "mobilePhone": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "format": "tel",
+            "nullable": true
+          },
+          "addressLine1": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "addressLine2": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for creating or updating a school contact"
+      },
+      "SchoolDto": {
+        "required": [
+          "address1",
+          "description",
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "address1": {
+            "type": "string",
+            "nullable": true
+          },
+          "address2": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "cityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "zipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "establishmentYear": {
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionStateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCountryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress1": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress2": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankStateName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCountryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankZipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SectionDto": {
+        "required": [
+          "companyName",
+          "name",
+          "schoolName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schoolName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SectionListDto": {
+        "required": [
+          "companyName",
+          "name",
+          "schoolName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "schoolName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StateDto": {
+        "required": [
+          "stateName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateName": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TeacherDto": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdateClassRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "examAssessment": {
+            "type": "string",
+            "nullable": true
+          },
+          "isGradePointApplicable": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "orderBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateClassSectionDetailRequest": {
+        "required": [
+          "academicYear",
+          "classId",
+          "id",
+          "maxStudents",
+          "sectionId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sectionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "classTeacherId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "maxStudents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "academicYear": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "modifiedBy": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateCompanyRequest": {
+        "required": [
+          "address",
+          "cityId",
+          "companyName",
+          "countryId",
+          "description",
+          "email",
+          "establishmentYear",
+          "id",
+          "jurisdictionArea",
+          "stateId",
+          "status",
+          "statusMessage",
+          "zipCode"
+        ],
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^\\d{4}$",
+            "type": "string"
+          },
+          "jurisdictionArea": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "statusMessage": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSchoolRequest": {
+        "required": [
+          "address1",
+          "companyId",
+          "email",
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "address1": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "address2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "zipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "establishmentYear": {
+            "maxLength": 4,
+            "pattern": "^\\d{4}$",
+            "type": "string",
+            "nullable": true
+          },
+          "judistrictionCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "judistrictionCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankName": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress1": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankAddress2": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "bankCityId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankStateId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankCountryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "bankZipCode": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSectionRequest": {
+        "required": [
+          "companyId",
+          "name",
+          "schoolId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "companyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schoolId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeatherForecast": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "temperatureC": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "temperatureF": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "JWT Authorization header using the Bearer scheme. \r\n\t\t\t\t\t\tEnter 'Bearer' [space] and then your token in the text input below.",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}

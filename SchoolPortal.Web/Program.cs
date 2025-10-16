@@ -13,6 +13,15 @@ using System.Net.Sockets;
 using Microsoft.Extensions.Http;
 using SchoolPortal.Web.Services;
 using Microsoft.AspNetCore.ResponseCompression;
+using SchoolPortal.API.Interfaces.Services;
+using SchoolPortal.API.Services;
+using SchoolPortal.API.Repositories;
+using SchoolPortal.API.Interfaces;
+using SchoolPortal.API.Data;
+using SchoolPortal.API.Data.Repositories;
+using SchoolPortal.API.Interfaces.Repositories;
+using Microsoft.Extensions.DependencyInjection;
+using SchoolPortal.API.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,8 +100,6 @@ builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSet
 // ----------------------------
 
 // Configure HTTP clients with policies
-var loggerFactory = builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-
 // Default client with basic configuration
 ConfigureHttpClient(builder.Services, "DefaultClient");
 
@@ -130,11 +137,29 @@ static void ConfigureHttpClient(IServiceCollection services, string name, bool a
     // Add policies if requested
     if (addRetryPolicy || addCircuitBreaker)
     {
-        var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-        
         if (addRetryPolicy)
         {
-            builder.AddPolicyHandler(GetRetryPolicy(loggerFactory));
+            // Fix for CS1929: Replace usage of serviceProvider.GetRequiredService<ILoggerFactory>() inside AddPolicyHandler lambda
+            // The lambda parameter for AddPolicyHandler is of type HttpRequestMessage, not IServiceProvider.
+            // To access IServiceProvider, use the overload that provides IServiceProvider as the first argument.
+
+            builder.AddPolicyHandler((serviceProvider, request) => 
+                Policy.Handle<HttpRequestException>()
+                    .OrResult<HttpResponseMessage>(r => (int)r.StatusCode >= 500)
+                    .WaitAndRetryAsync(
+                        retryCount: 3,
+                        sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                        onRetry: (outcome, delay, retryCount, context) =>
+                        {
+                            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                            var logger = loggerFactory.CreateLogger<Program>();
+                            logger.LogWarning(
+                                "[Retry {RetryCount}] Delaying for {Delay}ms due to {StatusCode}",
+                                retryCount,
+                                delay.TotalMilliseconds,
+                                outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.Message ?? "unknown error"
+                            );
+                        }));
         }
         
         if (addCircuitBreaker)
@@ -172,6 +197,22 @@ builder.Services.AddResponseCaching(); // Add response caching middleware
 
 // Add the CachingService
 builder.Services.AddScoped<ICachingService, CachingService>();
+builder.Services.AddScoped<IClassSectionService, ClassSectionService>();
+builder.Services.AddScoped<IClassSectionRepository, ClassSectionRepository>(); 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Register EF Core DbContext (place this before repository / unit-of-work registrations)
+builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? builder.Configuration["ConnectionStrings:DefaultConnection"]
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Add it to appsettings.json.");
+    options.UseSqlServer(connectionString);
+});
+
+// Register IUserRepository implementation (adjust concrete type/namespace if your repository class is named differently)
+builder.Services.AddScoped<SchoolPortal.API.Interfaces.Repositories.IUserRepository, UserRepository>();
 
 // Add response compression
 builder.Services.AddResponseCompression(options =>
@@ -235,7 +276,7 @@ static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
 builder.Services.AddHttpClient("AuthApi", (serviceProvider, client) =>
 {
     var config = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
+    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found");
     client.BaseAddress = new Uri(baseUrl);
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     client.Timeout = TimeSpan.FromSeconds(30);
@@ -249,8 +290,15 @@ builder.Services.AddHttpClient("AuthApi", (serviceProvider, client) =>
     UseProxy = false,
     EnableMultipleHttp2Connections = true
 })
-.AddPolicyHandler(GetRetryPolicy(builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>()))
+.AddPolicyHandler((serviceProvider, request) =>
+    // resolve ILoggerFactory from the runtime provider
+    GetRetryPolicy(serviceProvider.GetRequiredService<ILoggerFactory>()))
 .AddPolicyHandler(GetCircuitBreakerPolicy());
+
+// ----------------------------
+// Register AutoMapper (all assemblies)
+// ----------------------------
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
 // ----------------------------
 // Build the app
@@ -287,6 +335,15 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Account}/{action=Login}/{id?}");
+    endpoints.MapRazorPages();
+});
+
 app.UseCookiePolicy();
 app.UseCors();
 
@@ -297,9 +354,5 @@ app.UseAuthorization();
 // In the app configuration section, after var app = builder.Build();
 app.UseResponseCompression();
 app.UseResponseCaching();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();
