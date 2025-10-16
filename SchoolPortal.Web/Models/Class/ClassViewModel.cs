@@ -9,10 +9,10 @@ namespace SchoolPortal.Web.Models.Class
         
         [Required(ErrorMessage = "Class name is required")]
         [Display(Name = "Class Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         [Display(Name = "Exam Assessment Type")]
-        public string ExamAssessment { get; set; }
+        public string ExamAssessment { get; set; } = string.Empty;
         
         [Display(Name = "Grade Point Applicable")]
         public bool IsGradePointApplicable { get; set; }
@@ -32,9 +32,9 @@ namespace SchoolPortal.Web.Models.Class
         public int? OrderBy { get; set; }
         
         [Display(Name = "Status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
         
         [Display(Name = "Status Message")]
-        public string StatusMessage { get; set; }
+        public string StatusMessage { get; set; } = string.Empty;
     }
 }

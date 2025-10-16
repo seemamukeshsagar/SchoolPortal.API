@@ -23,11 +23,10 @@ namespace SchoolPortal.Web.Controllers
 		private readonly ILogger<AccountController> _logger;
 		private readonly ICachingService _cachingService;
 		private const string UserDetailsCachePrefix = "UserDetails_";
-
 		private readonly IConfiguration _configuration;
 
 		public AccountController(
-			IHttpClientFactory httpClientFactory, 
+			IHttpClientFactory httpClientFactory,
 			ILogger<AccountController> logger,
 			ICachingService cachingService,
 			IConfiguration configuration)
@@ -36,23 +35,6 @@ namespace SchoolPortal.Web.Controllers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_cachingService = cachingService ?? throw new ArgumentNullException(nameof(cachingService));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-		}
-
-		// Update constructor
-		public AccountController(
-			IHttpClientFactory httpClientFactory, 
-			ILogger<AccountController> logger,
-			ICachingService cachingService)
-		{
-			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_cachingService = cachingService ?? throw new ArgumentNullException(nameof(cachingService));
-		}
-
-		public AccountController(IHttpClientFactory httpClientFactory, ILogger<AccountController> logger)
-		{
-			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		[HttpGet]
