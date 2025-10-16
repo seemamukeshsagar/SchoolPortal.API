@@ -1,7 +1,7 @@
-﻿@model SchoolPortal.Web.Models.Section.CreateSectionViewModel
+@model SchoolPortal.Web.Models.Section.EditSectionViewModel
 
 @{
-    ViewData["Title"] = "Create Section";
+    ViewData["Title"] = "Edit Section";
 }
 
 <div class="container mt-4">
@@ -10,7 +10,8 @@
             <h4>@ViewData["Title"]</h4>
         </div>
         <div class="card-body">
-            <form asp-action="Create" method="post">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 
                 <div class="form-group mb-3">
@@ -21,9 +22,10 @@
                 
                 <div class="form-group mb-3">
                     <label asp-for="CompanyId" class="control-label"></label>
-                    <select asp-for="CompanyId" class="form-control" id="companyDropdown">
+                    <select asp-for="CompanyId" class="form-control" id="companyDropdown" disabled>
                         <option value="">-- Select Company --</option>
                     </select>
+                    <input type="hidden" asp-for="CompanyId" />
                     <span asp-validation-for="CompanyId" class="text-danger"></span>
                 </div>
                 
@@ -41,7 +43,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
@@ -54,31 +56,32 @@
     
     <script>
         $(document).ready(function() {
-            // Load companies
-            $.get('/api/companies', function(companies) {
-                var dropdown = $('#companyDropdown');
-                dropdown.empty();
-                dropdown.append($('<option>').val('').text('-- Select Company --'));
-                $.each(companies, function(i, company) {
-                    dropdown.append($('<option>').val(company.id).text(company.companyName));
-                });
+            // Load company and school data
+            var companyId = '@Model.CompanyId';
+            var schoolId = '@Model.SchoolId';
+            
+            // Set company
+            $.get('/api/companies/' + companyId, function(company) {
+                var companyDropdown = $('#companyDropdown');
+                companyDropdown.empty();
+                companyDropdown.append($('<option>')
+                    .val(company.id)
+                    .text(company.companyName)
+                    .attr('selected', 'selected'));
             });
-
-            // Load schools based on selected company
-            $('#companyDropdown').change(function() {
-                var companyId = $(this).val();
+            
+            // Load schools for the company
+            $.get(`/api/schools/by-company/${companyId}`, function(schools) {
                 var schoolDropdown = $('#schoolDropdown');
-                
                 schoolDropdown.empty();
                 schoolDropdown.append($('<option>').val('').text('-- Select School --'));
                 
-                if (companyId) {
-                    $.get(`/api/schools/by-company/${companyId}`, function(schools) {
-                        $.each(schools, function(i, school) {
-                            schoolDropdown.append($('<option>').val(school.id).text(school.name));
-                        });
-                    });
-                }
+                $.each(schools, function(i, school) {
+                    schoolDropdown.append($('<option>')
+                        .val(school.id)
+                        .text(school.name)
+                        .attr('selected', school.id === schoolId));
+                });
             });
         });
     </script>

@@ -1,0 +1,61 @@
+@model SchoolPortal.Web.Models.Class.ClassViewModel
+@{
+    ViewData["Title"] = "Class Details";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5>Class Details</h5>
+    </div>
+    <div class="card-body">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ExamAssessment)</dt>
+            <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.ExamAssessment) ? "-" : Model.ExamAssessment)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsGradePointApplicable)</dt>
+            <dd class="col-sm-9">@(Model.IsGradePointApplicable ? "Yes" : "No")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CompanyId)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.CompanyId)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SchoolId)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.SchoolId)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderBy)</dt>
+            <dd class="col-sm-9">@(Model.OrderBy.HasValue ? Model.OrderBy.ToString() : "-")</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Status)</dt>
+            <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Status) ? "-" : Model.Status)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StatusMessage)</dt>
+            <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.StatusMessage) ? "-" : Model.StatusMessage)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
+            <dd class="col-sm-9">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Inactive</span>
+                }
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

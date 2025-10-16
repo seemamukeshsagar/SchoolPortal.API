@@ -46,6 +46,10 @@ builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<ISchoolContactService, SchoolContactService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<ISectionService, SectionService>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>

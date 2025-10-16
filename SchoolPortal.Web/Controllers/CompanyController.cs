@@ -17,17 +17,7 @@ using SchoolPortal.API.DTOs.Company;
 using SchoolPortal.API.Interfaces;
 using SchoolPortal.API.Interfaces.Services;
 using SchoolPortal.Web.Models.Company;
-
-// Configure JSON serialization options
-public static class JsonOptions
-{
-	public static readonly JsonSerializerOptions Default = new()
-	{
-		PropertyNameCaseInsensitive = true,
-		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-		ReferenceHandler = ReferenceHandler.IgnoreCycles
-	};
-}
+using SchoolPortal.Web.Common;
 
 namespace SchoolPortal.Web.Controllers
 {
