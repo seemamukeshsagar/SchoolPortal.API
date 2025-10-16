@@ -1,349 +1,269 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Sockets;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using SchoolPortal.API.Models; // For SchoolPortalNewContext
-using SchoolPortal.Web.Models;
-using System.Net.Http.Headers;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 using Polly;
 using Polly.Extensions.Http;
-using System.Net;
-using System.Net.Sockets;
-using Microsoft.Extensions.Http;
-using SchoolPortal.Web.Services;
-using Microsoft.AspNetCore.ResponseCompression;
-using SchoolPortal.API.Interfaces.Services;
-using SchoolPortal.API.Services;
-using SchoolPortal.API.Repositories;
-using SchoolPortal.API.Interfaces;
 using SchoolPortal.API.Data;
 using SchoolPortal.API.Data.Repositories;
+using SchoolPortal.API.Interfaces;
 using SchoolPortal.API.Interfaces.Repositories;
-using Microsoft.Extensions.DependencyInjection;
+using SchoolPortal.API.Interfaces.Services;
 using SchoolPortal.API.Mappings;
+using SchoolPortal.API.Models;
+using SchoolPortal.API.Repositories;
+using SchoolPortal.API.Services;
+using SchoolPortal.Web.Models;
+using SchoolPortal.Web.Services;
 
+// ---------------------------------------------------------
+// Create WebApplication Builder
+// ---------------------------------------------------------
 var builder = WebApplication.CreateBuilder(args);
 
-// ----------------------------
-// Add MVC controllers + views
-// ----------------------------
+// ---------------------------------------------------------
+// MVC & Razor Views
+// ---------------------------------------------------------
 builder.Services.AddControllersWithViews();
 
-// ----------------------------
-// Add session & context accessor
-// ----------------------------
+// ---------------------------------------------------------
+// Session & Context Accessor
+// ---------------------------------------------------------
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.Name = "__Host-SchoolPortal.Session";
-    options.Cookie.Path = "/";
+	options.IdleTimeout = TimeSpan.FromMinutes(30);
+	options.Cookie.Name = "__Host-SchoolPortal.Session";
+	options.Cookie.HttpOnly = true;
+	options.Cookie.IsEssential = true;
+	options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+	options.Cookie.SameSite = SameSiteMode.Lax;
+	options.Cookie.Path = "/";
 });
 
-// ----------------------------
-// Add authentication with secure cookies
-// ----------------------------
+// ---------------------------------------------------------
+// Authentication (Secure Cookie-Based)
+// ---------------------------------------------------------
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromDays(30);
-        options.SlidingExpiration = true;
-        options.Cookie.Name = "__Host-SchoolPortal.Auth";
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-        options.Cookie.Path = "/";
-    });
+	.AddCookie(options =>
+	{
+		options.LoginPath = "/Account/Login";
+		options.LogoutPath = "/Account/Logout";
+		options.AccessDeniedPath = "/Account/AccessDenied";
+		options.ExpireTimeSpan = TimeSpan.FromDays(30);
+		options.SlidingExpiration = true;
 
-// ----------------------------
-// HTTPS redirection
-// ----------------------------
+		options.Cookie.Name = "__Host-SchoolPortal.Auth";
+		options.Cookie.HttpOnly = true;
+		options.Cookie.IsEssential = true;
+		options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+		options.Cookie.SameSite = SameSiteMode.Lax;
+		options.Cookie.Path = "/";
+	});
+
+// ---------------------------------------------------------
+// HTTPS Redirection
+// ---------------------------------------------------------
 builder.Services.AddHttpsRedirection(options =>
 {
-    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-    options.HttpsPort = 443;
+	options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+	options.HttpsPort = 443;
 });
 
-// ----------------------------
-// Add CORS
-// ----------------------------
+// ---------------------------------------------------------
+// CORS Configuration
+// ---------------------------------------------------------
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(
-                "https://localhost:7185",
-                "https://your-production-domain.com")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials()
-              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
-    });
+	options.AddDefaultPolicy(policy =>
+	{
+		policy.WithOrigins("https://localhost:5001", "https://your-production-domain.com")
+			  .AllowAnyHeader()
+			  .AllowAnyMethod()
+			  .AllowCredentials()
+			  .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+	});
 });
 
-// ----------------------------
-// Configure global API settings
-// ----------------------------
+// ---------------------------------------------------------
+// Configuration: ApiSettings
+// ---------------------------------------------------------
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
-// ----------------------------
-// Add HttpClients (properly structured)
-// ----------------------------
-
-// Configure HTTP clients with policies
-// Default client with basic configuration
-ConfigureHttpClient(builder.Services, "DefaultClient");
-
-// Auth API client with retry and circuit breaker policies
-ConfigureHttpClient(builder.Services, "AuthApi", true, true);
-
-// General API client with retry policy
-ConfigureHttpClient(builder.Services, "ApiClient", true, false);
-
-// Helper method to configure HTTP clients
-static void ConfigureHttpClient(IServiceCollection services, string name, bool addRetryPolicy = false, bool addCircuitBreaker = false)
+// ---------------------------------------------------------
+// Database Context (EF Core)
+// ---------------------------------------------------------
+builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
 {
-    var builder = services.AddHttpClient(name, (serviceProvider, client) =>
-    {
-        var config = serviceProvider.GetRequiredService<IConfiguration>();
-        var baseUrl = config["ApiSettings:BaseUrl"] ?? 
-            throw new InvalidOperationException("ApiSettings:BaseUrl not found in appsettings.json");
-            
-        client.BaseAddress = new Uri(baseUrl);
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        client.Timeout = TimeSpan.FromSeconds(30);
-    });
+	var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+		?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+	options.UseSqlServer(connectionString);
+});
 
-    // Configure primary HTTP message handler
-    builder.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-    {
-        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
-        MaxConnectionsPerServer = 100,
-        UseCookies = false,
-        UseProxy = false,
-        EnableMultipleHttp2Connections = true
-    });
+// ---------------------------------------------------------
+// Caching & Compression
+// ---------------------------------------------------------
+builder.Services.AddMemoryCache();
+builder.Services.AddResponseCaching();
+builder.Services.AddResponseCompression(options =>
+{
+	options.EnableForHttps = true;
+	options.Providers.Add<BrotliCompressionProvider>();
+	options.Providers.Add<GzipCompressionProvider>();
+});
 
-    // Add policies if requested
-    if (addRetryPolicy || addCircuitBreaker)
-    {
-        if (addRetryPolicy)
-        {
-            // Fix for CS1929: Replace usage of serviceProvider.GetRequiredService<ILoggerFactory>() inside AddPolicyHandler lambda
-            // The lambda parameter for AddPolicyHandler is of type HttpRequestMessage, not IServiceProvider.
-            // To access IServiceProvider, use the overload that provides IServiceProvider as the first argument.
-
-            builder.AddPolicyHandler((serviceProvider, request) => 
-                Policy.Handle<HttpRequestException>()
-                    .OrResult<HttpResponseMessage>(r => (int)r.StatusCode >= 500)
-                    .WaitAndRetryAsync(
-                        retryCount: 3,
-                        sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                        onRetry: (outcome, delay, retryCount, context) =>
-                        {
-                            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                            var logger = loggerFactory.CreateLogger<Program>();
-                            logger.LogWarning(
-                                "[Retry {RetryCount}] Delaying for {Delay}ms due to {StatusCode}",
-                                retryCount,
-                                delay.TotalMilliseconds,
-                                outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.Message ?? "unknown error"
-                            );
-                        }));
-        }
-        
-        if (addCircuitBreaker)
-        {
-            builder.AddPolicyHandler(GetCircuitBreakerPolicy());
-        }
-    }
-}
-
-// ----------------------------
-// Configure cookie policy & antiforgery
-// ----------------------------
+// ---------------------------------------------------------
+// Antiforgery & Cookie Policy
+// ---------------------------------------------------------
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    options.MinimumSameSitePolicy = SameSiteMode.Lax;
-    options.Secure = CookieSecurePolicy.Always;
-    options.HttpOnly = HttpOnlyPolicy.Always;
-    options.CheckConsentNeeded = _ => false;
+	options.MinimumSameSitePolicy = SameSiteMode.Lax;
+	options.Secure = CookieSecurePolicy.Always;
+	options.HttpOnly = HttpOnlyPolicy.Always;
+	options.CheckConsentNeeded = _ => false;
 });
 
 builder.Services.AddAntiforgery(options =>
 {
-    options.Cookie.Name = "__Host-Antiforgery";
-    options.Cookie.Path = "/";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.HeaderName = "X-CSRF-TOKEN";
+	options.Cookie.Name = "__Host-Antiforgery";
+	options.Cookie.HttpOnly = true;
+	options.Cookie.IsEssential = true;
+	options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+	options.Cookie.SameSite = SameSiteMode.Lax;
+	options.Cookie.Path = "/";
+	options.HeaderName = "X-CSRF-TOKEN";
 });
 
-// Add these services before builder.Build()
-builder.Services.AddMemoryCache(); // Add memory cache service
-builder.Services.AddResponseCaching(); // Add response caching middleware
-
-// Add the CachingService
+// ---------------------------------------------------------
+// Dependency Injection (Services & Repositories)
+// ---------------------------------------------------------
 builder.Services.AddScoped<ICachingService, CachingService>();
 builder.Services.AddScoped<IClassSectionService, ClassSectionService>();
-builder.Services.AddScoped<IClassSectionRepository, ClassSectionRepository>(); 
+builder.Services.AddScoped<IClassSectionRepository, ClassSectionRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddSingleton<ILoginAttemptService, LoginAttemptService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
-// Register EF Core DbContext (place this before repository / unit-of-work registrations)
-builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
+// ---------------------------------------------------------
+// AutoMapper
+// ---------------------------------------------------------
+builder.Services.AddAutoMapper(cfg =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? builder.Configuration["ConnectionStrings:DefaultConnection"]
-        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Add it to appsettings.json.");
-    options.UseSqlServer(connectionString);
+    cfg.AddProfile<AutoMapperProfile>();
 });
 
-// Register IUserRepository implementation (adjust concrete type/namespace if your repository class is named differently)
-builder.Services.AddScoped<SchoolPortal.API.Interfaces.Repositories.IUserRepository, UserRepository>();
+// ---------------------------------------------------------
+// HTTP Clients (with Polly policies)
+// ---------------------------------------------------------
+ConfigureHttpClient(builder.Services, "DefaultClient");
+ConfigureHttpClient(builder.Services, "AuthApi", addRetryPolicy: true, addCircuitBreaker: true);
+ConfigureHttpClient(builder.Services, "ApiClient", addRetryPolicy: true);
 
-// Add response compression
-builder.Services.AddResponseCompression(options =>
+static void ConfigureHttpClient(IServiceCollection services, string name, bool addRetryPolicy = false, bool addCircuitBreaker = false)
 {
-    options.EnableForHttps = true;
-    options.Providers.Add<BrotliCompressionProvider>();
-    options.Providers.Add<GzipCompressionProvider>();
-});
+	var builder = services.AddHttpClient(name, (serviceProvider, client) =>
+	{
+		var config = serviceProvider.GetRequiredService<IConfiguration>();
+		var baseUrl = config["ApiSettings:BaseUrl"]
+			?? throw new InvalidOperationException("ApiSettings:BaseUrl not configured in appsettings.json.");
 
-// Configure HTTP retry policy
+		client.BaseAddress = new Uri(baseUrl);
+		client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		client.Timeout = TimeSpan.FromSeconds(30);
+	});
+
+	builder.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+	{
+		PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+		PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+		MaxConnectionsPerServer = 100,
+		UseCookies = false,
+		UseProxy = false,
+		EnableMultipleHttp2Connections = true
+	});
+
+	if (addRetryPolicy)
+		builder.AddPolicyHandler((sp, _) => GetRetryPolicy(sp.GetRequiredService<ILoggerFactory>()));
+
+	if (addCircuitBreaker)
+		builder.AddPolicyHandler(GetCircuitBreakerPolicy());
+}
+
+// ---------------------------------------------------------
+// Polly Policies (Resilient HTTP)
+// ---------------------------------------------------------
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(ILoggerFactory loggerFactory)
 {
-    var logger = loggerFactory.CreateLogger("HttpPolicies");
-    
-    return HttpPolicyExtensions
-        .HandleTransientHttpError()
-        .OrResult(msg => msg.StatusCode == HttpStatusCode.TooManyRequests)
-        .WaitAndRetryAsync(
-            retryCount: 3,
-            sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-            onRetry: (outcome, delay, retryCount, context) =>
-            {
-                logger.LogWarning(
-                    "[Retry {RetryCount}] Delaying for {Delay}ms due to {StatusCode}",
-                    retryCount,
-                    delay.TotalMilliseconds,
-                    outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.Message ?? "unknown error"
-                );
-            });
+	var logger = loggerFactory.CreateLogger("HttpPolicies");
+	return HttpPolicyExtensions
+		.HandleTransientHttpError()
+		.OrResult(msg => msg.StatusCode == HttpStatusCode.TooManyRequests)
+		.WaitAndRetryAsync(3,
+			retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+			(outcome, delay, retryCount, context) =>
+			{
+				logger.LogWarning("[Retry {RetryCount}] Delay {Delay}ms - Reason: {Reason}",
+					retryCount, delay.TotalMilliseconds,
+					outcome.Result?.StatusCode.ToString() ?? outcome.Exception?.Message ?? "unknown");
+			});
 }
 
-// Configure HTTP circuit breaker policy
 static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
 {
-    return HttpPolicyExtensions
-        .HandleTransientHttpError()
-        .CircuitBreakerAsync(
-            handledEventsAllowedBeforeBreaking: 5,
-            durationOfBreak: TimeSpan.FromSeconds(30),
-            onBreak: (ex, breakDelay) =>
-            {
-                // Log circuit breaker state change
-                var logger = new LoggerFactory().CreateLogger("HttpPolicies");
-                logger.LogWarning("Circuit breaker opened for {BreakDelay}ms due to {Exception}", 
-                    breakDelay.TotalMilliseconds, ex?.Exception.Message ?? "unknown error");
-            },
-            onReset: () =>
-            {
-                var logger = new LoggerFactory().CreateLogger("HttpPolicies");
-                logger.LogInformation("Circuit breaker reset");
-            },
-            onHalfOpen: () =>
-            {
-                var logger = new LoggerFactory().CreateLogger("HttpPolicies");
-                logger.LogInformation("Circuit breaker half-open");
-            }
-        );
+	var logger = new LoggerFactory().CreateLogger("HttpPolicies");
+
+	return HttpPolicyExtensions
+		.HandleTransientHttpError()
+		.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30),
+			onBreak: (ex, delay) => logger.LogWarning("Circuit opened for {Delay}ms: {Message}", delay.TotalMilliseconds, ex.Exception?.Message),
+			onReset: () => logger.LogInformation("Circuit reset"),
+			onHalfOpen: () => logger.LogInformation("Circuit half-open"));
 }
 
-// Update the HttpClient configuration to pass the logger factory
-builder.Services.AddHttpClient("AuthApi", (serviceProvider, client) =>
-{
-    var config = serviceProvider.GetRequiredService<IConfiguration>();
-    var baseUrl = config["ApiSettings:BaseUrl"] ?? throw new InvalidOperationException("ApiSettings:BaseUrl not found");
-    client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-{
-    PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-    PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
-    MaxConnectionsPerServer = 100,
-    UseCookies = false,
-    UseProxy = false,
-    EnableMultipleHttp2Connections = true
-})
-.AddPolicyHandler((serviceProvider, request) =>
-    // resolve ILoggerFactory from the runtime provider
-    GetRetryPolicy(serviceProvider.GetRequiredService<ILoggerFactory>()))
-.AddPolicyHandler(GetCircuitBreakerPolicy());
-
-// ----------------------------
-// Register AutoMapper (all assemblies)
-// ----------------------------
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
-
-// ----------------------------
-// Build the app
-// ----------------------------
+// ---------------------------------------------------------
+// Build Application
+// ---------------------------------------------------------
 var app = builder.Build();
 
-// ----------------------------
-// Middleware pipeline
-// ----------------------------
+// ---------------------------------------------------------
+// Middleware Pipeline
+// ---------------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+	app.UseExceptionHandler("/Error");
+	app.UseHsts();
 }
 else
 {
-    app.UseDeveloperExceptionPage();
+	app.UseDeveloperExceptionPage();
 }
 
-// Security headers
+// Security Headers
 app.Use((context, next) =>
 {
-    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
-    context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
-    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+	context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+	context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+	context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
 
-    if (context.Request.IsHttps)
-        context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+	if (context.Request.IsHttps)
+		context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
 
-    return next();
+	return next();
 });
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Account}/{action=Login}/{id?}");
-    endpoints.MapRazorPages();
-});
-
 app.UseCookiePolicy();
 app.UseCors();
 
@@ -351,8 +271,12 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// In the app configuration section, after var app = builder.Build();
 app.UseResponseCompression();
 app.UseResponseCaching();
+
+// Default Route
+app.MapControllerRoute(
+	name: "default",
+	pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

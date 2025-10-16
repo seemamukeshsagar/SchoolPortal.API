@@ -68,13 +68,14 @@ namespace SchoolPortal.Web.Controllers
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var cacheKey = $"{CacheKeyPrefix}{schoolId}";
-                if (!_cache.TryGetValue(cacheKey, out List<SchoolContactDto> contacts))
+                if (!_cache.TryGetValue(cacheKey, out List<SchoolContactDto>? contacts) || contacts == null)
                 {
                     var response = await _httpClient.GetAsync($"{_apiBaseUrl}/school/{schoolId}");
                     response.EnsureSuccessStatusCode();
                     
                     var content = await response.Content.ReadAsStringAsync();
-                    contacts = JsonConvert.DeserializeObject<List<SchoolContactDto>>(content);
+                    var deserializedContacts = JsonConvert.DeserializeObject<List<SchoolContactDto>>(content);
+                    contacts = deserializedContacts ?? new List<SchoolContactDto>();
                     
                     var cacheOptions = new MemoryCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromMinutes(30));
@@ -83,7 +84,7 @@ namespace SchoolPortal.Web.Controllers
                 }
 
                 ViewBag.SchoolId = schoolId;
-                return View(contacts ?? new List<SchoolContactDto>());
+                return View(contacts);
             }
             catch (Exception ex)
             {
@@ -121,13 +122,13 @@ namespace SchoolPortal.Web.Controllers
                 var request = new SchoolContactRequest
                 {
                     SchoolId = model.SchoolId,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Phone = model.Phone,
-                    MobilePhone = model.MobilePhone,
-                    AddressLine1 = model.AddressLine1,
-                    AddressLine2 = model.AddressLine2,
+                    FirstName = model.FirstName ?? throw new ArgumentNullException(nameof(model.FirstName), "First name is required"),
+                    LastName = model.LastName ?? throw new ArgumentNullException(nameof(model.LastName), "Last name is required"),
+                    Email = model.Email ?? string.Empty,
+                    Phone = model.Phone ?? string.Empty,
+                    MobilePhone = model.MobilePhone ?? string.Empty,
+                    AddressLine1 = model.AddressLine1 ?? string.Empty,
+                    AddressLine2 = model.AddressLine2 ?? string.Empty,
                     CityId = model.CityId,
                     StateId = model.StateId,
                     CountryId = model.CountryId,
@@ -165,6 +166,7 @@ namespace SchoolPortal.Web.Controllers
                 var contact = await response.Content.ReadFromJsonAsync<SchoolContactDto>();
                 if (contact == null)
                 {
+                    _logger.LogWarning("Contact not found for ID: {ContactId}", id);
                     return NotFound();
                 }
 
@@ -172,21 +174,26 @@ namespace SchoolPortal.Web.Controllers
                 {
                     Id = contact.Id,
                     SchoolId = contact.SchoolId,
-                    FirstName = contact.FirstName,
-                    LastName = contact.LastName,
-                    Email = contact.Email,
-                    Phone = contact.Phone,
-                    MobilePhone = contact.MobilePhone,
-                    AddressLine1 = contact.AddressLine1,
-                    AddressLine2 = contact.AddressLine2,
+                    FirstName = contact.FirstName ?? string.Empty,
+                    LastName = contact.LastName ?? string.Empty,
+                    Email = contact.Email ?? string.Empty,
+                    Phone = contact.Phone ?? string.Empty,
+                    MobilePhone = contact.MobilePhone ?? string.Empty,
+                    AddressLine1 = contact.AddressLine1 ?? string.Empty,
+                    AddressLine2 = contact.AddressLine2 ?? string.Empty,
                     CityId = contact.CityId,
                     StateId = contact.StateId,
                     CountryId = contact.CountryId,
                     IsActive = contact.IsActive,
-                    CityName = contact.CityName,
-                    StateName = contact.StateName,
-                    CountryName = contact.CountryName
+                    CityName = contact.CityName ?? string.Empty,
+                    StateName = contact.StateName ?? string.Empty,
+                    CountryName = contact.CountryName ?? string.Empty
                 };
+
+                if (TempData.ContainsKey("SchoolId"))
+                {
+                    TempData.Keep("SchoolId");
+                }
 
                 return View(model);
             }
@@ -202,6 +209,11 @@ namespace SchoolPortal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(SchoolContactViewModel model)
         {
+            if (model == null)
+            {
+                return BadRequest("Invalid model");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -210,23 +222,33 @@ namespace SchoolPortal.Web.Controllers
             try
             {
                 var token = await GetTokenAsync();
+                if (string.IsNullOrEmpty(token))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var request = new SchoolContactRequest
                 {
                     SchoolId = model.SchoolId,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Phone = model.Phone,
-                    MobilePhone = model.MobilePhone,
-                    AddressLine1 = model.AddressLine1,
-                    AddressLine2 = model.AddressLine2,
+                    FirstName = model.FirstName ?? string.Empty,
+                    LastName = model.LastName ?? string.Empty,
+                    Email = model.Email ?? string.Empty,
+                    Phone = model.Phone ?? string.Empty,
+                    MobilePhone = model.MobilePhone ?? string.Empty,
+                    AddressLine1 = model.AddressLine1 ?? string.Empty,
+                    AddressLine2 = model.AddressLine2 ?? string.Empty,
                     CityId = model.CityId,
                     StateId = model.StateId,
                     CountryId = model.CountryId,
                     IsActive = model.IsActive
                 };
+
+                if (TempData.ContainsKey("SchoolId"))
+                {
+                    TempData.Keep("SchoolId");
+                }
 
                 var response = await _httpClient.PutAsJsonAsync($"{_apiBaseUrl}/{model.Id}", request);
                 response.EnsureSuccessStatusCode();

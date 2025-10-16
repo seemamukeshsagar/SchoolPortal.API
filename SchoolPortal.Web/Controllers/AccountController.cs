@@ -1,52 +1,74 @@
-using Microsoft.AspNetCore.Mvc;
-using SchoolPortal.Web.Models.Account;
-using System.Diagnostics;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using SchoolPortal.API.Models;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
-using SchoolPortal.Web.Services;  // For ICachingService
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SchoolPortal.API.Interfaces.Services;
+using SchoolPortal.API.Models;
+using SchoolPortal.Web.DTOs;
+using SchoolPortal.Web.Models.Account;
+using SchoolPortal.Web.Services;
 
 namespace SchoolPortal.Web.Controllers
 {
-	public class AccountController : Controller
-	{
-		private readonly IHttpClientFactory _httpClientFactory;
-		private const string ApiBaseUrl = "https://localhost:7185/api/";
-		private readonly ILogger<AccountController> _logger;
-		private readonly ICachingService _cachingService;
-		private const string UserDetailsCachePrefix = "UserDetails_";
-		private readonly IConfiguration _configuration;
+    [Authorize]
+    [Route("[controller]")]
+    public class AccountController : Controller
+    {
+        private const string UserDetailsCachePrefix = "UserDetails_";
+        
+        private readonly ILogger<AccountController> _logger;
+        private readonly IAuthService _authService;
+        private readonly IUserProfileService _userProfileService;
+        private readonly ILoginAttemptService _loginAttemptService;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMemoryCache _cache;  // Changed from ICachingService to IMemoryCache
 
-		public AccountController(
-			IHttpClientFactory httpClientFactory,
-			ILogger<AccountController> logger,
-			ICachingService cachingService,
-			IConfiguration configuration)
-		{
-			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_cachingService = cachingService ?? throw new ArgumentNullException(nameof(cachingService));
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-		}
+        public AccountController(
+            ILogger<AccountController> logger,
+            IAuthService authService,
+            IUserProfileService userProfileService,
+            ILoginAttemptService loginAttemptService,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IMemoryCache cache)  // Added IMemoryCache
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+            _userProfileService = userProfileService ?? throw new ArgumentNullException(nameof(userProfileService));
+            _loginAttemptService = loginAttemptService ?? throw new ArgumentNullException(nameof(loginAttemptService));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        }
 
-		[HttpGet]
+        [HttpGet("login")]
+        [AllowAnonymous]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToLocal(returnUrl);
+            }
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost("login")]
 		[AllowAnonymous]
-		public IActionResult Login(string? returnUrl = null)
-		{
-			ViewData["ReturnUrl"] = returnUrl;
-			return View();
-		}
-
-		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
 		{
@@ -59,177 +81,170 @@ namespace SchoolPortal.Web.Controllers
 
 			try
 			{
-				using var client = _httpClientFactory.CreateClient("AuthApi");
-				
-				// Optimized JSON serialization with source generation
-				var loginRequest = new { model.UserName, model.Password };
-				using var content = JsonContent.Create(loginRequest, options: new JsonSerializerOptions
+				// Check if the user is already authenticated
+				if (User.Identity?.IsAuthenticated == true)
 				{
-					PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-					DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-				});
-
-				// Set timeout for the request
-				using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-				
-				_logger.LogInformation("Attempting to authenticate user: {Username}", model.UserName);
-				
-				// Start both API calls in parallel
-				var loginTask = client.PostAsync("Auth/login", content, cts.Token);
-				var userDetailsTask = GetUserDetailsAsync(model.UserName, cts.Token);
-
-				// Wait for both tasks to complete
-				await Task.WhenAll(loginTask, userDetailsTask);
-				var response = await loginTask;
-				var userDetails = await userDetailsTask;
-
-				if (response.IsSuccessStatusCode)
-				{
-					_logger.LogInformation("User {Username} authenticated successfully", model.UserName);
-
-					// Invalidate any existing cache for this user
-        			InvalidateUserCache(model.UserName);
-					
-					// Batch session updates
-					if (userDetails != null)
-					{
-						var session = HttpContext.Session;
-						session.SetString("User_FullName", userDetails.FirstName + ' ' + userDetails.LastName ?? string.Empty);
-						if (userDetails.UserRoleId.HasValue)
-						{
-							session.SetString("User_RoleId", userDetails.UserRoleId.Value.ToString());
-						}
-						session.SetString("IsSuperUser", userDetails.IsSuperUser?.ToString() ?? "false");
-						await session.CommitAsync(); // Single commit for all session changes
-					}
-					
-					return Url.IsLocalUrl(returnUrl) 
-						? Redirect(returnUrl) 
-						: RedirectToAction("Index", "Home");
+					return RedirectToLocal(returnUrl);
 				}
 
-				_logger.LogWarning("Failed login attempt for user: {Username}", model.UserName);
-				ModelState.AddModelError(string.Empty, "Invalid username or password.");
-				return View(model);
-			}
-			catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
-			{
-				_logger.LogError(ex, "Login request timed out for user: {Username}", model.UserName);
-				ModelState.AddModelError(string.Empty, "The request timed out. Please try again.");
-			}
-			catch (HttpRequestException ex)
-			{
-				_logger.LogError(ex, "Error connecting to authentication service for user: {Username}", model.UserName);
-				ModelState.AddModelError(string.Empty, "Unable to connect to the authentication service. Please try again later.");
+				// Check login attempts
+				if (await _loginAttemptService.IsAccountLocked(model.UserName))
+				{
+					ModelState.AddModelError(string.Empty, "Too many failed login attempts. Please try again later.");
+					return View(model);
+				}
+
+				// Authenticate the user
+				var loginRequest = new SchoolPortal.API.DTOs.Auth.LoginRequest
+				{
+					Username = model.UserName,
+					Password = model.Password
+				};
+
+				try
+				{
+					var authResult = await _authService.LoginAsync(loginRequest);
+
+					if (authResult == null || string.IsNullOrEmpty(authResult.Token))
+					{
+						await _loginAttemptService.RecordFailedAttempt(model.UserName);
+						ModelState.AddModelError(string.Empty, "Invalid login attempt. Please check your credentials.");
+						return View(model);
+					}
+
+					// Reset failed attempts on successful login
+					await _loginAttemptService.ResetAttempts(model.UserName);
+
+					// Create claims
+					var claims = new List<Claim>
+					{
+						new Claim(ClaimTypes.Name, authResult.Username),
+						new Claim(ClaimTypes.NameIdentifier, authResult.UserId.ToString()),
+						new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+					};
+
+					// Add roles to claims if available
+					if (authResult.Roles?.Any() == true)
+					{
+						claims.AddRange(authResult.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+					}
+
+					var claimsIdentity = new ClaimsIdentity(
+						claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+					var authProperties = new AuthenticationProperties
+					{
+						AllowRefresh = true,
+						IsPersistent = model.RememberMe,
+						ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+					};
+
+					await HttpContext.SignInAsync(
+						CookieAuthenticationDefaults.AuthenticationScheme,
+						new ClaimsPrincipal(claimsIdentity),
+						authProperties);
+
+					// Log the successful login
+					_logger.LogInformation("User {Username} logged in at {Time}", 
+						model.UserName, DateTime.UtcNow);
+
+					// Store user details in session if needed
+					if (!string.IsNullOrEmpty(authResult.FirstName) || !string.IsNullOrEmpty(authResult.LastName))
+					{
+						var fullName = $"{authResult.FirstName} {authResult.LastName}".Trim();
+						var role = authResult.Roles?.FirstOrDefault() ?? "User";
+						
+						HttpContext.Session.SetString("User_FullName", fullName);
+						HttpContext.Session.SetString("User_Role", role);
+					}
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Error during authentication for user {Username}", model.UserName);
+					ModelState.AddModelError(string.Empty, "An error occurred during authentication. Please try again.");
+					return View(model);
+				}
+
+				// Handle return URL
+				if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+				{
+					return Redirect(returnUrl);
+				}
+
+				return RedirectToAction("Index", "Home");
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Unexpected error during login for user: {Username}", model.UserName);
-				ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+				_logger.LogError(ex, "Error during login for user {Username}", model.UserName);
+				ModelState.AddModelError(string.Empty, "An error occurred while processing your request. Please try again.");
+				return View(model);
 			}
-
-			return View(model);
 		}
 
-        // Update GetUserDetailsAsync to accept CancellationToken
-        private async Task<UserDetail> GetUserDetailsAsync(string username, CancellationToken cancellationToken = default)
+        [HttpPost("logout")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
         {
-            if (string.IsNullOrWhiteSpace(username))
-                throw new ArgumentException("Username cannot be null or empty.", nameof(username));
-
-            var cacheKey = $"{UserDetailsCachePrefix}{username}";
-            var cacheDuration = TimeSpan.FromMinutes(_configuration.GetValue<int>("CacheSettings:UserDetailsCacheDurationMinutes"));
-
-            return await _cachingService.GetOrCreateAsync(cacheKey, async () =>
+            var username = User.Identity?.Name;
+            
+            // Clear session
+            HttpContext.Session.Clear();
+            
+            // Clear authentication cookie
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            // Clear all cookies
+            foreach (var cookie in Request.Cookies.Keys)
             {
-                using var client = _httpClientFactory.CreateClient("AuthApi");
-                var response = await client.GetAsync(
-                    $"User/GetUserDetails?username={Uri.EscapeDataString(username)}",
-                    cancellationToken);
+                Response.Cookies.Delete(cookie);
+            }
 
-                response.EnsureSuccessStatusCode();
+            _logger.LogInformation("User {Username} logged out at {Time}", 
+                username, DateTime.UtcNow);
 
-                var result = await response.Content.ReadFromJsonAsync<UserDetail>(cancellationToken: cancellationToken);
+            return RedirectToAction("Login");
+        }
 
-                if (result == null)
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            try
+            {
+                var username = User.Identity?.Name;
+                if (string.IsNullOrEmpty(username))
                 {
-                    _logger.LogWarning("Received null user details for {Username}", username);
-                    throw new InvalidOperationException($"No user details found for {username}.");
+                    return Unauthorized(new { success = false, message = "User not authenticated" });
                 }
 
-                return result;
-            }, cacheDuration);
+                var userProfile = await _userProfileService.GetUserProfileAsync(username);
+                return Json(userProfile);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching user profile for {Username}", User.Identity?.Name);
+                return StatusCode(
+                    (int)HttpStatusCode.InternalServerError, 
+                    new { success = false, message = "An error occurred while fetching user profile" });
+            }
+        }
+
+        private IActionResult RedirectToLocal(string? returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         // Add this method to invalidate cache when user data changes
         private void InvalidateUserCache(string username)
 		{
-			var cacheKey = $"{UserDetailsCachePrefix}{username}";
-			_cachingService.Remove(cacheKey);
-		}
-
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public IActionResult Logout()
-		{
-			// Clear session data
-			HttpContext.Session.Clear();
-			
-			// Clear authentication cookies
-			foreach (var cookie in Request.Cookies.Keys)
-			{
-				Response.Cookies.Delete(cookie);
-			}
-			
-			// Sign out the user
-			return SignOut(new AuthenticationProperties 
-			{ 
-				RedirectUri = Url.Action("Login", "Home") 
-			}, CookieAuthenticationDefaults.AuthenticationScheme);
-		}
-		
-		private async Task<UserSession> GetUserDetailsAsync(string username)
-		{
-			try
-			{
-				using var client = _httpClientFactory.CreateClient("AuthApi");
-				var response = await client.GetAsync($"Users/{username}");
-				
-				if (response.IsSuccessStatusCode)
-				{
-					var content = await response.Content.ReadAsStringAsync();
-					var options = new JsonSerializerOptions
-					{
-						PropertyNameCaseInsensitive = true,
-						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-					};
-					
-					var userDetail = JsonSerializer.Deserialize<UserDetail>(content, options);
-					return new UserSession 
-					{ 
-						FullName = $"{userDetail?.FirstName} {userDetail?.LastName}".Trim(),
-						UserRoleId = userDetail?.UserRoleId,
-						IsSuperUser = userDetail?.IsSuperUser
-					};
-				}
-
-				_logger.LogWarning("Failed to fetch user details for {Username}", username);
-				return new UserSession { FullName = username };
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error fetching user details for {Username}", username);
-				return new UserSession { FullName = username };
-			}
-		}
-
-		private IActionResult RedirectToLocal(string returnUrl)
-		{
-			if (Url.IsLocalUrl(returnUrl))
-			{
-				return Redirect(returnUrl);
-			}
-			return RedirectToAction(nameof(HomeController.Index), "Home");
+			if (string.IsNullOrWhiteSpace(username))
+                return;
+                
+			var cacheKey = $"UserDetails_{username}";
+			_cache.Remove(cacheKey);
 		}
 
 		[HttpGet]
@@ -237,6 +252,12 @@ namespace SchoolPortal.Web.Controllers
 		{
 			return View();
 		}
+	}
 
+	public class UserSession
+	{
+		public string? FullName { get; set; }
+		public Guid? UserRoleId { get; set; }
+		public bool? IsSuperUser { get; set; }
 	}
 }

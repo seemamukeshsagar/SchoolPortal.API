@@ -13,4 +13,7 @@ public class LoginViewModel
 
     [Display(Name = "Remember me?")]
     public bool RememberMe { get; set; }
+    
+    public int FailedLoginAttempts { get; set; }
+    public DateTime? LockoutEnd { get; set; }
 }

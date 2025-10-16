@@ -9,12 +9,17 @@
         <h3 class="mb-0">@ViewData["Title"]</h3>
     </div>
     <div class="login-body">
-        <form method="post" asp-action="Login" asp-controller="Account" asp-route-returnurl="@ViewData["ReturnUrl"]" novalidate>
+        <form id="loginForm" method="post" asp-action="Login" asp-controller="Account" asp-route-returnurl="@ViewData["ReturnUrl"]" novalidate>
             <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
             
             <div class="mb-3">
                 <label asp-for="UserName" class="form-label">User Name</label>
-                <input asp-for="UserName" class="form-control form-control-lg" autocomplete="username" aria-required="true" placeholder="Enter your username" />
+                <input asp-for="UserName" class="form-control form-control-lg" 
+                       autocomplete="username" 
+                       aria-required="true" 
+                       placeholder="Enter your username" 
+                       data-val="true"
+                       data-val-required="The User Name field is required." />
                 <span asp-validation-for="UserName" class="text-danger small"></span>
             </div>
             
@@ -22,7 +27,13 @@
                 <div class="d-flex justify-content-between">
                     <label asp-for="Password" class="form-label">Password</label>
                 </div>
-                <input asp-for="Password" type="password" class="form-control form-control-lg" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
+                <input asp-for="Password" type="password" 
+                       class="form-control form-control-lg" 
+                       autocomplete="current-password" 
+                       aria-required="true" 
+                       placeholder="Enter your password" 
+                       data-val="true"
+                       data-val-required="The Password field is required." />
                 <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
             
@@ -46,17 +57,84 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            const spinner = document.getElementById('spinner');
-            const buttonText = document.getElementById('buttonText');
-            const loginButton = document.getElementById('loginButton');
+        $(document).ready(function() {
+            // Initialize form validation
+            const $form = $('#loginForm');
+            let lockoutTimer = null;
+            
+            // Function to update lockout message
+            function updateLockoutMessage(lockoutEnd) {
+                const now = new Date().getTime();
+                const end = new Date(lockoutEnd).getTime();
+                const distance = end - now;
+                
+                if (distance <= 0) {
+                    // Lockout has expired, reload the page
+                    window.location.reload();
+                    return;
+                }
+                
+                // Calculate remaining time
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Update the lockout message
+                const message = `Too many failed attempts. Account is locked. Please try again in ${minutes}m ${seconds}s.`;
+                $('.lockout-message').text(message).removeClass('d-none');
+                
+                // Disable the form
+                $form.find('input, button').prop('disabled', true);
+                
+                // Update the timer every second
+                lockoutTimer = setTimeout(() => updateLockoutMessage(lockoutEnd), 1000);
+            }
+            
+            // Check for existing lockout message on page load
+            const lockoutMessage = $('.lockout-message');
+            if (lockoutMessage.length && lockoutMessage.data('lockout-end')) {
+                updateLockoutMessage(lockoutMessage.data('lockout-end'));
+            }
+            
+            // Clean up timer when leaving the page
+            $(window).on('beforeunload', function() {
+                if (lockoutTimer) {
+                    clearTimeout(lockoutTimer);
+                }
+            });
+            
+            // Enable validation on form submit
+            $form.validate({
+                errorClass: 'is-invalid',
+                validClass: 'is-valid',
+                errorElement: 'div',
+                errorPlacement: function(error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function(element, errorClass, validClass) {
+                    $(element).addClass(errorClass).removeClass(validClass);
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).removeClass(errorClass).addClass(validClass);
+                },
+                submitHandler: function(form) {
+                    const $button = $('#loginButton');
+                    const $spinner = $('#spinner');
+                    const $buttonText = $('#buttonText');
+                    
+                    // Disable the button and show spinner
+                    $button.prop('disabled', true);
+                    $spinner.removeClass('d-none');
+                    $buttonText.text('Processing...');
+                    
+                    // Submit the form
+                    form.submit();
+                }
+            });
 
-            form.addEventListener('submit', function() {
-                // Disable the button and show spinner
-                loginButton.disabled = true;
-                spinner.classList.remove('d-none');
-                buttonText.textContent = 'Processing...';
+            // Add validation classes on blur
+            $('input').on('blur', function() {
+                $(this).valid();
             });
         });
     </script>
@@ -67,6 +145,44 @@
         }
         #buttonText {
             vertical-align: middle;
+        }
+        .field-validation-error {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+        .input-validation-error {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .input-validation-error:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+        .is-valid {
+            border-color: #198754;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .is-valid:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        .lockout-message {
+            color: #dc3545;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #f5c6cb;
+            border-radius: 0.25rem;
+            background-color: #f8d7da;
         }
     </style>
 }
