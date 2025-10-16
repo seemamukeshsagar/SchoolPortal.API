@@ -1,0 +1,249 @@
+@model SchoolPortal.Web.Models.School.SchoolContactViewModel
+
+@{
+    ViewData["Title"] = "Add School Contact";
+    var schoolId = ViewBag.SchoolId ?? Model?.SchoolId;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Add New Contact</h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Index", new { schoolId })" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="SchoolId" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="FirstName" class="control-label"></label>
+                                    <input asp-for="FirstName" class="form-control" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="LastName" class="control-label"></label>
+                                    <input asp-for="LastName" class="form-control" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Email" class="control-label"></label>
+                                    <input asp-for="Email" class="form-control" type="email" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Phone" class="control-label"></label>
+                                    <input asp-for="Phone" class="form-control" />
+                                    <span asp-validation-for="Phone" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MobilePhone" class="control-label"></label>
+                                    <input asp-for="MobilePhone" class="form-control" />
+                                    <span asp-validation-for="MobilePhone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" asp-for="IsActive" />
+                                        <label class="form-check-label" asp-for="IsActive"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="AddressLine1" class="control-label"></label>
+                            <input asp-for="AddressLine1" class="form-control" />
+                            <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="AddressLine2" class="control-label"></label>
+                            <input asp-for="AddressLine2" class="form-control" />
+                            <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="CountryId" class="control-label"></label>
+                                    <select asp-for="CountryId" class="form-control select2" id="CountryId" 
+                                            data-url="@Url.Action("GetCountries", "Locations")">
+                                        <option value="">-- Select Country --</option>
+                                    </select>
+                                    <span asp-validation-for="CountryId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="StateId" class="control-label"></label>
+                                    <select asp-for="StateId" class="form-control select2" id="StateId" 
+                                            data-url="@Url.Action("GetStatesByCountry", "Locations")" 
+                                            disabled>
+                                        <option value="">-- Select State --</option>
+                                    </select>
+                                    <span asp-validation-for="StateId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="CityId" class="control-label"></label>
+                                    <select asp-for="CityId" class="form-control select2" id="CityId" 
+                                            data-url="@Url.Action("GetCitiesByState", "Locations")" 
+                                            disabled>
+                                        <option value="">-- Select City --</option>
+                                    </select>
+                                    <span asp-validation-for="CityId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create
+                            </button>
+                            <a href="@Url.Action("Index", new { schoolId })" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+
+            // Load countries on page load
+            loadCountries();
+
+            // Country change event
+            $('#CountryId').on('change', function() {
+                const countryId = $(this).val();
+                loadStates(countryId);
+                $('#StateId').val('').trigger('change');
+                $('#CityId').val('').trigger('change');
+            });
+
+            // State change event
+            $('#StateId').on('change', function() {
+                const stateId = $(this).val();
+                loadCities(stateId);
+                $('#CityId').val('').trigger('change');
+            });
+
+            function loadCountries() {
+                const $countrySelect = $('#CountryId');
+                const url = $countrySelect.data('url');
+
+                if ($countrySelect.find('option').length <= 1) {
+                    $.getJSON(url, function(data) {
+                        const options = '<option value="">-- Select Country --</option>';
+                        $.each(data, function(i, country) {
+                            options += '<option value="' + country.id + '">' + country.name + '</option>';
+                        });
+                        $countrySelect.html(options);
+                        
+                        // If we're editing, set the selected country
+                        @if (Model?.CountryId != null && Model.CountryId != Guid.Empty)
+                        {
+                            <text>
+                            $countrySelect.val('@Model.CountryId').trigger('change');
+                            </text>
+                        }
+                    });
+                }
+            }
+
+            function loadStates(countryId) {
+                const $stateSelect = $('#StateId');
+                const url = $stateSelect.data('url');
+
+                if (!countryId) {
+                    $stateSelect.empty().append('<option value="">-- Select State --</option>').prop('disabled', true);
+                    return;
+                }
+
+                $.getJSON(url + '?countryId=' + countryId, function(data) {
+                    let options = '<option value="">-- Select State --</option>';
+                    $.each(data, function(i, state) {
+                        options += '<option value="' + state.id + '">' + state.name + '</option>';
+                    });
+                    $stateSelect.html(options).prop('disabled', false);
+                    
+                    // If we're editing, set the selected state
+                    @if (Model?.StateId != null && Model.StateId != Guid.Empty)
+                    {
+                        <text>
+                        if ('@Model.CountryId' === countryId) {
+                            $stateSelect.val('@Model.StateId').trigger('change');
+                        }
+                        </text>
+                    }
+                });
+            }
+
+            function loadCities(stateId) {
+                const $citySelect = $('#CityId');
+                const url = $citySelect.data('url');
+
+                if (!stateId) {
+                    $citySelect.empty().append('<option value="">-- Select City --</option>').prop('disabled', true);
+                    return;
+                }
+
+                $.getJSON(url + '?stateId=' + stateId, function(data) {
+                    let options = '<option value="">-- Select City --</option>';
+                    $.each(data, function(i, city) {
+                        options += '<option value="' + city.id + '">' + city.name + '</option>';
+                    });
+                    $citySelect.html(options).prop('disabled', false);
+                    
+                    // If we're editing, set the selected city
+                    @if (Model?.CityId != null && Model.CityId != Guid.Empty)
+                    {
+                        <text>
+                        if ('@Model.StateId' === stateId) {
+                            $citySelect.val('@Model.CityId').trigger('change');
+                        }
+                        </text>
+                    }
+                });
+            }
+        });
+    </script>
+}

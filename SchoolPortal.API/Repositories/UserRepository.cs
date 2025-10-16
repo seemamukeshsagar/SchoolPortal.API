@@ -17,8 +17,8 @@ public class UserRepository : IUserRepository
 	{
 		return await _context.UserDetails
 			.Include(u => u.UserRole)
-			.ThenInclude(r => r.RolePrivileges.Where(rp => rp.IsActive && !rp.IsDeleted))
-			.ThenInclude(rp => rp.Privilege!)
+			.ThenInclude(r => r.RolePrivileges.Where(rp => rp.IsActive && !rp.IsDeleted && rp.Privilege != null))
+			.ThenInclude(rp => rp.Privilege)
 			.FirstOrDefaultAsync(u => u.UserName == username && !u.IsDeleted && u.IsActive);
 	}
 
@@ -53,13 +53,17 @@ public class UserRepository : IUserRepository
 
     public async Task<IList<string>> GetUserPrivilegesAsync(Guid roleId)
 	{
-		 return await _context.RolePrivileges
+		var privileges = await _context.RolePrivileges
             .Where(rp => rp.RoleId == roleId && rp.IsActive && !rp.IsDeleted)
             .Include(rp => rp.Privilege)
-            .Where(rp => rp.Privilege != null && rp.Privilege.IsActive && !rp.Privilege.IsDeleted)
-            .Select(rp => rp.Privilege.PrivilegeName!)
-            .Where(name => !string.IsNullOrEmpty(name))
+            .Where(rp => rp.Privilege != null && 
+                        rp.Privilege.IsActive && 
+                        !rp.Privilege.IsDeleted &&
+                        !string.IsNullOrEmpty(rp.Privilege.PrivilegeName))
+            .Select(rp => rp.Privilege!.PrivilegeName)
             .ToListAsync();
+
+        return privileges!;
 	}
 
 	public async Task<bool> UserExistsAsync(string username)

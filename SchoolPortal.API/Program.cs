@@ -35,11 +35,14 @@ builder.Services.AddDbContext<SchoolPortalNewContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<ISchoolRepository, SchoolRepository>();
+builder.Services.AddScoped<ISchoolContactRepository, SchoolContactRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
+builder.Services.AddScoped<ISchoolContactService, SchoolContactService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Add AutoMapper with profiles
