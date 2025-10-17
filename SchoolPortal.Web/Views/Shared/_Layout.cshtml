@@ -364,18 +364,27 @@
 					if (!response.ok) throw new Error('Failed to load profile');
 					
 					const data = await response.json();
-					if (data.success) {
-						document.getElementById('userFullName').textContent = data.fullName || 'Not available';
-						document.getElementById('userRole').textContent = data.role || 'Not specified';
-						document.getElementById('userDepartment').textContent = data.department || 'Not specified';
-						document.getElementById('userEmail').textContent = data.email || 'Not available';
-						
-						// Update avatar with first letter of first name
-						const avatar = document.querySelector('.user-avatar');
-						if (avatar && data.fullName) {
-							avatar.textContent = data.fullName.charAt(0).toUpperCase();
-						}
-					}
+                    console.log('Profile data:', data); // Debug log
+                    
+                    if (data.success) {
+                        // The user data is in the 'data' property of the response
+                        const userData = data.data || {};
+                        
+                        // Update the user information in the dropdown
+                        document.getElementById('userFullName').textContent = userData.fullName || 'Not available';
+                        document.getElementById('userRole').textContent = userData.role || 'Not specified';
+                        document.getElementById('userDepartment').textContent = userData.department || 'Not specified';
+                        document.getElementById('userEmail').textContent = userData.email || 'Not available';
+                        
+                        // Update avatar with first letter of first name
+                        const avatar = document.querySelector('.user-avatar');
+                        if (avatar && userData.fullName) {
+                            avatar.textContent = userData.fullName.charAt(0).toUpperCase();
+                        }
+                    } else {
+                        console.error('Error loading profile:', data.message || 'Unknown error');
+                        document.getElementById('userRole').textContent = data.message || 'Error loading profile';
+                    }
 				} catch (error) {
 					console.error('Error loading user profile:', error);
 					document.getElementById('userRole').textContent = 'Error loading profile';

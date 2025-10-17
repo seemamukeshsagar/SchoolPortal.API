@@ -52,6 +52,8 @@ builder.Services.AddScoped<SchoolPortal.API.Interfaces.Repositories.IClassSectio
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -67,6 +69,8 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IClassSectionService, ClassSectionService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IClassSubjectDetailRepository, ClassSubjectDetailRepository>();
+builder.Services.AddScoped<IClassSubjectDetailService, ClassSubjectDetailService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
@@ -76,6 +80,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<ClassSectionProfile>();
 	cfg.AddProfile<ClassProfile>();
 	cfg.AddProfile<SectionProfile>();
+	cfg.AddProfile<RoleProfile>();
 }, typeof(Program).Assembly);
 
 // In Program.cs (Web project)

@@ -6,35 +6,50 @@
 <div class="container-fluid py-3">
 	<h2 class="text-center mb-3">Welcome to Our School</h2>
 	<div class="row g-3 mb-4">
-		<div class="col-12 col-md-6">
+		<div class="col-12 col-md-4">
 			<img src="~/Images/SchoolMainImage1.png" alt="School Image 1" class="rounded shadow">
 		</div>
-		<div class="col-12 col-md-6">
+		<div class="col-12 col-md-4">
 			<img src="~/Images/SchoolMainImage2.png" alt="School Image 2" class="rounded shadow">
+		</div>
+		<div class="col-12 col-md-4">
+			<img src="~/Images/SchoolMainImage1.png" alt="School Image 1" class="rounded shadow">
 		</div>
 	</div>
 
 	<div class="row g-3">
 		<!-- Expense Pie Chart -->
-		<div class="col-12 col-lg-6">
+		<div class="col-12 col-md-6 col-lg-4">
 			<div class="card shadow h-100">
 				<div class="card-header bg-primary text-white py-2">
-					<h5 class="mb-0">Monthly Expenses Distribution</h5>
+					<h5 class="mb-0">Monthly Expenses</h5>
 				</div>
 				<div class="card-body p-2">
-					<canvas id="expenseChart" class="chart-canvas" width="400" height="300"></canvas>
+					<canvas id="expenseChart" class="chart-canvas" width="300" height="300"></canvas>
 				</div>
 			</div>
 		</div>
 
 		<!-- Student Bar Chart -->
-		<div class="col-12 col-lg-6">
+		<div class="col-12 col-md-6 col-lg-4">
 			<div class="card shadow h-100">
 				<div class="card-header bg-success text-white py-2">
-					<h5 class="mb-0">Students by Class & Gender</h5>
+					<h5 class="mb-0">Students by Class</h5>
 				</div>
 				<div class="card-body p-2">
-					<canvas id="studentChart" class="chart-canvas" width="400" height="300"></canvas>
+					<canvas id="studentChart" class="chart-canvas" width="300" height="300"></canvas>
+				</div>
+			</div>
+		</div>
+
+		<!-- New Attendance Line Chart -->
+		<div class="col-12 col-md-12 col-lg-4">
+			<div class="card shadow h-100">
+				<div class="card-header bg-info text-white py-2">
+					<h5 class="mb-0">Monthly Attendance</h5>
+				</div>
+				<div class="card-body p-2">
+					<canvas id="attendanceChart" class="chart-canvas" width="300" height="300"></canvas>
 				</div>
 			</div>
 		</div>
@@ -85,26 +100,18 @@
 				}
 			});
 
-			// Student Bar Chart
+			// Student Bar Chart - Simplified to single dataset
 			const studentCtx = document.getElementById('studentChart').getContext('2d');
 			new Chart(studentCtx, {
 				type: 'bar',
 				data: {
 					labels: ['Nursery', 'LKG', 'UKG', 'I', 'II', 'III', 'IV', 'V'],
-					datasets: [
-						{
-							label: 'Boys',
-							data: [25, 28, 30, 32, 35, 34, 36, 38],
-							backgroundColor: '#4e73df',
-							borderWidth: 0
-						},
-						{
-							label: 'Girls',
-							data: [23, 26, 28, 30, 32, 34, 33, 35],
-							backgroundColor: '#e74a3b',
-							borderWidth: 0
-						}
-					]
+					datasets: [{
+						label: 'Total Students',
+						data: [40, 45, 50, 55, 60, 58, 62, 65],
+						backgroundColor: '#1cc88a',
+						borderWidth: 1
+					}]
 				},
 				options: {
 					responsive: true,
@@ -131,6 +138,41 @@
 									return `${context.dataset.label}: ${context.raw} students`;
 								}
 							}
+						}
+					}
+				}
+			});
+
+			// New Attendance Line Chart
+			const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+			new Chart(attendanceCtx, {
+				type: 'line',
+				data: {
+					labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+					datasets: [{
+						label: 'Attendance %',
+						data: [85, 88, 90, 92, 91, 89, 87, 90, 92, 93, 91, 89],
+						borderColor: '#36b9cc',
+						tension: 0.3,
+						fill: false
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true,
+					scales: {
+						y: {
+							beginAtZero: false,
+							title: {
+								display: true,
+								text: 'Percentage (%)'
+							}
+						}
+					},
+					plugins: {
+						legend: {
+							display: true,
+							position: 'bottom'
 						}
 					}
 				}
