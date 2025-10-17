@@ -152,6 +152,8 @@ builder.Services.AddSingleton<ILoginAttemptService, LoginAttemptService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 
 // ---------------------------------------------------------
 // AutoMapper

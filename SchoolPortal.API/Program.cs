@@ -51,6 +51,7 @@ builder.Services.AddScoped<ISchoolContactRepository, SchoolContactRepository>();
 builder.Services.AddScoped<SchoolPortal.API.Interfaces.Repositories.IClassSectionRepository, ClassSectionRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -64,6 +65,7 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IClassSectionService, ClassSectionService>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
