@@ -66,6 +66,7 @@ builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IClassSectionService, ClassSectionService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IClassSubjectDetailRepository, ClassSubjectDetailRepository>();
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>

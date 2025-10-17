@@ -1201,12 +1201,13 @@ public partial class SchoolPortalNewContext : DbContext
 				.IsUnicode(false);
 			entity.Property(e => e.StatusMessage).HasMaxLength(255);
 
-			entity.HasOne(d => d.ClassMaster).WithMany(p => p.ClassSubjectDetails)
-				.HasForeignKey(d => d.ClassMasterId)
+            entity.HasOne(d => d.ClassMaster)
+				.WithMany(p => p.ClassSubjectDetails)
+				.HasForeignKey(d => d.ClassId)
 				.OnDelete(DeleteBehavior.ClientSetNull)
 				.HasConstraintName("FK_ClassSubjectDetail_ClassMaster");
 
-			entity.HasOne(d => d.Company).WithMany(p => p.ClassSubjectDetails)
+            entity.HasOne(d => d.Company).WithMany(p => p.ClassSubjectDetails)
 				.HasForeignKey(d => d.CompanyId)
 				.OnDelete(DeleteBehavior.ClientSetNull)
 				.HasConstraintName("FK_ClassSubjectDetail_CompanyId");

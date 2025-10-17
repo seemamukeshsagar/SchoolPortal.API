@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace SchoolPortal.API.Models;
 
 public partial class ClassSubjectDetail
 {
+    [Key]
     public Guid Id { get; set; }
-
-    public Guid ClassMasterId { get; set; }
-
+    
+    [Required]
+    public Guid ClassId { get; set; }
+    
+    [Required]
     public Guid SubjectId { get; set; }
 
+    [Display(Name = "Is Active")]
     public bool IsActive { get; set; }
 
     public bool IsDeleted { get; set; }
@@ -27,8 +32,12 @@ public partial class ClassSubjectDetail
 
     public DateTime? ModifiedDate { get; set; }
 
+    [Required]
+    [StringLength(50)]
+    [Display(Name = "Status Message")]
     public string? Status { get; set; }
 
+    [StringLength(500)]
     public string? StatusMessage { get; set; }
 
     public virtual ClassMaster ClassMaster { get; set; } = null!;

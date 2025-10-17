@@ -1,0 +1,68 @@
+@* SchoolPortal.Web/Views/ClassSubjectDetail/Edit.cshtml *@
+@using SchoolPortal.API.DTOs.ClassSubjectDetail
+@model UpdateClassSubjectDetailRequest
+@{
+    ViewData["Title"] = "Edit Class Subject Detail";
+}
+
+<div class="container-fluid">
+    <h1>Edit Class Subject Detail</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-group form-check mb-3">
+                    <input class="form-check-input" asp-for="IsActive" />
+                    <label class="form-check-label" asp-for="IsActive"></label>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Status" class="control-label"></label>
+                    <input asp-for="Status" class="form-control" />
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="StatusMessage" class="control-label"></label>
+                    <textarea asp-for="StatusMessage" class="form-control"></textarea>
+                    <span asp-validation-for="StatusMessage" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Add custom validation for dropdowns
+        $.validator.addMethod('notDefault', function (value, element, param) {
+            return value !== '';
+        }, 'Please select a valid option.');
+
+        $('form').validate({
+            rules: {
+                ClassId: {
+                    notDefault: true
+                },
+                SubjectId: {
+                    notDefault: true
+                }
+            }
+        });
+    </script>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
