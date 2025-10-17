@@ -71,4 +71,63 @@ public class UserRepository : IUserRepository
 		return await _context.UserDetails
 			.AnyAsync(u => u.UserName == username && !u.IsDeleted && u.IsActive);
 	}
+
+	public async Task<UserDetail?> GetUserForLoginAsync(string username)
+	{
+		return await _context.UserDetails
+			.Where(u => u.UserName == username && !u.IsDeleted && u.IsActive)
+			.Select(u => new UserDetail
+			{
+				Id = u.Id,
+				UserName = u.UserName,
+				EmailAddress = u.EmailAddress,
+				FirstName = u.FirstName,
+				LastName = u.LastName,
+				//PasswordHash = u.UserPassword, // This should be a hashed password
+				IsActive = u.IsActive,
+				IsDeleted = u.IsDeleted,
+				UserRoleId = u.UserRoleId
+			})
+			.FirstOrDefaultAsync(u => u.UserName == username && !u.IsDeleted && u.IsActive);
+	}
+
+	public async Task<UserDetail?> GetUserByIdAsync(Guid userId)
+	{
+		return await _context.UserDetails
+			.Where(u => u.Id == userId && !u.IsDeleted && u.IsActive)
+			.Select(u => new UserDetail
+			{
+				Id = u.Id,
+				UserName = u.UserName,
+				EmailAddress = u.EmailAddress,
+				FirstName = u.FirstName,
+				LastName = u.LastName,
+				IsActive = u.IsActive,
+				IsDeleted = u.IsDeleted,
+				UserRoleId = u.UserRoleId
+			})
+			.FirstOrDefaultAsync();
+	}
+
+	public async Task<(List<string> Roles, List<string> Privileges)> GetUserRolesAndPrivilegesAsync(Guid userId)
+	{
+		var result = await _context.UserDetails
+			.Where(u => u.Id == userId)
+			.Select(u => new
+			{
+				Roles = u.UserRole != null ? new[] { u.UserRole.Name ?? "User" } : Array.Empty<string>(),
+				Privileges = u.UserRole.RolePrivileges
+					.Where(rp => rp.IsActive && !rp.IsDeleted && 
+								rp.Privilege != null && 
+								rp.Privilege.IsActive && 
+								!rp.Privilege.IsDeleted)
+					.Select(rp => rp.Privilege.PrivilegeName)
+					.Where(name => !string.IsNullOrEmpty(name))
+					.ToList()
+			})
+			.FirstOrDefaultAsync();
+
+		return (result?.Roles?.ToList() ?? new List<string>(), 
+				result?.Privileges ?? new List<string>());
+	}
 }

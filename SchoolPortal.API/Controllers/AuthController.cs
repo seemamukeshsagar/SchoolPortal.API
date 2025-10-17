@@ -1,87 +1,139 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolPortal.API.DTOs.Auth;
 using SchoolPortal.API.Interfaces.Services;
+using SchoolPortal.API.Models;
 
-namespace SchoolPortal.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+namespace SchoolPortal.API.Controllers
 {
-	private readonly IAuthService _authService;
-	private readonly ILogger<AuthController> _logger;
-
-	public AuthController(IAuthService authService, ILogger<AuthController> logger)
+	public class AuthController : ControllerBase
 	{
-		_authService = authService;
-		_logger = logger;
-	}
+		private readonly IAuthService _authService;
+		private readonly ILogger<AuthController> _logger;
 
-	[HttpPost("login")]
-	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
-	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<IActionResult> Login([FromBody] LoginRequest request)
-	{
-		try
+		public AuthController(IAuthService authService, ILogger<AuthController> logger)
 		{
-			if (!ModelState.IsValid)
+			_authService = authService;
+			_logger = logger;
+		}
+
+		[HttpPost("login")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> Login([FromBody] LoginRequest request)
+		{
+			try
 			{
-				return BadRequest(ModelState);
+				if (!ModelState.IsValid)
+				{
+					return BadRequest(ModelState);
+				}
+
+				var response = await _authService.LoginAsync(request);
+				return Ok(response);
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				_logger.LogWarning(ex, "Authentication failed for user: {Username}", request.Username);
+				return Unauthorized(new { message = ex.Message });
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "An error occurred during authentication for user: {Username}", request.Username);
+				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request." });
+			}
+		}
+
+		[HttpPost("validate-token")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> ValidateToken([FromBody] string token)
+		{
+			try
+			{
+				var isValid = await _authService.ValidateTokenAsync(token);
+				return isValid ? Ok() : Unauthorized();
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error validating token");
+				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while validating the token." });
+			}
+		}
+
+		[HttpGet("check-username/{username}")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> CheckUsernameExists(string username)
+		{
+			if (string.IsNullOrWhiteSpace(username))
+			{
+				return BadRequest(new { message = "Username is required" });
 			}
 
-			var response = await _authService.LoginAsync(request);
-			return Ok(response);
-		}
-		catch (UnauthorizedAccessException ex)
-		{
-			_logger.LogWarning(ex, "Authentication failed for user: {Username}", request.Username);
-			return Unauthorized(new { message = ex.Message });
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "An error occurred during authentication for user: {Username}", request.Username);
-			return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request." });
-		}
-	}
-
-	[HttpPost("validate-token")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-	public async Task<IActionResult> ValidateToken([FromBody] string token)
-	{
-		try
-		{
-			var isValid = await _authService.ValidateTokenAsync(token);
-			return isValid ? Ok() : Unauthorized();
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error validating token");
-			return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while validating the token." });
-		}
-	}
-
-	[HttpGet("check-username/{username}")]
-	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public async Task<IActionResult> CheckUsernameExists(string username)
-	{
-		if (string.IsNullOrWhiteSpace(username))
-		{
-			return BadRequest(new { message = "Username is required" });
+			try
+			{
+				var exists = await _authService.UserExistsAsync(username);
+				return Ok(new { exists });
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error checking if username exists: {Username}", username);
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new { message = "An error occurred while checking username availability." });
+			}
 		}
 
-		try
+		[HttpGet("profile")]
+		[Authorize]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserProfileDto))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetUserProfile()
 		{
-			var exists = await _authService.UserExistsAsync(username);
-			return Ok(new { exists });
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error checking if username exists: {Username}", username);
-			return StatusCode(StatusCodes.Status500InternalServerError,
-				new { message = "An error occurred while checking username availability." });
+			try
+			{
+				// Get the user's ID from the token
+				var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+				if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+				{
+					_logger.LogWarning("Invalid or missing user ID in token");
+					return Unauthorized(new { message = "Invalid or missing user ID in token" });
+				}
+
+				// Get the user from the repository
+				var user = await _authService.GetUserByIdAsync(userId);
+				if (user == null)
+				{
+					_logger.LogWarning("User not found with ID: {UserId}", userId);
+					return NotFound(new { message = "User not found" });
+				}
+
+				// Get user roles and privileges
+				var (roles, privileges) = await _authService.GetUserRolesAndPrivilegesAsync(userId);
+
+				// Map to DTO
+				var profile = new UserProfileDto
+				{
+					Id = user.Id,
+					UserName = user.UserName ?? string.Empty,
+					EmailAddress = user.EmailAddress ?? string.Empty,
+					FirstName = user.FirstName,
+					LastName = user.LastName,
+					Roles = roles,
+					Privileges = privileges
+				};
+
+				return Ok(profile);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error loading user profile");
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new { message = "An error occurred while loading the user profile." });
+			}
 		}
 	}
 }
