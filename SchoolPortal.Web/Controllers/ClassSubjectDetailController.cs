@@ -75,7 +75,14 @@ namespace SchoolPortal.Web.Controllers
 
             try
             {
-                request.CreatedBy = Guid.Parse(HttpContext.Session.GetString("UserId"));
+                var userId = HttpContext.Session.GetString("UserId");
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ModelState.AddModelError("", "User session is invalid. Please log in again.");
+                    await PopulateDropdowns();
+                    return View(request);
+                }
+                request.CreatedBy = Guid.Parse(userId);
                 await _classSubjectDetailService.CreateClassSubjectDetailAsync(request);
                 TempData["SuccessMessage"] = "Class subject detail created successfully.";
                 return RedirectToAction(nameof(Index));
@@ -127,7 +134,14 @@ namespace SchoolPortal.Web.Controllers
 
             try
             {
-                request.ModifiedBy = Guid.Parse(HttpContext.Session.GetString("UserId"));
+                var userId = HttpContext.Session.GetString("UserId");
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ModelState.AddModelError("", "User session is invalid. Please log in again.");
+                    await PopulateDropdowns();
+                    return View(await _classSubjectDetailService.GetClassSubjectDetailByIdAsync(id));
+                }
+                request.ModifiedBy = Guid.Parse(userId);
                 await _classSubjectDetailService.UpdateClassSubjectDetailAsync(id, request);
                 TempData["SuccessMessage"] = "Class subject detail updated successfully.";
                 return RedirectToAction(nameof(Index));

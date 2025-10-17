@@ -350,12 +350,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5cm9sbFxWaWV3UGF5bWVudE1vZGVzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/MyWorkSpace/SchoolPortal/SchoolPortal.Web/Views/Privileges/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlc1xDcmVhdGUuY3NodG1s
+[C:/MyWorkSpace/SchoolPortal/SchoolPortal.Web/Views/Privilege/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/MyWorkSpace/SchoolPortal/SchoolPortal.Web/Views/Privileges/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlc1xJbmRleC5jc2h0bWw=
+[C:/MyWorkSpace/SchoolPortal/SchoolPortal.Web/Views/Privilege/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/MyWorkSpace/SchoolPortal/SchoolPortal.Web/Views/Privilege/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/MyWorkSpace/SchoolPortal/SchoolPortal.Web/Views/Professions/Create.cshtml]

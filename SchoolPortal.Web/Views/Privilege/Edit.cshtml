@@ -1,0 +1,46 @@
+@using SchoolPortal.Web.Models.Privilege
+@model EditPrivilegeViewModel
+
+@{
+    ViewData["Title"] = "Edit Privilege";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Edit Privilege</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ParentPrivilegeId" class="control-label"></label>
+                <select asp-for="ParentPrivilegeId" class="form-control" asp-items="ViewBag.ParentPrivileges">
+                    <option value="">-- Select Parent Privilege --</option>
+                </select>
+                <span asp-validation-for="ParentPrivilegeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <input class="form-check-input" asp-for="IsActive" />
+                <label class="form-check-label" asp-for="IsActive"></label>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -8,7 +8,7 @@ namespace SchoolPortal.Web.Models.Role
         [Required(ErrorMessage = "Name is required")]
         [StringLength(100, ErrorMessage = "Name cannot be longer than 100 characters")]
         [Display(Name = "Role Name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [StringLength(500, ErrorMessage = "Description cannot be longer than 500 characters")]
         public string? Description { get; set; }

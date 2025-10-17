@@ -53,7 +53,8 @@ builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
+builder.Services.AddScoped<IPrivilegeRepository, PrivilegeRepository>();
+builder.Services.AddScoped<IPrivilegeService, PrivilegeService>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -71,6 +72,8 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IClassSubjectDetailRepository, ClassSubjectDetailRepository>();
 builder.Services.AddScoped<IClassSubjectDetailService, ClassSubjectDetailService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPrivilegeService, PrivilegeService>();
+
 
 // Add AutoMapper with profiles
 builder.Services.AddAutoMapper(cfg =>
@@ -81,6 +84,7 @@ builder.Services.AddAutoMapper(cfg =>
 	cfg.AddProfile<ClassProfile>();
 	cfg.AddProfile<SectionProfile>();
 	cfg.AddProfile<RoleProfile>();
+	cfg.AddProfile<PrivilegeProfile>();
 }, typeof(Program).Assembly);
 
 // In Program.cs (Web project)
